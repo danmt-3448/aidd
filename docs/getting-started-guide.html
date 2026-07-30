@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIDD — Hướng dẫn cho người mới | Gen Code từ Figma + MoMorph với Takumi</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2230; --border:#2d3646;
+    --text:#e6edf3; --muted:#9aa7b5; --accent:#58a6ff; --accent2:#7ee787;
+    --track-a:#f0883e; --track-b:#a371f7; --warn:#f2cc60; --danger:#ff7b72;
+    --radius:14px; --mono:'SF Mono',ui-monospace,'Cascadia Code',Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.65;font-size:16px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+
+  /* Hero */
+  header.hero{background:linear-gradient(135deg,#1a2332 0%,#0d1117 60%);border-bottom:1px solid var(--border);padding:64px 0 52px}
+  .badge{display:inline-block;font-family:var(--mono);font-size:12px;letter-spacing:.5px;color:var(--accent2);border:1px solid var(--border);background:var(--panel);padding:5px 12px;border-radius:999px;margin-bottom:18px}
+  h1{font-size:40px;line-height:1.15;letter-spacing:-.5px;margin-bottom:14px}
+  h1 .grad{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{color:var(--muted);font-size:18px;max-width:760px}
+  .pipeline{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:26px;font-family:var(--mono);font-size:14px}
+  .pipeline .chip{background:var(--panel);border:1px solid var(--border);padding:8px 14px;border-radius:10px}
+  .pipeline .arrow{color:var(--accent);font-size:18px}
+
+  /* Nav */
+  nav.toc{position:sticky;top:0;z-index:10;background:rgba(13,17,23,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+  nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;padding:12px 22px}
+  nav.toc a{color:var(--muted);text-decoration:none;font-size:13px;padding:6px 11px;border-radius:8px;transition:.15s}
+  nav.toc a:hover{color:var(--text);background:var(--panel)}
+
+  section{padding:48px 0;border-bottom:1px solid var(--border)}
+  h2{font-size:27px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+  h2 .num{font-family:var(--mono);font-size:15px;color:var(--accent);border:1px solid var(--border);border-radius:8px;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+  .sub{color:var(--muted);margin-bottom:26px;font-size:15px}
+  h3{font-size:19px;margin:26px 0 12px}
+  p{margin-bottom:12px}
+  a.link{color:var(--accent);text-decoration:none}
+  a.link:hover{text-decoration:underline}
+
+  /* Cards */
+  .grid{display:grid;gap:16px}
+  .grid.g2{grid-template-columns:repeat(2,1fr)}
+  .grid.g3{grid-template-columns:repeat(3,1fr)}
+  .grid.g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+  .card h4{font-size:16px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card p{color:var(--muted);font-size:14px;margin:0}
+  .card .tag{font-family:var(--mono);font-size:12px;color:var(--accent2)}
+
+  /* Tables */
+  table{width:100%;border-collapse:collapse;margin:8px 0 4px;font-size:14.5px;overflow:hidden;border-radius:12px;border:1px solid var(--border)}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{background:var(--panel2);color:var(--text);font-weight:600;font-size:13px;letter-spacing:.3px}
+  tr:last-child td{border-bottom:none}
+  td code,p code,li code{font-family:var(--mono);font-size:13px;background:#0b0f16;border:1px solid var(--border);padding:1px 6px;border-radius:6px;color:var(--accent2)}
+  .must{color:var(--danger);font-weight:700;font-family:var(--mono);font-size:12px}
+  .opt{color:var(--muted);font-family:var(--mono);font-size:12px}
+
+  /* Code block */
+  pre{background:#0b0f16;border:1px solid var(--border);border-radius:12px;padding:16px 18px;overflow-x:auto;margin:12px 0;font-family:var(--mono);font-size:13.5px;line-height:1.7}
+  pre .c{color:var(--muted)}
+  pre .k{color:var(--accent)}
+  pre .s{color:var(--accent2)}
+
+  /* Flow diagram */
+  .flow{margin:18px 0}
+  .flow-step{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin:0 auto;max-width:560px;text-align:center}
+  .flow-step .st{font-family:var(--mono);font-size:12px;color:var(--accent)}
+  .flow-step b{font-size:15px}
+  .flow-step small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+  .flow-arrow{text-align:center;color:var(--accent);font-size:22px;line-height:1;margin:6px 0}
+  .tracks{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:6px 0}
+  .track{border-radius:14px;padding:2px}
+  .track.a{background:linear-gradient(160deg,var(--track-a),transparent 70%)}
+  .track.b{background:linear-gradient(160deg,var(--track-b),transparent 70%)}
+  .track-inner{background:var(--panel);border-radius:12px;padding:16px 18px;height:100%}
+  .track-inner .thead{font-family:var(--mono);font-size:13px;font-weight:700;margin-bottom:10px}
+  .track.a .thead{color:var(--track-a)}
+  .track.b .thead{color:var(--track-b)}
+  .track-inner ol{margin-left:18px;font-size:13.5px;color:var(--muted)}
+  .track-inner ol li{margin-bottom:6px}
+  .track-inner ol li b{color:var(--text)}
+  .merge{background:var(--panel2);border:1px dashed var(--border);border-radius:12px;padding:14px 18px;text-align:center;margin:6px 0}
+  .merge b{color:var(--accent2)}
+
+  /* callouts */
+  .callout{border-left:4px solid var(--accent);background:var(--panel);border-radius:0 12px 12px 0;padding:14px 18px;margin:16px 0;font-size:14.5px}
+  .callout.warn{border-color:var(--warn)}
+  .callout.danger{border-color:var(--danger)}
+  .callout b{color:var(--text)}
+  .callout .ic{font-weight:700;margin-right:6px}
+
+  .steps-num{counter-reset:s;list-style:none;margin:14px 0}
+  .steps-num li{position:relative;padding:12px 12px 12px 52px;background:var(--panel);border:1px solid var(--border);border-radius:12px;margin-bottom:10px}
+  .steps-num li::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:12px;width:26px;height:26px;background:var(--accent);color:#0d1117;border-radius:8px;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:var(--mono)}
+  .steps-num li b{color:var(--text)}
+  .steps-num li span{color:var(--muted);font-size:14px}
+
+  footer{padding:34px 0 60px;color:var(--muted);font-size:13px;text-align:center}
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:6px;border:1px solid var(--border)}
+  .pill.a{color:var(--track-a)} .pill.b{color:var(--track-b)}
+
+  @media(max-width:820px){
+    .grid.g2,.grid.g3,.grid.g4{grid-template-columns:1fr}
+    .tracks{grid-template-columns:1fr}
+    h1{font-size:30px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">SAA 2025 · Internal · AIDD Hands-on</span>
+    <h1>Gen Code từ <span class="grad">Figma + MoMorph</span><br>với Takumi &amp; Claude Code</h1>
+    <p class="lead">Hướng dẫn dành cho người mới: hiểu quy trình biến <b>Design (Figma)</b> + <b>Screen Spec (MoMorph)</b> thành <b>source code hoàn thiện</b> — UI chuẩn pixel, logic đúng spec, kèm Unit &amp; E2E test theo TDD.</p>
+    <div class="pipeline">
+      <span class="chip">🎨 Figma Design</span>
+      <span class="arrow">+</span>
+      <span class="chip">📋 MoMorph Spec</span>
+      <span class="arrow">→</span>
+      <span class="chip">🤖 Takumi + Claude Code</span>
+      <span class="arrow">→</span>
+      <span class="chip">💻 Source Code + Tests</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#what">1· AIDD là gì</a>
+    <a href="#glossary">2· Thuật ngữ</a>
+    <a href="#stack">3· Tech Stack</a>
+    <a href="#scenarios">4· 4 Scenario</a>
+    <a href="#flow">5· Flow implement</a>
+    <a href="#skills">6· Skill từng step</a>
+    <a href="#dod">7· Definition of Done</a>
+    <a href="#start">8· Bắt đầu</a>
+  </div>
+</nav>
+
+<!-- 1 -->
+<section id="what"><div class="wrap">
+  <h2><span class="num">1</span> AIDD là gì?</h2>
+  <p class="sub">Mục tiêu chính: dùng bộ công cụ <b>Takumi Agent Kit</b> phối hợp <b>Claude Code</b> để chuyển Design + Spec thành code.</p>
+  <div class="grid g2">
+    <div class="card">
+      <h4>🎯 Input → Output</h4>
+      <p><b>Input:</b> Design trên Figma + Screen Specs trên MoMorph.<br><b>Output:</b> Source code hoàn thiện (UI + logic + test).</p>
+    </div>
+    <div class="card">
+      <h4>📐 Nguồn sự thật (source of truth)</h4>
+      <p><b>Figma</b> = chuẩn cho <b>UI</b> (màu, spacing, size — không đoán).<br><b>MoMorph Spec</b> = chuẩn cho <b>logic</b> (validation, flow, error state).</p>
+    </div>
+  </div>
+  <h3>Các use case mở rộng (khuyến khích thử)</h3>
+  <div class="grid g4">
+    <div class="card"><h4>🧩 MoMorph Support</h4><p>Gen UI specs &amp; test cases tự động lên MoMorph.</p></div>
+    <div class="card"><h4>🔄 Reverse Engineering</h4><p>Gen ngược tài liệu spec từ source code dự án cũ.</p></div>
+    <div class="card"><h4>⚡ Pre-project</h4><p>Tăng tốc Estimate &amp; làm Prototype khi bidding.</p></div>
+    <div class="card"><h4>🛠️ Customization</h4><p>Tự thiết kế Agent / Flow riêng cho bài toán đặc thù.</p></div>
+  </div>
+</div></section>
+
+<!-- 2 -->
+<section id="glossary"><div class="wrap">
+  <h2><span class="num">2</span> Thuật ngữ cần biết</h2>
+  <p class="sub">Đọc nhanh phần này trước — mọi chỗ sau đều dùng lại các từ này.</p>
+  <table>
+    <tr><th style="width:180px">Thuật ngữ</th><th>Ý nghĩa</th></tr>
+    <tr><td><b>MoMorph</b></td><td>Nền tảng lưu <b>Screen Spec</b> (mô tả màn hình) + <b>Test Case</b>, đồng bộ từ Figma. Là nguồn sự thật cho logic.</td></tr>
+    <tr><td><b>Takumi (匠)</b></td><td>Bộ "Agent Kit" — tập hợp các <b>skill</b> (slash command) và <b>agent</b> chạy trên Claude Code, dẫn dắt cả vòng đời code: nghiên cứu → plan → code → test → review → commit.</td></tr>
+    <tr><td><b>MCP</b></td><td><i>Model Context Protocol</i> — cầu nối để Claude Code đọc trực tiếp design/spec/test case từ MoMorph server (không copy-paste tay).</td></tr>
+    <tr><td><code>fileKey</code></td><td>ID của file Figma. Dự án này: <code>9ypp4enmFmdK3YAFJLIu6C</code>.</td></tr>
+    <tr><td><code>screenId</code></td><td>ID của 1 màn hình cụ thể trong file. Ví dụ Login = <code>GzbNeVGJHz</code>.</td></tr>
+    <tr><td><b>URL màn hình</b></td><td><code>https://momorph.ai/files/{fileKey}/screens/{screenId}</code></td></tr>
+    <tr><td><b>Skill / Agent</b></td><td><b>Skill</b> = lệnh gọi dạng <code>/tkm:...</code>. <b>Agent</b> = "nhân sự ảo" (planner, tester, reviewer...) được skill điều phối để làm 1 việc.</td></tr>
+    <tr><td><b>Discipline</b></td><td>Chế độ chạy của Takumi: <code>--interactive</code> (mặc định, dừng chờ duyệt), <code>--fast</code>, <code>--auto</code>, <code>--parallel</code>, <code>--no-test</code>.</td></tr>
+  </table>
+</div></section>
+
+<!-- 3 -->
+<section id="stack"><div class="wrap">
+  <h2><span class="num">3</span> Tech Stack của dự án</h2>
+  <p class="sub">Đã chốt và ghi trong <code>CLAUDE.md</code> ở gốc project — Claude Code đọc file này để gen code nhất quán.</p>
+  <table>
+    <tr><th style="width:220px">Hạng mục</th><th>Lựa chọn</th></tr>
+    <tr><td>Framework</td><td>Next.js (App Router) + React + TypeScript</td></tr>
+    <tr><td>Styling</td><td>Tailwind CSS</td></tr>
+    <tr><td>UI components</td><td>shadcn/ui (trên nền Radix, copy-in)</td></tr>
+    <tr><td>Data fetching</td><td>TanStack Query (server state)</td></tr>
+    <tr><td>Client state</td><td>Zustand</td></tr>
+    <tr><td>Backend / Auth</td><td>Supabase (local project)</td></tr>
+    <tr><td>Unit test</td><td>Vitest</td></tr>
+    <tr><td>E2E test</td><td>Playwright</td></tr>
+  </table>
+  <div class="callout warn"><span class="ic">⚠️</span> Hiện chỉ mới cài <code>next</code>, <code>react</code>, <code>react-dom</code>. Các package trên chỉ cài <b>khi màn nào cần đến</b> — giữ <code>package.json</code> gọn, đúng thực tế.</div>
+</div></section>
+
+<!-- 4 -->
+<section id="scenarios"><div class="wrap">
+  <h2><span class="num">4</span> Chọn đúng Scenario (quan trọng!)</h2>
+  <p class="sub">Tùy độ phức tạp mà chọn 1 trong 4 cách. Đừng dùng dao mổ trâu để cắt tiết gà.</p>
+  <div class="grid g2">
+    <div class="card">
+      <h4><span class="tag">Scenario 1</span> Simple / medium feature</h4>
+      <p style="margin-bottom:10px">Scope rõ, vài phút → 1–2 ngày, không cần review plan trước.</p>
+      <pre><span class="k">/tkm:takumi</span> &lt;MoMorph Screen URLs&gt;</pre>
+      <p>Takumi đọc spec + test case, hỏi phần mơ hồ, viết code khớp pattern project. Reviewer tự chạy. <b>1 command → 1 PR.</b></p>
+    </div>
+    <div class="card">
+      <h4><span class="tag">Scenario 2</span> Complex feature</h4>
+      <p style="margin-bottom:10px">Subsystem mới, nhiều màn, chạm core infra — cần review scope trước.</p>
+      <pre><span class="k">/tkm:create-plan</span> &lt;URLs&gt;   <span class="c"># tạo plan</span>
+<span class="c"># review, chỉnh sửa...</span>
+<span class="k">/tkm:takumi</span> plans/.../plan.md</pre>
+      <p>Chia feature thành nhiều phase có acceptance criteria, thực thi từng phase kèm checkpoint.</p>
+    </div>
+    <div class="card">
+      <h4><span class="tag">Scenario 3</span> UI only</h4>
+      <p style="margin-bottom:10px">Chỉ cần biến design thành UI component — không backend, không logic.</p>
+      <pre><span class="k">/momorph-implement-design</span> &lt;URLs&gt;</pre>
+      <p>Đọc design qua MCP, lấy visual chính xác (không đoán), gen UI với mock data từ chính design, chạy visual validation loop tới khi khớp.</p>
+    </div>
+    <div class="card">
+      <h4><span class="tag">Scenario 4</span> Fix a bug</h4>
+      <p style="margin-bottom:10px">Code màn đang có bug — UI/logic sai, thiếu validation, hoặc spec đã update mà code chưa theo.</p>
+      <pre><span class="k">/tkm:fix-bug</span> &lt;mô tả bug&gt; &lt;URL&gt;</pre>
+      <p>Diff code với design + spec + test case → xác định <code>file:line</code> lệch → patch tối thiểu → chạy lại test verify trước khi commit.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 5 -->
+<section id="flow"><div class="wrap">
+  <h2><span class="num">5</span> Flow implement (khi gọi <code>/tkm:takumi</code>)</h2>
+  <p class="sub">Điểm đặc biệt của MoMorph: <b>UI và Logic chạy song song 2 track</b>, không chờ nhau.</p>
+
+  <div class="flow">
+    <div class="flow-step"><span class="st">① DETECT &amp; RESOLVE</span><b>Tách <code>fileKey</code> + <code>screenId</code> từ URL</b></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><span class="st">② FETCH — song song, qua MCP</span><b>get_frame · download_specs · download_test_cases</b><small>Ngay khi xong → tách 2 track chạy song song</small></div>
+    <div class="flow-arrow">↓</div>
+
+    <div class="tracks">
+      <div class="track a"><div class="track-inner">
+        <div class="thead">🎨 TRACK A — UI (subagent nền)</div>
+        <ol>
+          <li>Đọc design qua MCP</li>
+          <li><b>Lấy visual CHÍNH XÁC</b> — không đoán màu / px</li>
+          <li>Mock data <b>lấy từ Figma</b></li>
+          <li>Dựng component (shadcn + Tailwind)</li>
+          <li><b>Visual validation loop</b> so Figma reference</li>
+        </ol>
+      </div></div>
+      <div class="track b"><div class="track-inner">
+        <div class="thead">⚙️ TRACK B — Logic (main thread)</div>
+        <ol>
+          <li>③ <b>Deep-read</b> spec + test case (từng dòng)</li>
+          <li>④ <b>Cross-ref</b> → tìm gap (error, validation, navigation, empty/loading...)</li>
+          <li>⑤ <b>Clarify</b> → ghi <code>clarifications.md</code></li>
+          <li>⑥ <b>Plan</b> backend (API, data model, Supabase)</li>
+          <li>⑦ <b>Implement</b> backend / logic</li>
+        </ol>
+      </div></div>
+    </div>
+
+    <div class="flow-arrow">↓</div>
+    <div class="merge"><b>⑧ INTEGRATION</b> — không có merge cứng. Track A xong màn nào → thay mock data bằng Supabase thật, nối event handler, wire TanStack Query + Zustand.</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><span class="st">⑨ TESTING (TDD)</span><b>Vitest (unit) + Playwright (E2E)</b><small>chạy theo test cases MoMorph</small></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><span class="st">⑩ INSPECTION</span><b>Reviewer agent (tự động)</b></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><span class="st">⑪ DELIVERY</span><b>1 command → 1 PR</b></div>
+  </div>
+
+  <div class="callout danger"><span class="ic">🚧</span> <b>Gate ⑤ Clarification là cửa chặn bắt buộc.</b> Takumi PHẢI dừng hỏi bạn trước khi code logic — <b>không được đoán</b>. Câu trả lời được ghi vào <code>clarifications.md</code> và không hỏi lại.</div>
+  <div class="callout"><span class="ic">🧵</span> <b>Nhiều màn (N screens):</b> Track A spawn <b>N subagent nền song song</b> (mỗi màn 1 agent, không share state). Track B ở main thread xử lý clarify → plan → backend cho từng màn.</div>
+</div></section>
+
+<!-- 6 -->
+<section id="skills"><div class="wrap">
+  <h2><span class="num">6</span> Skill / Agent dùng ở từng step</h2>
+  <p class="sub">Rule định nghĩa rõ — nguồn: bảng "Workshop Delegation" trong <code>takumi/SKILL.md</code> + <code>momorph-development.md</code>.</p>
+  <table>
+    <tr><th>Step</th><th>Skill / Agent</th><th style="width:90px">Bắt buộc</th></tr>
+    <tr><td>Study (đọc codebase)</td><td><code>researcher</code> + skill <code>tkm:scan-codebase</code></td><td><span class="opt">optional</span></td></tr>
+    <tr><td>① Detect · ② Fetch</td><td>MoMorph <b>MCP tools</b>: <code>get_frame</code>, <code>download_specs</code>, <code>download_test_cases</code></td><td><span class="must">✓</span></td></tr>
+    <tr><td>③④⑤ Clarify</td><td>Orchestrator (main thread) + <code>AskUserQuestion</code></td><td><span class="must">✓ GATE</span></td></tr>
+    <tr><td>Blueprint (plan)</td><td><code>planner</code> agent</td><td><span class="opt">optional</span></td></tr>
+    <tr><td><span class="pill a">Track A</span> UI craft</td><td><code>implementer</code> agent (nền, 1/màn) → skill <code>momorph-implement-design</code></td><td><span class="must">✓ nếu MoMorph</span></td></tr>
+    <tr><td><span class="pill b">Track B</span> ⑥⑦ backend</td><td>Orchestrator (main thread)</td><td><span class="must">✓</span></td></tr>
+    <tr><td>⑨ Tempering (test)</td><td><code>tester</code> + <code>debugger</code> agent</td><td><span class="must">MUST</span></td></tr>
+    <tr><td>⑩ Inspection (review)</td><td><code>reviewer</code> agent</td><td><span class="must">MUST</span></td></tr>
+    <tr><td>⑪ Delivery (PR)</td><td><code>project-manager</code> + <code>doc-writer</code> + <code>git-manager</code></td><td><span class="must">MUST cả 3</span></td></tr>
+    <tr><td>Cuối phiên</td><td>skill <code>/tkm:write-journal</code></td><td><span class="must">✓</span></td></tr>
+  </table>
+
+  <h3>Skill "cắm thêm" khi cần</h3>
+  <div class="grid g2">
+    <div class="card"><h4>📚 <code>tkm:search-docs</code></h4><p>Cần docs library mới nhất (qua context7).</p></div>
+    <div class="card"><h4>🧠 <code>tkm:think-sequential</code> / <code>debug-code</code></h4><p>Suy luận từng bước, gỡ lỗi phức tạp.</p></div>
+    <div class="card"><h4>🧪 <code>generate-testcases</code> / <code>generate-ui-specs</code></h4><p>Use case "MoMorph Support" — gen ngược test case / UI spec lên MoMorph.</p></div>
+    <div class="card"><h4>📊 <code>preview-output</code></h4><p>Vẽ diagram / giải thích trực quan (như file guide này).</p></div>
+  </div>
+
+  <div class="callout danger"><span class="ic">🔒</span> <b>Enforcement (takumi/SKILL.md):</b> Stage test / review / delivery <b>MUST</b> spawn subagent qua Task tool — <b>không được tự làm thay</b>. Nếu workflow kết thúc với 0 lần gọi Task tool → công việc <b>CHƯA hoàn thành</b>.</div>
+</div></section>
+
+<!-- 7 -->
+<section id="dod"><div class="wrap">
+  <h2><span class="num">7</span> Definition of Done</h2>
+  <p class="sub">Một bài thực hành đạt chuẩn phải đủ 3 tiêu chí:</p>
+  <div class="grid g3">
+    <div class="card"><h4>🎨 UI</h4><p>Chính xác tuyệt đối so với Design Figma (pixel-perfect).</p></div>
+    <div class="card"><h4>⚙️ Logic</h4><p>Hoạt động đúng theo Screen Specs trên MoMorph.</p></div>
+    <div class="card"><h4>✅ Quality</h4><p>Đầy đủ Unit Test + E2E Test theo quy trình TDD.</p></div>
+  </div>
+</div></section>
+
+<!-- 8 -->
+<section id="start"><div class="wrap">
+  <h2><span class="num">8</span> Bắt đầu như thế nào?</h2>
+  <p class="sub">Lộ trình đề xuất cho người mới — verify flow với 1 màn trước, rồi nhân rộng.</p>
+  <ol class="steps-num">
+    <li><b>Kiểm tra kết nối MoMorph MCP</b> <span>— hỏi Claude Code "đọc được MoMorph của source này không?" để chắc MCP server hoạt động.</span></li>
+    <li><b>Xem <code>CLAUDE.md</code></b> <span>— đọc để nắm stack &amp; convention đã chốt (Next.js + shadcn + Supabase + Vitest/Playwright).</span></li>
+    <li><b>Chạy thử màn Login (Scenario 1)</b> <span>— màn đơn giản, có sẵn trong README làm ví dụ:</span>
+      <pre><span class="k">/tkm:takumi</span> Implement the login page (/login), use Supabase local project:
+<span class="s">https://momorph.ai/files/9ypp4enmFmdK3YAFJLIu6C/screens/GzbNeVGJHz</span></pre>
+    </li>
+    <li><b>Quan sát flow chạy thực tế</b> <span>— để ý gate Clarification (Takumi dừng hỏi), Track A/B song song, rồi test + review tự động.</span></li>
+    <li><b>Nhân rộng</b> <span>— khi quen flow, dùng <code>/tkm:create-plan</code> (Scenario 2) cho nhiều màn cùng lúc.</span></li>
+  </ol>
+
+  <div class="callout"><span class="ic">📌</span> Dự án Figma <b>SAA 2025 - Internal Live Coding</b> hiện có <b>18 màn web đã có spec sẵn</b> (17 màn chưa dev + 1 màn đã done) — sẵn sàng để thực hành ngay, không cần viết lại spec.</div>
+
+  <h3>Lệnh dev cơ bản</h3>
+  <pre><span class="k">npm run dev</span>     <span class="c"># dev server → http://localhost:3000</span>
+<span class="k">npm run build</span>   <span class="c"># production build</span>
+<span class="k">npm run lint</span>    <span class="c"># eslint</span></pre>
+
+  <h3>Tài liệu tham khảo</h3>
+  <div class="grid g2">
+    <div class="card"><h4>🔗 Takumi Agent Kit</h4><p><a class="link" href="https://takumi.sun-asterisk.ai/">takumi.sun-asterisk.ai</a></p></div>
+    <div class="card"><h4>🔗 Working with MoMorph</h4><p><a class="link" href="https://takumi.sun-asterisk.ai/docs/use-cases/momorph-codegen/">Takumi Docs — MoMorph codegen</a></p></div>
+  </div>
+</div></section>
+
+<footer>
+  <div class="wrap">
+    AIDD · SAA 2025 Internal Hands-on — Getting Started Guide<br>
+    Figma <code>9ypp4enmFmdK3YAFJLIu6C</code> · mở file này bằng browser bất kỳ, không cần server.
+  </div>
+</footer>
+
+</body>
+</html>
