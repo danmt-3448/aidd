@@ -1,0 +1,17 @@
+{
+  "login": {
+    "logoAlt": "Sun* Annual Awards 2025",
+    "headingAlt": "ROOT FURTHER",
+    "intro1": "Bắt đầu hành trình của bạn cùng SAA 2025.",
+    "intro2": "Đăng nhập để khám phá!",
+    "googleButton": "LOGIN With Google",
+    "signingIn": "Đang đăng nhập…",
+    "footer": "Bản quyền thuộc về Sun* © 2025",
+    "error": "Đăng nhập không thành công. Vui lòng thử lại."
+  },
+  "language": {
+    "label": "Ngôn ngữ",
+    "vi": "Tiếng Việt",
+    "en": "English"
+  }
+}
