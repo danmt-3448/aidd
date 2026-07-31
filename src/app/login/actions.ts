@@ -26,16 +26,3 @@ export async function signInWithGoogle() {
   }
   redirect(data.url)
 }
-
-/**
- * Dev fallback (magic-link) — KHÔNG có trong UI production, gọi từ /dev-login.
- * Email bắt ở Mailpit local (http://127.0.0.1:54324).
- */
-export async function signInWithOtp(email: string): Promise<{ error: string | null }> {
-  const supabase = await createClient()
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: await callbackUrl() },
-  })
-  return { error: error?.message ?? null }
-}

@@ -3,11 +3,10 @@ import { isPublic, sanitizeNext, PUBLIC_PATHS } from './guard-rules'
 
 describe('guard-rules', () => {
   describe('PUBLIC_PATHS', () => {
-    it('should contain /login, /auth, /dev-login', () => {
+    it('should contain /login, /auth', () => {
       expect(PUBLIC_PATHS).toContain('/login')
       expect(PUBLIC_PATHS).toContain('/auth')
-      expect(PUBLIC_PATHS).toContain('/dev-login')
-      expect(PUBLIC_PATHS.length).toBe(3)
+      expect(PUBLIC_PATHS.length).toBe(2)
     })
   })
 
@@ -15,7 +14,6 @@ describe('guard-rules', () => {
     it('should return true for exact public paths', () => {
       expect(isPublic('/login')).toBe(true)
       expect(isPublic('/auth')).toBe(true)
-      expect(isPublic('/dev-login')).toBe(true)
     })
 
     it('should return true for subpaths of public routes', () => {
@@ -23,7 +21,6 @@ describe('guard-rules', () => {
       expect(isPublic('/login/nested/path')).toBe(true)
       expect(isPublic('/auth/callback')).toBe(true)
       expect(isPublic('/auth/something')).toBe(true)
-      expect(isPublic('/dev-login/page')).toBe(true)
     })
 
     it('should return false for protected paths', () => {
@@ -37,7 +34,6 @@ describe('guard-rules', () => {
     it('should return false for partial matches that do not start with public path', () => {
       expect(isPublic('/login-page')).toBe(false) // doesn't start with /login
       expect(isPublic('/auth-info')).toBe(false) // doesn't start with /auth
-      expect(isPublic('/dev-login-backup')).toBe(false) // doesn't start with /dev-login
     })
   })
 

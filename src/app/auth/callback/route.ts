@@ -3,8 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { sanitizeNext } from '@/features/auth/guard-rules'
 
 /**
- * OAuth / magic-link callback: đổi `code` lấy session rồi redirect vào app.
- * Dùng chung cho cả Google lẫn magic-link dev.
+ * OAuth callback: đổi `code` (Google) lấy session rồi redirect vào app.
  */
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)

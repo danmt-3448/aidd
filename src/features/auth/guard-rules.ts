@@ -4,7 +4,7 @@
  */
 
 /** Route công khai (không cần đăng nhập). */
-export const PUBLIC_PATHS = ['/login', '/auth', '/dev-login'] as const
+export const PUBLIC_PATHS = ['/login', '/auth'] as const
 
 export function isPublic(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))
