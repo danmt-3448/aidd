@@ -186,10 +186,10 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* A — Title */}
+        {/* A — Title: Figma mms_A: 32px/700/lh40/center */}
         <h2
-          className="font-montserrat text-[32px] font-bold leading-10 tracking-[0px]"
-          style={{ color: '#00101A', width: '100%' }}
+          className="w-full text-center font-montserrat text-[32px] font-bold leading-10 tracking-[0px]"
+          style={{ color: '#00101A' }}
         >
           Gửi lời cám ơn và ghi nhận đến đồng đội
         </h2>

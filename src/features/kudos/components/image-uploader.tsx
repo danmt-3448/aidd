@@ -183,7 +183,7 @@ export function ImageUploader({
               )}
               <div className="flex flex-col items-start">
                 <span className="font-montserrat text-[11px] font-bold leading-4 tracking-[0.5px]" style={{ color: '#999' }}>
-                  + Image
+                  Image
                 </span>
                 <span className="font-montserrat text-[11px] font-bold leading-4 tracking-[0.5px]" style={{ color: '#999' }}>
                   Tối đa {maxCount}

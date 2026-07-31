@@ -15,38 +15,45 @@ export function SubmitBar({
   disabled = false,
 }: SubmitBarProps) {
   return (
-    <div className="flex flex-row items-start gap-6" style={{ width: '100%', height: '60px' }}>
-      {/* Hủy */}
+    /* Figma mms_H: flex row, gap 24px, height 60px, w 672px */
+    <div className="flex w-full flex-row items-stretch gap-6">
+      {/* Hủy — Figma mms_H.1: padding 16px 40px, border-radius 4px, bg rgba(255,234,158,0.10), border #998C5F */}
       <button
         type="button"
         onClick={onCancel}
         disabled={isSubmitting}
-        className="flex items-center gap-2 rounded px-10 py-4 font-montserrat text-base font-bold leading-6 tracking-[0.15px] text-[#00101A] transition-colors duration-200 hover:bg-[rgba(255,234,158,0.2)] disabled:opacity-50"
+        className="flex shrink-0 items-center gap-2 font-montserrat text-base font-bold leading-6 tracking-[0.15px] text-[#00101A] transition-colors duration-200 hover:bg-[rgba(255,234,158,0.2)] disabled:opacity-50"
         style={{
           border: '1px solid #998C5F',
           background: 'rgba(255,234,158,0.10)',
-          alignSelf: 'stretch',
           borderRadius: '4px',
+          padding: '16px 40px',
         }}
         aria-label="Hủy"
       >
         Hủy
+        {/* Close X icon — 24×24 */}
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
           <path d="M18 6L6 18M6 6L18 18" stroke="#00101A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
 
-      {/* Gửi */}
+      {/* Gửi — Figma mms_H.2: flex-1, height 60px, border-radius 8px, bg #FFEA9E, font 22px/700 */}
       <button
         type="button"
         onClick={onSubmit}
         disabled={isSubmitting || disabled}
-        className="flex flex-1 items-center justify-center gap-2 rounded-lg py-4 font-montserrat text-[22px] font-bold leading-7 tracking-[0px] text-[#00101A] transition-opacity duration-200 hover:opacity-90 disabled:opacity-40"
-        style={{ background: 'rgba(255,234,158,1)', height: '60px' }}
+        className="flex flex-1 items-center justify-center gap-2 font-montserrat text-[22px] font-bold leading-7 tracking-[0px] text-[#00101A] transition-opacity duration-200 hover:opacity-90 disabled:opacity-40"
+        style={{
+          background: 'rgba(255,234,158,1)',
+          height: '60px',
+          borderRadius: '8px',
+        }}
         aria-label="Gửi Kudo"
         aria-disabled={isSubmitting || disabled}
       >
         Gửi
+        {/* Send icon */}
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
           <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="#00101A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
