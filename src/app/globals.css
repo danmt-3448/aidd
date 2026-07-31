@@ -24,3 +24,59 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ── Tiptap editor ─────────────────────────────────────────────────────────── */
+.tiptap-wrapper .ProseMirror {
+  outline: none;
+  min-height: 160px;
+  font-family: var(--font-montserrat, 'Montserrat', sans-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.5rem;
+  color: #00101a;
+}
+
+.tiptap-wrapper .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #999;
+  font-weight: 400;
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+.tiptap-wrapper .ProseMirror .mention {
+  color: #cf1322;
+  font-weight: 700;
+  cursor: default;
+}
+
+.tiptap-wrapper .ProseMirror a {
+  color: #cf1322;
+  text-decoration: underline;
+}
+
+.tiptap-wrapper .ProseMirror blockquote {
+  border-left: 3px solid #998c5f;
+  padding-left: 1rem;
+  color: #555;
+  margin: 0.5rem 0;
+}
+
+.tiptap-wrapper .ProseMirror ol {
+  padding-left: 1.5rem;
+  list-style-type: decimal;
+}
+
+.tiptap-wrapper .ProseMirror ul {
+  padding-left: 1.5rem;
+  list-style-type: disc;
+}
+
+.tiptap-wrapper .ProseMirror p {
+  margin: 0 0 0.25rem;
+}
+
+.tiptap-wrapper .ProseMirror p:last-child {
+  margin-bottom: 0;
+}

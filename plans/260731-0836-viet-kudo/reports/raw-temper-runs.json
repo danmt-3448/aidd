@@ -1,0 +1,22 @@
+[
+  {
+    "command": "npm run test",
+    "exitCode": 0,
+    "summary": "Unit tests (Vitest): 5 test files passed, 62 tests passed in 3.16s"
+  },
+  {
+    "command": "psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -f supabase/tests/kudo-integration-simple.sql",
+    "exitCode": 0,
+    "summary": "DB integration tests: 8/8 tests passed (RPC, constraints, cascades, seed idempotency)"
+  },
+  {
+    "command": "npm run build",
+    "exitCode": 0,
+    "summary": "Next.js build successful, TypeScript clean, all routes compiled"
+  },
+  {
+    "command": "npx eslint src/features/kudos/",
+    "exitCode": 1,
+    "summary": "Linter found 2 errors (ref access during render) + 3 warnings (unused vars)"
+  }
+]

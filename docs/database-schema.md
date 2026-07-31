@@ -42,30 +42,40 @@
 ### hashtags — thẻ (lookup, load động)
 | Cột | Kiểu | Ghi chú |
 |-----|------|---------|
-| `id` | int PK | |
+| `id` | uuid PK | gen_random_uuid() |
 | `name` | text unique | không kèm `#` (thêm khi render) |
-> Seed: High-performing, BE PROFESSIONAL, BE OPTIMISTIC, Be A Team, THINK OUTSIDE THE BOX, GET RISKY, GO FAST, WASSHOI, Dedicated, Inspiring, IDOL GIỚI TRẺ... *(bổ sung khi có)*
+| `created_at` | timestamptz | |
+> Seed 12 tags (migration `20260731000000`): TeamWork, Support, Innovation, Leadership, Ownership, GoAbove, CustomerFirst, Mentorship, Quality, Agility, Collaboration, WellDone.
 
 ### kudos — lời cảm ơn (entity trung tâm)
 | Cột | Kiểu | Ghi chú |
 |-----|------|---------|
-| `id` | uuid PK | |
+| `id` | uuid PK | client-generated (passed to RPC) |
 | `sender_id` | uuid FK → profiles | **luôn lưu** (kể cả ẩn danh; admin xem được) |
-| `recipient_id` | uuid FK → profiles | |
-| `content` | text | HTML rich-text |
+| `receiver_id` | uuid FK → profiles | tên cột thực tế trong DB (spec gọi là `recipient_id`) |
+| `content_html` | text | sanitized HTML (B/I/S/list/link/quote + @mention) |
 | `is_anonymous` | bool default false | |
 | `anonymous_name` | text null | nickname khi ẩn danh |
-| `like_count` | int default 0 | denormalized (số tim của post này) |
 | `created_at` | timestamptz | |
+> Constraint: `sender_id <> receiver_id` (DB-level check). Index trên `receiver_id` và `created_at desc`.
+> **Lưu ý bảo mật:** RLS SELECT policy hiện tại (`kudos_select_authenticated`) expose toàn bộ `sender_id` kể cả khi `is_anonymous=true`. Cần mask `sender_id` (column-level policy hoặc view) **trước khi** bất kỳ màn READ nào ship.
+> `like_count` **chưa có trong migration này** — denormalized counter sẽ thêm khi implement màn Live Board.
 
-### kudos_hashtags — n-n (tối đa 5/kudos)
-`kudos_id` FK · `hashtag_id` FK · PK(kudos_id, hashtag_id)
+### kudo_hashtags — n-n (tối đa 5/kudos)
+`kudo_id` uuid FK → kudos · `hashtag_id` uuid FK → hashtags · PK(kudo_id, hashtag_id)
 
-### kudos_images — ảnh đính kèm (tối đa 5)
-`id` PK · `kudos_id` FK · `storage_path` text (Supabase Storage) · `sort_order` int
+### kudo_images — ảnh đính kèm (tối đa 5)
+| Cột | Kiểu | Ghi chú |
+|-----|------|---------|
+| `id` | uuid PK | |
+| `kudo_id` | uuid FK → kudos | cascade delete |
+| `storage_path` | text | path trong bucket `kudo-images` |
+| `sort_order` | int default 0 | thứ tự hiển thị |
+| `created_at` | timestamptz | |
 
 ### kudos_mentions — @mention đồng nghiệp
 `kudos_id` FK · `mentioned_user_id` FK · PK(kudos_id, mentioned_user_id)
+> **Chưa có migration** — @mention hiện nhúng vào `content_html`. Bảng này sẽ tạo khi cần query "đồng nghiệp được mention".
 
 ### kudos_likes — lượt thả tim
 | Cột | Kiểu | Ghi chú |

@@ -89,3 +89,8 @@ vi.mock('react-dom', async () => {
     }),
   }
 })
+
+// Mock @supabase/supabase-js server client
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn(),
+}))
