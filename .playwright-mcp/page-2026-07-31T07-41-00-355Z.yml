@@ -1,0 +1,9 @@
+- generic [active] [ref=f8e1]:
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=f8e120]:
+        - generic [ref=f8e124]: Đã gửi Kudo thành công
+  - main [ref=f8e2]:
+    - button "Viết Kudo" [ref=f8e3]
+  - button "Open Next.js Dev Tools" [ref=f8e9] [cursor=pointer]
+  - alert [ref=f8e13]

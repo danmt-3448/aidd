@@ -1,0 +1,412 @@
+[    1825ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489
+[    1909ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489
+[   26995ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489
+[   27120ms] [LOG] [Fast Refresh] done in 227ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489
+[  796780ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489
+[  797776ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-client] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:3330
+[  797776ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-ssr] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:3330
+[  797847ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-client] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:3330
+[  797847ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-ssr] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:3330
+[  797949ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489
+[  799023ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-client] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:3330
+[  799023ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-ssr] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:3330
+[  799125ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489
+[  799578ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-client] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:3330
+[  799578ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-ssr] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:3330
+[  799696ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/dev-login?_rsc=q4rkZI1NnI3waQbI:0
+[  799968ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489
+[  799973ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-client] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:3330
+[  799973ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-ssr] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:3330
+[  799991ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/dev-login?_rsc=q4rkZI1NnI3waQbI:0
+[  800075ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489
+[  800098ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-client] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:3330
+[  800099ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-ssr] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:3330
+[  800149ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/dev-login:0
+[  800419ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_react-dom_0kla17-._.js:15305
+[  800466ms] Error: ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-client] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx
+
+
+    at <unknown> (Error: ./src/app/dev-login/dev-login-form.tsx:4:1)
+    at Object.getCompilationErrors (file:///Users/mai.thanh.dan/Desktop/Sun/AI/aidd/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:1186:59)
+    at DevBundlerService.getCompilationError (file:///Users/mai.thanh.dan/Desktop/Sun/AI/aidd/node_modules/next/dist/server/lib/dev-bundler-service.js:44:55)
+    at DevServer.getCompilationError (file:///Users/mai.thanh.dan/Desktop/Sun/AI/aidd/node_modules/next/dist/server/dev/next-dev-server.js:720:42)
+    at DevServer.findPageComponents (file:///Users/mai.thanh.dan/Desktop/Sun/AI/aidd/node_modules/next/dist/server/dev/next-dev-server.js:690:43)
+    at async DevServer.renderErrorToResponseImpl (file:///Users/mai.thanh.dan/Desktop/Sun/AI/aidd/node_modules/next/dist/server/base-server.js:1753:26)
+[  800457ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:1226
+[  800503ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-client] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:1945
+[  800503ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-ssr] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:1945
+[  800543ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-client] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:1945
+[  800543ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-ssr] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:1945
+[  800595ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-client] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:1945
+[  800595ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-ssr] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:1945
+[  800645ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:1226
+[  813848ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-client] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:1945
+[  813848ms] [ERROR] ./src/app/dev-login/dev-login-form.tsx:4:1
+Export signInWithOtp doesn't exist in target module
+  2 |
+  3 | import { useState, useTransition } from 'react'
+> 4 | import { signInWithOtp } from '@/app/login/actions'
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | export function DevLoginForm() {
+  7 |   const [email, setEmail] = useState('')
+
+The export signInWithOtp was not found in module [project]/src/app/login/actions.ts [app-ssr] (ecmascript).
+Did you mean to import signInWithGoogle?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import trace:
+  Server Component:
+    ./src/app/dev-login/dev-login-form.tsx
+    ./src/app/dev-login/page.tsx @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:1945
+[  813949ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:1226
+[  814213ms] [LOG] [Fast Refresh] done in 274ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:1226
+[  814417ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:1226
+[  814442ms] [LOG] [Fast Refresh] done in 126ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1gdrd03._.js:1226
+[  815199ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) @ http://localhost:3000/dev-login:0
+[  815279ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489
+[  815378ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489
+[  831199ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489
+[  831219ms] [LOG] [Fast Refresh] done in 121ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489
+[  834402ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489
+[  834488ms] [LOG] [Fast Refresh] done in 164ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_1ybzpk2._.js:2489

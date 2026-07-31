@@ -1,0 +1,12 @@
+- generic [ref=f7e1]:
+  - button "Open Next.js Dev Tools" [ref=f7e21] [cursor=pointer]:
+    - generic [ref=f7e24]:
+      - text: Rendering
+      - generic [ref=f7e25]:
+        - generic [ref=f7e26]: .
+        - generic [ref=f7e27]: .
+        - generic [ref=f7e28]: .
+  - alert [ref=f7e20]
+  - region "Notifications alt+T" [active]
+  - main [ref=f7e29]:
+    - button "Viết Kudo" [ref=f7e30]

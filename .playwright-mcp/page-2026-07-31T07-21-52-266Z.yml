@@ -1,0 +1,12 @@
+- generic [active] [ref=f5e1]:
+  - main [ref=f5e2]:
+    - generic [ref=f5e3]:
+      - generic [ref=f5e4]:
+        - heading "Dev login" [level=1] [ref=f5e5]
+        - paragraph [ref=f5e6]: Chỉ để test local với seeded users (password mặc định đã điền sẵn).
+      - generic [ref=f5e7]:
+        - textbox "you@sun-asterisk.com" [ref=f5e8]
+        - textbox "password" [ref=f5e9]: TestPass123!
+        - button "Đăng nhập (dev)" [ref=f5e10]
+  - button "Open Next.js Dev Tools" [ref=f5e16] [cursor=pointer]
+  - alert [ref=f5e20]

@@ -1,0 +1,53 @@
+- generic [ref=f11e1]:
+  - region "Notifications alt+T"
+  - main [ref=f11e2]:
+    - button "Viết Kudo" [active] [ref=f11e3]
+    - dialog "Viết Kudo" [ref=f11e14]:
+      - generic [ref=f11e15]:
+        - heading "Gửi lời cám ơn và ghi nhận đến đồng đội" [level=2] [ref=f11e16]
+        - generic [ref=f11e18]:
+          - generic [ref=f11e19]:
+            - generic [ref=f11e20]: Người nhận
+            - generic [ref=f11e21]: "*"
+          - button "Tìm kiếm" [ref=f11e23]
+        - generic [ref=f11e28]:
+          - generic [ref=f11e29]:
+            - toolbar "Định dạng văn bản" [ref=f11e30]:
+              - button "In đậm" [ref=f11e31]
+              - button "In nghiêng" [ref=f11e34]
+              - button "Gạch ngang" [ref=f11e37]
+              - button "Danh sách có số" [ref=f11e41]
+              - button "Chèn liên kết" [ref=f11e45]
+              - button "Trích dẫn" [ref=f11e49]
+              - link "Xem tiêu chuẩn cộng đồng" [ref=f11e53] [cursor=pointer]:
+                - /url: "#community-guidelines"
+                - text: Tiêu chuẩn cộng đồng
+            - textbox "Nội dung Kudo" [ref=f11e56]:
+              - paragraph [ref=f11e57]: Hãy gửi gắm lời cám ơn và ghi nhận đến đồng đội tại đây nhé!
+          - generic [ref=f11e58]:
+            - generic [ref=f11e59]: Bạn có thể "@ + tên" để nhắc tới đồng nghiệp khác
+            - generic [ref=f11e60]: 0/2000
+        - generic [ref=f11e61]:
+          - generic [ref=f11e62]:
+            - generic [ref=f11e63]: Hashtag
+            - generic [ref=f11e64]: "*"
+          - button "Thêm Hashtag (tối đa 5)" [ref=f11e66] [cursor=pointer]:
+            - generic [ref=f11e69]:
+              - generic [ref=f11e70]: Hashtag
+              - generic [ref=f11e71]: Tối đa 5
+        - generic [ref=f11e72]:
+          - generic [ref=f11e73]: Image
+          - generic [ref=f11e75]:
+            - button "Thêm ảnh (tối đa 5)" [ref=f11e76]:
+              - generic [ref=f11e79]:
+                - generic [ref=f11e80]: Image
+                - generic [ref=f11e81]: Tối đa 5
+            - button [ref=f11e82]
+        - generic [ref=f11e84]:
+          - checkbox "Gửi ẩn danh" [ref=f11e85]
+          - generic [ref=f11e86]: Gửi lời cám ơn và ghi nhận ẩn danh
+        - generic [ref=f11e87]:
+          - button "Hủy" [ref=f11e88]
+          - button "Gửi Kudo" [disabled] [ref=f11e91]: Gửi
+  - button "Open Next.js Dev Tools" [ref=f11e9] [cursor=pointer]
+  - alert [ref=f11e13]
