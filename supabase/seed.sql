@@ -100,6 +100,9 @@ values
     now(), now(), 'authenticated', 'authenticated'
   )
 on conflict (id) do nothing;
+-- NOTE: seeded users are recipient/@mention DATA only (searchRecipients reads
+-- public.profiles). They are NOT meant for login — log in via /dev-login (env-gated),
+-- which signUp-creates a GoTrue-native account on first use.
 
 -- ============================================================
 -- 2.  Hashtag catalog

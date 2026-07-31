@@ -26,3 +26,23 @@ export async function signInWithGoogle() {
   }
   redirect(data.url)
 }
+
+/**
+ * Dev fallback (email + password) — KHÔNG có trong UI production, gọi từ /dev-login.
+ * Gated bằng env NEXT_PUBLIC_ENABLE_DEV_LOGIN; chỉ để test local với seeded users
+ * (seed đặt sẵn password 'TestPass123!'). Session cookie set qua Supabase SSR client.
+ */
+export async function signInWithPassword(
+  email: string,
+  password: string,
+): Promise<{ error: string | null }> {
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  if (!error) return { error: null }
+
+  // Local fallback: nếu chưa có account (seeded users không login được qua GoTrue,
+  // hoặc DB mới reset), tạo mới. Local có enable_confirmations=false → signUp trả
+  // session ngay. Giúp /dev-login "just works" sau mỗi supabase db reset.
+  const { error: signUpError } = await supabase.auth.signUp({ email, password })
+  return { error: signUpError?.message ?? null }
+}
