@@ -1,5 +1,56 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm run test *)",
+      "Bash(npm run build *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run dev *)",
+      "Bash(npm run typecheck *)",
+      "Bash(npx tsc --noEmit *)",
+      "Bash(npx eslint *)",
+      "Bash(psql *)",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_evaluate",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_find",
+      "mcp__playwright__browser_tabs",
+      "mcp__playwright__browser_press_key",
+      "mcp__playwright__browser_hover",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_network_requests",
+      "mcp__momorph__query_section",
+      "mcp__momorph__download_specs",
+      "mcp__momorph__get_frame",
+      "mcp__momorph__get_node",
+      "mcp__momorph__get_overview",
+      "mcp__momorph__get_frame_image",
+      "mcp__momorph__get_media_files",
+      "mcp__momorph__get_media_file",
+      "mcp__momorph__get_project_overview",
+      "mcp__momorph__list_frames",
+      "mcp__momorph__list_frame_sets",
+      "mcp__momorph__get_frame_set",
+      "mcp__momorph__get_frame_node_tree",
+      "mcp__momorph__get_node_context",
+      "mcp__momorph__list_design_items",
+      "mcp__momorph__get_related_design_items",
+      "mcp__momorph__download_test_cases",
+      "mcp__momorph__query_component",
+      "mcp__momorph__list_file_variables",
+      "mcp__momorph__list_file_localizations",
+      "mcp__momorph__list_frame_styles",
+      "mcp__momorph__list_frame_spec_diffs",
+      "mcp__backlog__get_issue",
+      "mcp__backlog__get_issue_comments"
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/statusline.cjs",
@@ -34,7 +85,12 @@
           },
           {
             "type": "command",
-            "command": "tkm hook-exec --hook metrics.metrics-record --event session-start -a claude",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/memory-graph-nudge.cjs",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "tkm hook-exec --hook metrics.record --event session-start -a claude",
             "timeout": 15
           }
         ]
@@ -103,7 +159,7 @@
           },
           {
             "type": "command",
-            "command": "tkm hook-exec --hook metrics.metrics-record --event user-prompt-submit -a claude",
+            "command": "tkm hook-exec --hook metrics.record --event user-prompt-submit -a claude",
             "timeout": 15
           }
         ]
@@ -163,7 +219,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "tkm hook-exec --hook metrics.metrics-record --event pre-tool-use -a claude",
+            "command": "tkm hook-exec --hook metrics.record --event pre-tool-use -a claude",
             "timeout": 15
           }
         ]
@@ -228,7 +284,7 @@
           },
           {
             "type": "command",
-            "command": "tkm hook-exec --hook metrics.metrics-record --event post-tool-use -a claude",
+            "command": "tkm hook-exec --hook metrics.record --event post-tool-use -a claude",
             "timeout": 15
           }
         ]
@@ -248,7 +304,12 @@
           },
           {
             "type": "command",
-            "command": "tkm hook-exec --hook metrics.metrics-flush --event stop -a claude",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/memory-graph-queue.cjs",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "tkm hook-exec --hook metrics.flush --event stop -a claude",
             "timeout": 15
           }
         ]
@@ -265,12 +326,22 @@
         ]
       }
     ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/teammate-idle-handler.cjs"
+          }
+        ]
+      }
+    ],
     "SessionEnd": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "tkm hook-exec --hook metrics.metrics-flush --event session-end -a claude",
+            "command": "tkm hook-exec --hook metrics.flush --event session-end -a claude",
             "timeout": 15
           }
         ]

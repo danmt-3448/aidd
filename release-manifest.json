@@ -1,12 +1,54 @@
 {
-  "version": "0.5.0",
-  "generatedAt": "2026-07-23T09:07:46.619Z",
+  "version": "0.7.2",
+  "generatedAt": "2026-07-31T10:10:39.719Z",
   "files": [
     {
+      "path": "agents/jp-project-manager.md",
+      "checksum": "f3ee3af0de89a9cca065fc3f668cbd1a5100d7afe18d680d3de5157429a3ca11",
+      "size": 15747,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
       "path": "metadata.json",
-      "checksum": "8ee4381ea4239b46e041054debfa68827efb126eba2704352d325b5468941f98",
-      "size": 508,
-      "lastModified": "2026-07-15T07:47:08Z"
+      "checksum": "8713999e46a96aaa062d5d215bc549abce631001bc199c338a6e899b3751188b",
+      "size": 788,
+      "lastModified": "2026-07-31T16:38:52+07:00"
+    },
+    {
+      "path": "skills/_shared/extras/kpi-insight/kpi-insight-kpi-reference.md",
+      "checksum": "edfcc883cc2682962c84525a2be30ada1d3251dcd0f3c3d83ebf50434dcc9d63",
+      "size": 4612,
+      "lastModified": "2026-07-31T15:30:11+07:00"
+    },
+    {
+      "path": "skills/_shared/extras/kpi-insight/kpi-insight-mcp-config.json",
+      "checksum": "4d5c976ef08c901da04471f3968d82cfff3343a58c5de82d470d26adc5f0505e",
+      "size": 213,
+      "lastModified": "2026-07-31T15:30:11+07:00"
+    },
+    {
+      "path": "skills/_shared/extras/kpi-insight/kpi-insight-mcp-connection.md",
+      "checksum": "1798f85216b13bcfd5fe26f21f6045047eee7e8b64c915a6ca41b67f676228e8",
+      "size": 2745,
+      "lastModified": "2026-07-31T15:30:11+07:00"
+    },
+    {
+      "path": "skills/_shared/extras/pm-skills/function-breakdown.md",
+      "checksum": "409c85c3d3f59d455e4eb6a6f1d72132047eda6af0bb8487fe907506d3a41bf9",
+      "size": 3445,
+      "lastModified": "2026-07-31T16:38:52+07:00"
+    },
+    {
+      "path": "skills/_shared/extras/pm-skills/project-layout.md",
+      "checksum": "f172995c5d5589bf85e4c330d389fc23b5efd07b073d48d9e928304bf665418e",
+      "size": 5732,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/_shared/extras/pm-skills/wbs-task-breakdown.md",
+      "checksum": "4baeb084907b4bda1f520943ab0c1a25cee5ef65ed25417d5ec9bc6693df48b2",
+      "size": 2542,
+      "lastModified": "2026-07-31T16:38:52+07:00"
     },
     {
       "path": "skills/clio-generate/SKILL.md",
@@ -603,6 +645,84 @@
       "lastModified": "2026-06-11T17:47:32+07:00"
     },
     {
+      "path": "skills/ki-inc-analysis/SKILL.md",
+      "checksum": "7158347632d46a39f227e45233fd74345fb0b35d4af2bd9f49c3bc99d921f166",
+      "size": 4124,
+      "lastModified": "2026-07-31T15:30:11+07:00"
+    },
+    {
+      "path": "skills/ki-kpi-drilldown/SKILL.md",
+      "checksum": "eb6b27ac2e1d4ef972cbecf09c6324bfd0d558fdb87f46efd26d8507ea608d75",
+      "size": 2795,
+      "lastModified": "2026-07-31T15:30:11+07:00"
+    },
+    {
+      "path": "skills/ki-kpi-health/SKILL.md",
+      "checksum": "eae6ca0882f0a68c1a64f04ece12e1ead049e032ee86fe62ddd08be64d292485",
+      "size": 7946,
+      "lastModified": "2026-07-31T15:30:11+07:00"
+    },
+    {
+      "path": "skills/ki-kpi-health/references/html-report.md",
+      "checksum": "ab5115e6f61bd6da8396929585e26851d21b75a9012ff5c45818672d9d882016",
+      "size": 3720,
+      "lastModified": "2026-07-29T23:32:34+07:00"
+    },
+    {
+      "path": "skills/ki-kpi-insight/SKILL.md",
+      "checksum": "9916a2821491a20e44285ec00da18f7b4b229e4c87ac6a93058426dc9c2800b1",
+      "size": 3097,
+      "lastModified": "2026-07-31T15:30:11+07:00"
+    },
+    {
+      "path": "skills/ki-pm-data-quality/SKILL.md",
+      "checksum": "469e86ed116ecfb22095c8e4e90d94f4bd1cf9ef0a672fb5b64c070e883b9682",
+      "size": 3429,
+      "lastModified": "2026-07-31T15:30:11+07:00"
+    },
+    {
+      "path": "skills/ki-pm-estimate/SKILL.md",
+      "checksum": "3d04df3a4bbf061a71b83c07808033c6259105ac5456165dcf8f6b95e91a11e8",
+      "size": 4523,
+      "lastModified": "2026-07-31T15:30:11+07:00"
+    },
+    {
+      "path": "skills/ki-pm-tooling-audit/SKILL.md",
+      "checksum": "8aeeee85a5e977e14c485e28410c0ab1c83a5a9f524397de19d5850c28db586b",
+      "size": 3414,
+      "lastModified": "2026-07-31T15:30:11+07:00"
+    },
+    {
+      "path": "skills/ki-pm-tooling-audit/references/github-standardization-checks.md",
+      "checksum": "f22896f90529efe0588502c7ac70bdb4c6104b7d008ceba85572324a50048082",
+      "size": 2025,
+      "lastModified": "2026-07-29T23:32:34+07:00"
+    },
+    {
+      "path": "skills/ki-pm-tooling-audit/references/github-standardization.md",
+      "checksum": "16316c0eebb8a141074accf16b22e534a7ddf51f05ab604c39bc99f40bdfe2bb",
+      "size": 1669,
+      "lastModified": "2026-07-29T23:32:34+07:00"
+    },
+    {
+      "path": "skills/ki-voice-action-plan/SKILL.md",
+      "checksum": "e226c6d91d314fbe015ddd3be18a2fbc12efc01708b41d7df0d7b70c4828adfa",
+      "size": 3423,
+      "lastModified": "2026-07-31T15:30:11+07:00"
+    },
+    {
+      "path": "skills/ki-voice-campaign/SKILL.md",
+      "checksum": "da3d56f8c73be0af8bb67876ae77374ad6b3ebbda0fcc07a84e0b3a256fc5dd9",
+      "size": 3923,
+      "lastModified": "2026-07-31T15:30:11+07:00"
+    },
+    {
+      "path": "skills/ki-voice-project/SKILL.md",
+      "checksum": "baddbd51d2597ed6efdfff350791fe272c804c27c754cb4dd8da92d5aee992fa",
+      "size": 4144,
+      "lastModified": "2026-07-31T15:30:11+07:00"
+    },
+    {
       "path": "skills/momorph-implement-design/SKILL.md",
       "checksum": "db714cf0233f835a2812dffea31cf31f58f8398d866f46a23142316b21adc38e",
       "size": 13977,
@@ -651,6 +771,258 @@
       "lastModified": "2026-06-11T17:47:32+07:00"
     },
     {
+      "path": "skills/pm-collect-feedback/SKILL.md",
+      "checksum": "36fb773226ed514d2db12c8070dc262e26eff7757ffed5c4699f8ae29a7de1da",
+      "size": 16997,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-collect-feedback/references/detection-catalog.md",
+      "checksum": "fbec9012bd88b4031c015b49675f262bc2a29a3fad9e10938b9606666787d23a",
+      "size": 6578,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-collect-feedback/references/hearing.md",
+      "checksum": "495679a27119b50a52142a3a90bb6024c4a6ffa70d738f0c9fea2062f7c60344",
+      "size": 5551,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-collect-feedback/references/skeletons.md",
+      "checksum": "7d1f194b90ed587500de122e0c77977ab3f65ff189ea4262c768fd0a6407f47b",
+      "size": 3049,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-create-stories/SKILL.md",
+      "checksum": "b76182168215a4bd745b9fe50e17a929e9d3d87370ec1127977ad072957c7ccf",
+      "size": 13636,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-create-stories/references/hearing.md",
+      "checksum": "db2c2fecd4fd4c410d875ae4e8c5b753d173d5994bc86a620fe73c29b17a9e55",
+      "size": 6196,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-create-stories/references/skeletons.md",
+      "checksum": "f669bb62b72e90d78603cc075b269f02d68f10b331921b72792fae906a9e0248",
+      "size": 2852,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-create-tasks/SKILL.md",
+      "checksum": "bf7f10c8393554c018a280084c6136e0f5d62844ff41a1d08c3ae415dbe143a8",
+      "size": 15891,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-create-tasks/references/skeletons.md",
+      "checksum": "5d985bff64861cd4539656b8c703d2f000587e66d6894ab0234e221258c11d3b",
+      "size": 2152,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-create-tasks/references/task-breakdown.md",
+      "checksum": "7abe058ceaf6455778a6e0553601f5748496f22321beca0ef1a8a82ec224a1fd",
+      "size": 8445,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-define-dod/SKILL.md",
+      "checksum": "c74cb268b909c72b11ffbed470b606dcda8c48abb15590a96c1d239e1b837e57",
+      "size": 10662,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-define-dod/references/criteria-catalog.md",
+      "checksum": "f28eb9cdc4c79de3b37fb75b7b16b07e2b25fdc69f25b34797f1536a6b708459",
+      "size": 4881,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-define-dod/references/hearing.md",
+      "checksum": "4dfd32cc3ebd851d2cda6afc5993872aa053b7700b567ce0561a02b10b23bb21",
+      "size": 6348,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-define-dod/references/skeletons.md",
+      "checksum": "808f2fef33171f2a90ed3f4f3577ae54b391e65984f426dd42a11f955f89a93e",
+      "size": 3418,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-design-wireframe/SKILL.md",
+      "checksum": "64971f4560e081883d28fc829575e9e8d742ab484526ec324b5d812d55eb49cb",
+      "size": 14338,
+      "lastModified": "2026-07-29T22:31:44+07:00"
+    },
+    {
+      "path": "skills/pm-design-wireframe/references/hearing.md",
+      "checksum": "e24745aea56cde42eafe2061f2916aa4bcfc06770f16b4d7745ea2e50d769516",
+      "size": 9078,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-design-wireframe/references/output-template.md",
+      "checksum": "1cc3f96c6d69b662f281e027ca196c51f2af43dacfe0ec84f509d903fae05b39",
+      "size": 5780,
+      "lastModified": "2026-07-29T22:31:44+07:00"
+    },
+    {
+      "path": "skills/pm-design-wireframe/references/wireframe-guide.md",
+      "checksum": "b7914e48b738f3db30a85720a00dbc62d410eb2e56fb1c023e3b0eac77427896",
+      "size": 7471,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-gather-requirements/SKILL.md",
+      "checksum": "859832236ce8e791d4b4b962c9b594549d94adca142e78e4899a117a0b5396c2",
+      "size": 10912,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-gather-requirements/references/hearing.md",
+      "checksum": "52a5453eb54faf12029a5dc4cbd8dddca18c2686010f1785313df55facab5676",
+      "size": 7372,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-gather-requirements/references/nfr-catalog.md",
+      "checksum": "9fe05700d66acbf1d8c5c8a46994027271309d1db29676fdd657aa8c859f3801",
+      "size": 5427,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-gather-requirements/references/skeletons.md",
+      "checksum": "4594d0d09728f0f9570e325c3649ae4b2c11c99eb8fa59e804626d593244a126",
+      "size": 6093,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-plan-project/SKILL.md",
+      "checksum": "e3ead532306708169037682c490c9b5669f6b4443e58d8ad6fbb7d3de05137b9",
+      "size": 9494,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-plan-project/references/field-mapping.md",
+      "checksum": "712c5351a3f56dc9593b23830379c1865de325a4de02c5b3fe61e42f288b602c",
+      "size": 4900,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-plan-project/references/hearing.md",
+      "checksum": "d1e110922c1e2cfc48d60e0cd9dc9281e50155510ddda22740ab18b8c069e608",
+      "size": 7179,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-plan-project/references/skeletons.md",
+      "checksum": "8a28ba935658ca3726b897561018dd078053eba7dd43fa2b865ad418b727fd8e",
+      "size": 5645,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-plan-schedule/SKILL.md",
+      "checksum": "c56a78b61a8654a57878017e228a21935b98ca8c26d3a7e8afdd118a9c9e7ea1",
+      "size": 10350,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-plan-schedule/references/hearing.md",
+      "checksum": "e9edb96e4192031520bafc7066b75228a7feafc500dd57c22d21edae6dd5c1b4",
+      "size": 3075,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-plan-schedule/references/skeletons.md",
+      "checksum": "9445eda9b2cf39b37b47ca37e319b2d4cb87fe77501360b857fcb16d36165dd7",
+      "size": 2864,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-plan-schedule/references/wbs-breakdown.md",
+      "checksum": "53517111d30bb7d80e8ba74c2269adc98e89be7f94a1d41d7db00489c42f6a29",
+      "size": 7198,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-plan-test/SKILL.md",
+      "checksum": "4f643dfaa5d41e6653fc70245f030597600a2774f15cc55c6fc66c5775302598",
+      "size": 11104,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-plan-test/references/hearing.md",
+      "checksum": "beff352740770e1ce5a0d2015f4493454e63417e79da4b184f9226bdcd6b9c2b",
+      "size": 4401,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-plan-test/references/skeletons.md",
+      "checksum": "1599a275d5ea1e99ce13ba684b9dfb66521a6f1a63c983fd98e760db2bc6b687",
+      "size": 5585,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-plan-test/references/test-breakdown.md",
+      "checksum": "55a349ce302dc69252b5bc22a619be1721a78f217ea38f32d936073d9140cf8d",
+      "size": 5391,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-report-project/SKILL.md",
+      "checksum": "c9f7b55298487df6d075297e4faec5fc6a8170473c3217105c80fae032a09dc3",
+      "size": 17841,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-report-project/references/field-mapping.md",
+      "checksum": "dc4729f9794134b4adaeb3e2bf44763db980270a0f83a8f330cad08859c2d5d5",
+      "size": 5647,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-report-project/references/hearing.md",
+      "checksum": "65067c96af4d906c451d221051370d67399a5848be735f523682b72f24247fa9",
+      "size": 5610,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-report-project/references/skeletons.md",
+      "checksum": "387750f73f4b072c34e451c2bc5c2edc7bf43f6d4f2eb530a2ad963d52cc4661",
+      "size": 3781,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-track-risks-issues/SKILL.md",
+      "checksum": "16421c9ec35741252d5ec8955d88b2f4f86305cf1d683fb2e018ffb24d715d03",
+      "size": 16112,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-track-risks-issues/references/detection-catalog.md",
+      "checksum": "07e7613f81b528909188c6576352629e44d06d496f0668a179ee02c5ad658f93",
+      "size": 5859,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
+      "path": "skills/pm-track-risks-issues/references/hearing.md",
+      "checksum": "445a3a26896584d6102ec75b65486288a82cdff57f83dc6f782fd4bd551e6175",
+      "size": 5461,
+      "lastModified": "2026-07-29T17:13:57+07:00"
+    },
+    {
+      "path": "skills/pm-track-risks-issues/references/skeletons.md",
+      "checksum": "addf29e8a7d673df559f29dc9d8cebcfe1d2481c62b4aa7dd3c61d860e303c6f",
+      "size": 4401,
+      "lastModified": "2026-07-31T16:38:53+07:00"
+    },
+    {
       "path": ".gitignore",
       "checksum": "c31dcfb6410d3f8df40f73e70f84d3a393f06be97eae074b14e431c0a57881eb",
       "size": 825,
@@ -664,21 +1036,21 @@
     },
     {
       "path": "CLAUDE.md",
-      "checksum": "69c2d21da993496d636645dd5168a517c5e6ce7d1226fa07b37d8347bcd8b963",
-      "size": 2265,
-      "lastModified": "2026-06-11T16:51:16+07:00"
+      "checksum": "2d37a1152d16efef15279c68bb6ba6f2b073856e8c79a75b04e2cefcb2973e87",
+      "size": 2367,
+      "lastModified": "2026-07-31T15:30:11+07:00"
     },
     {
       "path": "AGENTS.md",
-      "checksum": "7aae19b686cd9e7b16d1b3aa6a4d333fb078202045f459a05c03c340ed26f0cc",
-      "size": 817,
-      "lastModified": "2026-06-11T16:51:16+07:00"
+      "checksum": "e51009ebbfd9434f86b78c4be41a765f75ba26f6aa2055c838a7a30384a0d327",
+      "size": 899,
+      "lastModified": "2026-07-31T15:30:11+07:00"
     },
     {
       "path": "README.md",
-      "checksum": "b5b736200943e95525751e423a71b291299f01702f65c5440602162006aef854",
-      "size": 2987,
-      "lastModified": "2026-06-11T16:51:16+07:00"
+      "checksum": "d87dba14a32296711b5e15f065548551ac078c7e22667e43f871d0584ab16672",
+      "size": 4243,
+      "lastModified": "2026-07-31T15:30:11+07:00"
     }
   ]
 }
