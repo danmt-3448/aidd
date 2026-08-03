@@ -51,7 +51,16 @@ next-env.d.ts
 !.claude/roles/
 !.claude/skills/
 .claude/skills/*
+# Skill project tự build: đặt tên `aidd-<name>` → tự động được push. Kit skills (khác prefix) vẫn ignore.
+!.claude/skills/aidd-*/
+# Legacy: check-progress commit trước khi có convention aidd-*; giữ nguyên để khỏi churn.
 !.claude/skills/check-progress/
+# Template project-specific: chỉ push clarifications.md; template của kit (bug-fix/refactor/feature/stacks) vẫn ignore.
+!.claude/templates/
+.claude/templates/*
+!.claude/templates/plans/
+.claude/templates/plans/*
+!.claude/templates/plans/clarifications.md
 
 # Supabase local temp
 supabase/.branches

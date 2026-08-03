@@ -168,8 +168,10 @@ cp .mcp.example.json .mcp.json   # Claude Code tự nạp .mcp.json khi mở pro
 
 > ⛔ `.mcp.json` đã gitignore (có thể chứa token thật). Chỉ commit `.mcp.example.json` với placeholder — KHÔNG bao giờ commit token thật.
 
-**Takumi kit (skills / agents / roles / commands)** — KHÔNG vendor vào repo (`.gitignore` chặn `.claude/*` trừ `rules/` + `settings.json`). Kit sống ở global. Teammate onboarding — chạy **một lần**:
+**Takumi kit (skills / agents / commands / hooks / templates)** — phần lớn KHÔNG vendor vào repo (`.gitignore` chặn `.claude/*`, chỉ whitelist `rules/`, `settings.json`, `roles/`, và skill project). Kit sống ở global. Teammate onboarding — chạy **một lần**:
 ```bash
 tkm init --kit extras   # cài skills + agents + roles (gồm .claude/roles/) + momorph-implement-design
 ```
-> Chỉ `.claude/rules/`, `.claude/settings.json`, `CLAUDE.md`, `.mcp.example.json` là committed (project-specific). Mọi thứ khác đến từ kit global — vì vậy `tkm init` là bước bắt buộc trước khi chạy workflow.
+> Committed (version-pinned trong repo): `.claude/rules/`, `.claude/settings.json`, `.claude/roles/`, `.claude/skills/aidd-*/` + `.claude/skills/check-progress/`, `CLAUDE.md`, `.mcp.example.json`. Mọi thứ khác (skills của kit, agents, commands, hooks, templates) đến từ kit global — vì vậy `tkm init` là bước bắt buộc trước khi chạy workflow.
+>
+> **Skill project tự build:** đặt tên `aidd-<name>` (thư mục `.claude/skills/aidd-<name>/`) → `.gitignore` tự whitelist, được push cho cả team; invoke bằng `/aidd-<name>`. Skill của kit (prefix khác) vẫn ignore nên không lo commit nhầm. `check-progress` là skill cũ commit trước convention này — giữ nguyên tên.
