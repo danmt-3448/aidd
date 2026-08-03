@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* ── 7-segment LED font (DSEG7 Classic) ──────────────────────────────────── */
+@font-face {
+  font-family: 'DSEG7Classic';
+  src: url('/fonts/DSEG7Classic-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

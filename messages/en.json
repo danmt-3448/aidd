@@ -14,6 +14,21 @@
     "vi": "Tiếng Việt",
     "en": "English"
   },
+  "countdown": {
+    "pageTitle": "SAA 2025 — Countdown",
+    "logoAlt": "Sun* Annual Awards 2025",
+    "eyebrow": "Sun* Annual Awards 2025",
+    "heading": "Coming Soon",
+    "subheading": "The event is almost here. Stay tuned!",
+    "title": "Event starts in",
+    "days": "DAYS",
+    "hours": "HOURS",
+    "minutes": "MINUTES",
+    "done": "The event has started!",
+    "invalidConfig": "Event configuration is not available.",
+    "footer": "Copyright © Sun* 2025",
+    "timerAriaLabel": "{days} days {hours} hours {minutes} minutes remaining"
+  },
   "kudos": {
     "pageTitle": "",
     "modalTitle": "",
