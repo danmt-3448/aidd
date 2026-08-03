@@ -14,7 +14,7 @@ Next.js app generated from Figma design + MoMorph screen specs, using the Takumi
 
 ## Step → Role → Skill (BẮT BUỘC)
 
-| Step | Role (`~/.claude/agents/roles/`) | Skill | subagent_type |
+| Step | Role (`.claude/roles/`) | Skill | subagent_type |
 |---|---|---|---|
 | Check tiến độ / next step | — | `/check-progress` | orchestrator |
 | Scan codebase | — | `/tkm:scan-codebase` | Explore |
@@ -44,7 +44,7 @@ Next.js app generated from Figma design + MoMorph screen specs, using the Takumi
 
 **Role injection — prompt format bắt buộc khi spawn subagent (lean CRAFT-X):**
 ```
-{toàn bộ nội dung role file từ ~/.claude/agents/roles/}   ← R·A·F·T đã có trong role file
+{toàn bộ nội dung role file từ .claude/roles/}   ← R·A·F·T đã có trong role file
 
 ---
 
@@ -170,6 +170,6 @@ cp .mcp.example.json .mcp.json   # Claude Code tự nạp .mcp.json khi mở pro
 
 **Takumi kit (skills / agents / roles / commands)** — KHÔNG vendor vào repo (`.gitignore` chặn `.claude/*` trừ `rules/` + `settings.json`). Kit sống ở global. Teammate onboarding — chạy **một lần**:
 ```bash
-tkm init --kit extras   # cài skills + agents + roles (gồm ~/.claude/agents/roles/) + momorph-implement-design
+tkm init --kit extras   # cài skills + agents + roles (gồm .claude/roles/) + momorph-implement-design
 ```
 > Chỉ `.claude/rules/`, `.claude/settings.json`, `CLAUDE.md`, `.mcp.example.json` là committed (project-specific). Mọi thứ khác đến từ kit global — vì vậy `tkm init` là bước bắt buộc trước khi chạy workflow.

@@ -4,7 +4,7 @@
 **IMPORTANT**: Spend tokens like they cost something — stay efficient without dropping quality.
 
 #### 0. Role Injection (MANDATORY for all subagents)
-Trước khi spawn bất kỳ subagent nào: tra **bảng Step → Role → Skill trong `CLAUDE.md`** (single source of truth — 10 roles), đọc `~/.claude/agents/roles/{role}.md`, prepend toàn bộ nội dung vào prompt theo **lean CRAFT-X template** (Context + Task + `Output feeds →`). Role file đã chứa R·A·F·T; chỉ thêm C (state động) khi spawn. KHÔNG thêm Example trừ khi task mơ hồ.
+Trước khi spawn bất kỳ subagent nào: tra **bảng Step → Role → Skill trong `CLAUDE.md`** (single source of truth — 10 roles), đọc `.claude/roles/{role}.md`, prepend toàn bộ nội dung vào prompt theo **lean CRAFT-X template** (Context + Task + `Output feeds →`). Role file đã chứa R·A·F·T; chỉ thêm C (state động) khi spawn. KHÔNG thêm Example trừ khi task mơ hồ.
 
 #### 1. Plan → Validate → Build → Integrate
 

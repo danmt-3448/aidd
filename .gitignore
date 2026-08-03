@@ -47,6 +47,11 @@ next-env.d.ts
 .claude/*
 !.claude/rules/
 !.claude/settings.json
+# Project-specific workflow assets (commit these — teammates need them on clone):
+!.claude/roles/
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/check-progress/
 
 # Supabase local temp
 supabase/.branches

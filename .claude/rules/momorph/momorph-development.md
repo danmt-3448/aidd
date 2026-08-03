@@ -25,7 +25,7 @@ After fetching specs and test cases (Clarification Protocol step 2), the orchest
 
 ### Track A — UI Implementation (background `implementer` subagents)
 
-**Role: FE Developer** — prepend full content of `~/.claude/agents/roles/fe-developer.md` before the task description in every Track A subagent prompt.
+**Role: FE Developer** — prepend full content of `.claude/roles/fe-developer.md` before the task description in every Track A subagent prompt.
 
 Spawn **one background subagent per screen** via `Agent(subagent_type="implementer", run_in_background=true)`. All screen agents run in parallel.
 
@@ -43,7 +43,7 @@ Each subagent:
 
 ### Track B — Clarification + Planning + Backend Implementation (orchestrator, main thread)
 
-**Role: BE Developer** — orchestrator adopts full `~/.claude/agents/roles/be-developer.md` persona when implementing backend logic (step 3 below). When spawning a separate BE subagent, prepend the full `be-developer.md` content to the prompt.
+**Role: BE Developer** — orchestrator adopts full `.claude/roles/be-developer.md` persona when implementing backend logic (step 3 below). When spawning a separate BE subagent, prepend the full `be-developer.md` content to the prompt.
 
 Orchestrator proceeds through the **full pipeline** without waiting for Track A:
 
@@ -60,7 +60,7 @@ Focus areas for planning and implementation:
 
 ### Integration (no hard merge point)
 
-**Role: Integration Engineer** — integration work adopts `~/.claude/agents/roles/integration-engineer.md` (orchestrator persona, or a spawned subagent with the role prepended).
+**Role: Integration Engineer** — integration work adopts `.claude/roles/integration-engineer.md` (orchestrator persona, or a spawned subagent with the role prepended).
 
 Track A agents complete asynchronously. As each finishes:
 
