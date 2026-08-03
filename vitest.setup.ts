@@ -32,7 +32,6 @@ vi.mock('next/image', () => ({
     alt,
     width,
     height,
-    priority,
     className,
     style,
   }: {
@@ -45,7 +44,6 @@ vi.mock('next/image', () => ({
     style?: Record<string, string>
   }) => {
     const React = require('react')
-    // eslint-disable-next-line jsx-a11y/alt-text
     return React.createElement('img', { src, alt, width, height, className, style })
   },
 }))

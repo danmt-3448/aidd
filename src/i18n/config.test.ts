@@ -44,8 +44,8 @@ describe('i18n/config', () => {
     })
 
     it('should return false for non-string values', () => {
-      expect(isLocale('VN' as any)).toBe(false)
-      expect(isLocale('VI' as any)).toBe(false)
+      expect(isLocale('VN')).toBe(false)
+      expect(isLocale('VI')).toBe(false)
     })
   })
 })
