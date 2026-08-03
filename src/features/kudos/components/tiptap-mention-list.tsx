@@ -7,9 +7,15 @@ export interface MentionItem {
   name: string
 }
 
+/** Shape passed to Tiptap's command callback — maps to node.attrs */
+interface MentionCommandItem {
+  id: string
+  label: string
+}
+
 interface MentionListProps {
   items: MentionItem[]
-  command: (item: MentionItem) => void
+  command: (item: MentionCommandItem) => void
 }
 
 export interface MentionListRef {
@@ -22,7 +28,7 @@ export const MentionList = forwardRef<MentionListRef, MentionListProps>(
 
     const selectItem = (index: number) => {
       const item = items[index]
-      if (item) command(item)
+      if (item) command({ id: item.id, label: item.name })
     }
 
     const upHandler = () => {
@@ -50,6 +56,7 @@ export const MentionList = forwardRef<MentionListRef, MentionListProps>(
 
     return (
       <div
+        data-testid="mention-list"
         className="z-50 overflow-hidden rounded-lg shadow-lg"
         style={{ border: '1px solid #998C5F', background: '#FFF', minWidth: '160px' }}
       >

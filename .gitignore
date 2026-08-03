@@ -48,3 +48,8 @@ next-env.d.ts
 # Supabase local temp
 supabase/.branches
 supabase/.temp
+
+# Playwright test artifacts
+playwright-report/
+test-results/
+.playwright-mcp/

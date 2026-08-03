@@ -100,9 +100,25 @@ values
     now(), now(), 'authenticated', 'authenticated'
   )
 on conflict (id) do nothing;
--- NOTE: seeded users are recipient/@mention DATA only (searchRecipients reads
--- public.profiles). They are NOT meant for login — log in via /dev-login (env-gated),
--- which signUp-creates a GoTrue-native account on first use.
+
+-- GoTrue cannot authenticate a manually-inserted auth.users row whose token
+-- columns are NULL (its Go scanner fails NULL→string → "invalid credentials").
+-- Normalize them to '' + zero instance_id so these users can sign in via
+-- /dev-login (signInWithPassword). Idempotent. Fixes all *@sun-asterisk.com seeds.
+update auth.users set
+  instance_id                = '00000000-0000-0000-0000-000000000000',
+  confirmation_token         = coalesce(confirmation_token, ''),
+  recovery_token             = coalesce(recovery_token, ''),
+  email_change               = coalesce(email_change, ''),
+  email_change_token_new     = coalesce(email_change_token_new, ''),
+  email_change_token_current = coalesce(email_change_token_current, ''),
+  phone_change               = coalesce(phone_change, ''),
+  phone_change_token         = coalesce(phone_change_token, ''),
+  reauthentication_token     = coalesce(reauthentication_token, '')
+where email like '%@sun-asterisk.com';
+-- NOTE: seeded users double as recipient/@mention DATA (searchRecipients reads
+-- public.profiles) AND as loginable accounts for local E2E via /dev-login.
+-- All share password TestPass123!.
 
 -- ============================================================
 -- 2.  Hashtag catalog

@@ -28,10 +28,14 @@ export default function KudosPage() {
           Viết Kudo
         </button>
 
-        <KudoComposeModal
-          isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
-        />
+        {/* Conditional mount: closing unmounts the modal so a reopen starts from a
+            fresh instance (recipient/hashtags/editor all reset per spec ID-46/47). */}
+        {modalOpen && (
+          <KudoComposeModal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+          />
+        )}
       </main>
     </QueryProvider>
   )
