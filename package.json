@@ -11,7 +11,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "seed:auth": "node --env-file=.env.local supabase/seed-auth-users.mjs",
+    "db:reset": "supabase db reset && npm run seed:auth"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

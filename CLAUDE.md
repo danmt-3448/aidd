@@ -14,7 +14,7 @@ Next.js app generated from Figma design + MoMorph screen specs, using the Takumi
 
 ## Step → Role → Skill (BẮT BUỘC)
 
-| Step | Role (`~/.claude/agents/roles/`) | Skill | subagent_type |
+| Step | Role (`.claude/agents/roles/`) | Skill | subagent_type |
 |---|---|---|---|
 | Check tiến độ / next step | — | `/check-progress` | orchestrator |
 | Scan codebase | — | `/tkm:scan-codebase` | Explore |
@@ -44,7 +44,7 @@ Next.js app generated from Figma design + MoMorph screen specs, using the Takumi
 
 **Role injection — prompt format bắt buộc khi spawn subagent (lean CRAFT-X):**
 ```
-{toàn bộ nội dung role file từ ~/.claude/agents/roles/}   ← R·A·F·T đã có trong role file
+{toàn bộ nội dung role file từ .claude/agents/roles/}   ← R·A·F·T đã có trong role file
 
 ---
 
@@ -140,8 +140,29 @@ Rules: **never guess visual values** — MCP design data is authoritative. Fetch
 ## Commands
 
 ```bash
-npm run dev     # dev server (http://localhost:3000)
-npm run build   # production build
-npm run lint    # eslint
-# add: npm run test (vitest), npm run test:e2e (playwright) when tests land
+npm run dev        # dev server (http://localhost:3000)
+npm run build      # production build
+npm run lint       # eslint
+npm run test       # unit (vitest)
+npm run test:e2e   # e2e (playwright) — cần dev server + Supabase local
+npm run seed:auth  # seed users qua GoTrue admin API (auth.admin.createUser)
+npm run db:reset   # supabase db reset + seed:auth (schema + hashtags + users)
 ```
+
+> Seed users KHÔNG tạo bằng SQL thô (INSERT auth.users để NULL token → vỡ login).
+> Dùng `supabase/seed-auth-users.mjs` qua admin API → native GoTrue accounts.
+
+## Local setup (teammate onboarding)
+
+**MCP servers** — cấu hình committed ở `.mcp.json` (repo-scoped). Claude Code sẽ tự nạp khi mở project.
+
+- **momorph** (`https://mcp.momorph.ai/mcp`) — cần env var `MOMORPH_GITHUB_TOKEN` (GitHub token gắn với momorph auth của **chính bạn**, per-user). `.mcp.json` expand `${MOMORPH_GITHUB_TOKEN}` từ **shell environment** của tiến trình chạy Claude Code — export trước khi mở:
+  ```bash
+  export MOMORPH_GITHUB_TOKEN="gho_...."   # token riêng của bạn, KHÔNG commit
+  ```
+  (Không đặt trong `.env.local` — file đó chỉ feed Next.js runtime, không feed MCP header.)
+- **playwright** — `npx @playwright/mcp@latest`, không cần secret.
+
+> ⛔ KHÔNG commit token thật vào `.mcp.json` hay bất kỳ file nào. `.env*` đã gitignore.
+
+**Roles** — 10 file persona được **vendored trong repo** tại `.claude/agents/roles/` (portable cho mọi máy sau khi clone). Nếu kit global (`~/.claude/agents/roles/`) update, đồng bộ lại thư mục này để tránh drift.
