@@ -1,0 +1,1 @@
+- [MoMorph MCP unavailable in subagent sessions](feedback-mcp-unavailable-subagent.md) — MCP tools absent when .mcp.json missing + no MOMORPH_GITHUB_TOKEN; Track A UI built from codebase patterns instead
