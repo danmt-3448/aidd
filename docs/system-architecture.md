@@ -30,7 +30,7 @@
 ## Route Map (`src/app/`)
 
 ```
-/                          src/app/page.tsx              — default scaffold page (unguarded)
+/                          src/app/page.tsx              — redirects → /todo (authed) / /login (unauth, via proxy)
 /login                     src/app/login/page.tsx         — LoginScreen; guard redirects here if unauthenticated
 /auth/callback             src/app/auth/callback/route.ts — OAuth/magic-link code exchange → session
 /dev-login                 src/app/dev-login/page.tsx     — email+password (NEXT_PUBLIC_ENABLE_DEV_LOGIN)

@@ -1,0 +1,22 @@
+[
+  {
+    "command": "npm run test:e2e -- e2e/root-redirect.spec.ts --reporter=line",
+    "exitCode": 0,
+    "summary": "E2E redirect test: 2 passed (unauthenticated → /login, authenticated → /todo)"
+  },
+  {
+    "command": "npm run test",
+    "exitCode": 0,
+    "summary": "Unit tests: 5 test files, 64 tests passed"
+  },
+  {
+    "command": "npx eslint src/app/page.tsx e2e/root-redirect.spec.ts",
+    "exitCode": 0,
+    "summary": "Lint clean: no errors or warnings in changed files"
+  },
+  {
+    "command": "npm run build",
+    "exitCode": 0,
+    "summary": "Production build successful, root route / compiles"
+  }
+]
