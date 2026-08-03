@@ -10,17 +10,63 @@ Next.js app generated from Figma design + MoMorph screen specs, using the Takumi
 
 **PLAN-FIRST — KHÔNG gen BẤT CỨ code nào khi chưa có plan được duyệt.** Luôn `/tkm:create-plan` (hoặc dừng ở Blueprint rest point của `/tkm:takumi` interactive) để user review + duyệt TRƯỚC khi forge. Không plan, không code.
 
-**KHÔNG tự gen/sửa code feature ad-hoc.** Mọi thay đổi code sản phẩm PHẢI đi qua skill Takumi phù hợp:
+**KHÔNG tự gen/sửa code feature ad-hoc.** Mọi thay đổi code sản phẩm PHẢI đi qua skill + role đúng theo bảng sau:
 
-| Việc | Skill bắt buộc |
-|---|---|
-| Implement 1 màn (UI + logic) | `/tkm:takumi <MoMorph URL>` |
-| Nhiều màn / feature phức tạp | `/tkm:create-plan` → `/tkm:takumi <plan>` |
-| Chỉ UI từ design | `/momorph-implement-design <MoMorph URL>` |
-| Sửa bug 1 màn | `/tkm:fix-bug <mô tả> <MoMorph URL>` |
-| Test / review / dọn code | `/tkm:run-tests`, `/tkm:review-code`, `/tkm:clean-code` |
+## Step → Role → Skill (BẮT BUỘC)
 
-Quy tắc: Takumi tự điều phối `implementer`/`tester`/`reviewer` subagent — **không được bỏ qua test/review** (0 lần gọi Task = chưa xong). Chỉ sửa tay khi user nói rõ ("just code it" / "sửa nhanh dòng X"). Ngoài ra: skill trước, code sau.
+| Step | Role (`~/.claude/agents/roles/`) | Skill | subagent_type |
+|---|---|---|---|
+| Check tiến độ / next step | — | `/check-progress` | orchestrator |
+| Scan codebase | — | `/tkm:scan-codebase` | Explore |
+| Research kỹ thuật | — | `/tkm:research` | researcher |
+| Đánh giá risk trước khi build | `plan-reviewer.md` | `/tkm:predict-risks` | reviewer |
+| Tạo plan | `plan-architect.md` | `/tkm:create-plan` | planner |
+| Review & validate plan | `plan-reviewer.md` | `/tkm:review-code` | reviewer |
+| Generate UI specs từ design | `plan-architect.md` | `/tkm:generate-ui-specs` | implementer |
+| Generate test cases từ spec (TDD prep) | `test-writer.md` | `/tkm:generate-testcases` | implementer |
+| Track A — UI build | `fe-developer.md` | `/momorph-implement-design <URL>` | implementer |
+| Track B — Backend build | `be-developer.md` | `/tkm:takumi` (BE phases) | implementer |
+| Implement màn (UI + logic full) | `fe-developer.md` + `be-developer.md` | `/tkm:takumi <URL>` | implementer ×2 |
+| Multi-screen / phức tạp | `fe-developer.md` + `be-developer.md` | `/tkm:create-plan` → `/tkm:takumi <plan>` | implementer ×N |
+| Design / refine DB schema | `be-developer.md` | `/tkm:design-database` | implementer |
+| Integration (wire UI ↔ backend) | `integration-engineer.md` | `/tkm:takumi` (integration phase) | implementer |
+| Fix bug | `fe-developer.md` hoặc `be-developer.md` | `/tkm:fix-bug <mô tả> <URL>` | implementer |
+| Debug issue (diagnose trước fix) | `fe/be/integration-engineer.md` | `/tkm:debug-code` | debugger |
+| Dọn code (sau feature) | `fe-developer.md` hoặc `be-developer.md` | `/tkm:clean-code` | code-simplifier |
+| Viết tests | `test-writer.md` | `/tkm:run-tests` | implementer |
+| Chạy tests | `test-runner.md` | `/tkm:run-tests` | tester |
+| Review code | `code-reviewer.md` | `/tkm:review-code` | reviewer |
+| Security audit | `code-reviewer.md` | `/tkm:audit-security` | reviewer |
+| Update docs sau feature | `doc-writer.md` | `/tkm:manage-docs` | implementer |
+| Audit doc vs code parity | `doc-writer.md` | `/tkm:audit-doc-parity` | reviewer |
+| Deploy lên production | `deployer.md` | `/tkm:deploy-app` | deployer |
+| Commit / Push / PR | — | `/tkm:git` | git-manager |
+
+**Role injection — prompt format bắt buộc khi spawn subagent (lean CRAFT-X):**
+```
+{toàn bộ nội dung role file từ ~/.claude/agents/roles/}   ← R·A·F·T đã có trong role file
+
+---
+
+## Context                                    ← C: state động, vốn phải truyền
+- Project: AIDD (Next.js + Supabase) · Branch: {branch}
+- State: {phase đang làm · cái gì đã xong · file liên quan}
+- Constraints: {constraint riêng task, nếu có}
+
+## Task                                       ← A
+{phase file / task description}
+
+## Output feeds → {agent/step tiếp theo dùng output}   ← T: 1 dòng
+
+Work context: /Users/mai.thanh.dan/Desktop/Sun/AI/aidd
+Reports: /Users/mai.thanh.dan/Desktop/Sun/AI/aidd/plans/reports/
+Plans: /Users/mai.thanh.dan/Desktop/Sun/AI/aidd/plans/
+```
+> **R·A·F** đã nằm trong role file. **C** (Context) là state động vốn phải truyền — chỉ đặt tên cho có cấu trúc. **T** (Output feeds) = 1 dòng, mỗi role đã ghi sẵn consumer mặc định ở mục Output. **X** (Example) KHÔNG thêm — role file đã có code pattern; chỉ thêm ad-hoc khi task thực sự mơ hồ.
+
+Quy tắc: **skill trước, code sau** — không code ad-hoc. Takumi điều phối subagents — không bỏ qua test/review. Chỉ sửa tay khi user nói rõ ("just code it" / "sửa nhanh dòng X").
+
+**BẮT BUỘC chạy `/check-progress` khi user hỏi bất kỳ dạng nào của:** "tiếp theo làm gì", "làm màn nào tiếp", "còn gì chưa xong", "check tiến độ", "what's next", "what should we do next", hoặc hỏi về trạng thái công việc chung của project.
 
 ## Tech Stack
 

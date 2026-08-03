@@ -21,7 +21,11 @@ The two-track structure (A = UI, B = backend/logic) applies the same way to both
 
 After fetching specs and test cases (Clarification Protocol step 2), the orchestrator treats both tracks as **concurrently runnable** — nothing blocks anything else. In `tkm:takumi` this means real parallel execution; in `tkm:create-plan` this means the plan's phase graph keeps Track A and Track B independent.
 
+> **Role injection:** mọi subagent spawn ở đây PHẢI theo lean CRAFT-X template trong `CLAUDE.md` (role file + `## Context` + `## Task` + `Output feeds →`). Role file đã chứa R·A·F·T.
+
 ### Track A — UI Implementation (background `implementer` subagents)
+
+**Role: FE Developer** — prepend full content of `~/.claude/agents/roles/fe-developer.md` before the task description in every Track A subagent prompt.
 
 Spawn **one background subagent per screen** via `Agent(subagent_type="implementer", run_in_background=true)`. All screen agents run in parallel.
 
@@ -35,14 +39,16 @@ Each subagent:
 
 **Multi-screen rule:** If user requests N screens → spawn N independent background agents. Each agent owns one screen. No shared state between UI agents.
 
-**Subagent prompt MUST include:** MoMorph URL, fileKey, screenId, project conventions path, and explicit instruction: "Use Figma design content as mock data source. Do NOT invent data."
+**Subagent prompt MUST include:** full `fe-developer.md` role (first), then MoMorph URL, fileKey, screenId, project conventions path, and explicit instruction: "Use Figma design content as mock data source. Do NOT invent data."
 
 ### Track B — Clarification + Planning + Backend Implementation (orchestrator, main thread)
+
+**Role: BE Developer** — orchestrator adopts full `~/.claude/agents/roles/be-developer.md` persona when implementing backend logic (step 3 below). When spawning a separate BE subagent, prepend the full `be-developer.md` content to the prompt.
 
 Orchestrator proceeds through the **full pipeline** without waiting for Track A:
 
 1. Clarification Protocol (steps 3–6 below) — resolve specs gaps
-2. Plan backend/behavior logic — API contracts, data models, state management
+2. Plan backend/behavior logic — API contracts, data models, state management (adopt `plan-architect.md` role for this step)
 3. **Start implementing backend logic immediately** — do NOT wait for UI agents to finish
 
 Focus areas for planning and implementation:
@@ -54,6 +60,8 @@ Focus areas for planning and implementation:
 
 ### Integration (no hard merge point)
 
+**Role: Integration Engineer** — integration work adopts `~/.claude/agents/roles/integration-engineer.md` (orchestrator persona, or a spawned subagent with the role prepended).
+
 Track A agents complete asynchronously. As each finishes:
 
 1. Orchestrator receives notification of completion
@@ -63,6 +71,8 @@ Track A agents complete asynchronously. As each finishes:
 5. If backend still in progress → integration happens when backend for that screen completes
 
 **There is NO blocking merge point.** Both tracks run freely. Integration happens incrementally as outputs become available.
+
+**Handoff sau integration:** mỗi màn integrate xong → chuyển sang `primary-workflow.md` **Step 2 (Testing) → Step 3 (Review) → Step 4 (Docs/Ship)** với các role tương ứng (test-writer/test-runner → code-reviewer → doc-writer). Không màn nào coi là done khi chưa qua test + review.
 
 ---
 
