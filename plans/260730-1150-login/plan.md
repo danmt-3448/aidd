@@ -1,7 +1,7 @@
 ---
 title: Login screen (SAA 2025)
 work_type: feature
-status: in_progress
+status: completed
 spec_source: momorph:GzbNeVGJHz
 clarifications: plans/260730-1150-login/clarifications.md
 blockedBy: []
@@ -24,13 +24,13 @@ Track A (UI) và Track B (backend/logic) **chạy song song** — không block n
 
 | # | Phase | Track | Status | Depends |
 |---|-------|-------|--------|---------|
-| 01 | [Login UI](phase-01-login-ui.md) | A · UI | todo | — |
-| 02 | [Supabase schema: profiles](phase-02-supabase-schema-profiles.md) | B · DB | todo | — |
-| 03 | [Supabase clients + Google provider](phase-03-supabase-auth-clients.md) | B · auth | todo | 02 |
-| 04 | [Auth flow + route guard](phase-04-auth-flow-guard.md) | B · logic | todo | 03 |
-| 05 | [i18n setup (next-intl)](phase-05-i18n-setup.md) | B · i18n | todo | — |
-| 06 | [Integration](phase-06-integration.md) | A+B | todo | 01, 04, 05 |
-| 07 | [Tests (Vitest + Playwright)](phase-07-tests.md) | test | todo | 06 |
+| 01 | [Login UI](phase-01-login-ui.md) | A · UI | completed | — |
+| 02 | [Supabase schema: profiles](phase-02-supabase-schema-profiles.md) | B · DB | completed | — |
+| 03 | [Supabase clients + Google provider](phase-03-supabase-auth-clients.md) | B · auth | completed | 02 |
+| 04 | [Auth flow + route guard](phase-04-auth-flow-guard.md) | B · logic | completed | 03 |
+| 05 | [i18n setup (next-intl)](phase-05-i18n-setup.md) | B · i18n | completed | — |
+| 06 | [Integration](phase-06-integration.md) | A+B | completed | 01, 04, 05 |
+| 07 | [Tests (Vitest + Playwright)](phase-07-tests.md) | test | completed | 06 |
 
 ## Key dependencies
 
