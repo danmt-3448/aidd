@@ -65,11 +65,14 @@ async function selectRecipient(page: Page, search = RECIPIENT_SEARCH): Promise<v
     .getByRole('button', { name: /tìm kiếm|người nhận/i })
     .first()
     .click()
-  // Type in the search box (autoFocus)
-  await page.getByPlaceholder('Tìm kiếm...').fill(search)
-  // Wait for the option to appear and click it
+  // Wait for the search box to mount before typing (dropdown opens async).
+  const searchBox = page.getByPlaceholder('Tìm kiếm...')
+  await expect(searchBox).toBeVisible()
+  await searchBox.fill(search)
+  // Wait for the option to appear and click it. Timeout absorbs the 300ms debounce
+  // + a cold server-action + Supabase query on first search (see use-recipient-search).
   const option = page.getByRole('option', { name: new RegExp(search, 'i') }).first()
-  await expect(option).toBeVisible({ timeout: 5_000 })
+  await expect(option).toBeVisible({ timeout: 15_000 })
   await option.click()
 }
 

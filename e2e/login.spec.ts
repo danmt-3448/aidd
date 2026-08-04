@@ -28,7 +28,9 @@ test.describe('Login Page', () => {
   test('should display error message when error query param is 1', async ({ page }) => {
     await page.goto('/login?error=1')
 
-    const alert = page.locator('[role="alert"]')
+    // Scope to the login error <p role="alert"> — a bare [role="alert"] also matches
+    // Next.js's app-wide <div id="__next-route-announcer__" role="alert">.
+    const alert = page.locator('p[role="alert"]')
     await expect(alert).toBeVisible()
     await expect(alert).toContainText('Đăng nhập không thành công. Vui lòng thử lại.')
   })
@@ -36,7 +38,9 @@ test.describe('Login Page', () => {
   test('should not display error message without error query param', async ({ page }) => {
     await page.goto('/login')
 
-    const alert = page.locator('[role="alert"]')
+    // Scope to the login error <p role="alert"> — a bare [role="alert"] also matches
+    // Next.js's app-wide <div id="__next-route-announcer__" role="alert">.
+    const alert = page.locator('p[role="alert"]')
     await expect(alert).not.toBeVisible()
   })
 
