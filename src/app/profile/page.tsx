@@ -1,7 +1,5 @@
 import { notFound } from 'next/navigation'
-import { Toaster } from 'sonner'
 import { createClient } from '@/lib/supabase/server'
-import { QueryProvider } from '@/lib/query/query-provider'
 import { parseProfileId } from '@/features/profile/profile-route'
 import { ProfileConnected } from '@/features/profile/components/profile-connected'
 
@@ -21,7 +19,7 @@ import { ProfileConnected } from '@/features/profile/components/profile-connecte
  *      own uid, treat it as self (avoids showing the write-bar to yourself).
  *
  * Data wiring lives in ProfileConnected (client component). This server component
- * only resolves identity and renders the provider shell.
+ * only resolves identity. QueryProvider + Toaster are at root (src/app/providers.tsx).
  */
 
 export default async function ProfilePage({
@@ -67,10 +65,5 @@ export default async function ProfilePage({
     profileId = targetId
   }
 
-  return (
-    <QueryProvider>
-      <Toaster position="top-center" richColors />
-      <ProfileConnected profileId={profileId} isSelf={isSelf} />
-    </QueryProvider>
-  )
+  return <ProfileConnected profileId={profileId} isSelf={isSelf} />
 }

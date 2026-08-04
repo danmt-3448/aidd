@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { RulesPanel } from '@/features/rules/components'
 import { KudoComposeModal } from '@/features/kudos/components/kudo-compose-modal'
-import { QueryProvider } from '@/lib/query/query-provider'
 import {
   RECIPIENT_SECTION,
   SENDER_SECTION,
@@ -57,9 +56,7 @@ export default function RulesPage() {
         onClose={() => setVisible(false)}
       />
       {composeOpen && (
-        <QueryProvider>
-          <KudoComposeModal isOpen onClose={() => setComposeOpen(false)} />
-        </QueryProvider>
+        <KudoComposeModal isOpen onClose={() => setComposeOpen(false)} />
       )}
     </main>
   )

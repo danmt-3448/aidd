@@ -1,11 +1,37 @@
 'use client'
 
 import { useCallback, useEffect, useId, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { toast } from 'sonner'
 import { montserrat } from '../fonts'
 import { RecipientSelect, type RecipientItem } from './recipient-select'
-import { TiptapEditor } from './tiptap-editor'
 import { HashtagPicker, type HashtagItem } from './hashtag-picker'
+
+// Lazy-load TiptapEditor: ProseMirror + 7 @tiptap/* packages are heavy (~300 KB+).
+// Dynamic import with ssr:false splits them out of the initial /kudos bundle.
+// The modal is conditionally mounted ({modalOpen && <KudoComposeModal>}), so
+// TiptapEditor only loads when the compose modal actually opens.
+const TiptapEditor = dynamic(
+  () => import('./tiptap-editor').then((m) => ({ default: m.TiptapEditor })),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="flex items-center justify-center"
+        style={{
+          border: '1px solid #998C5F',
+          borderRadius: '0 0 8px 8px',
+          minHeight: '200px',
+          background: '#FFF',
+        }}
+      >
+        <span className="font-montserrat text-sm" style={{ color: '#999' }}>
+          Đang tải trình soạn thảo…
+        </span>
+      </div>
+    ),
+  },
+)
 import { ImageUploader, type UploadedImage } from './image-uploader'
 import { AnonymousToggle } from './anonymous-toggle'
 import { SubmitBar } from './submit-bar'

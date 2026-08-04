@@ -10,6 +10,9 @@ export function makeQueryClient(): QueryClient {
       queries: {
         // Avoid refetching immediately on the client after SSR hydration
         staleTime: 60 * 1000,
+        // App is realtime-driven via Supabase subscriptions; window-focus
+        // refetches add unnecessary round-trips with no UX benefit.
+        refetchOnWindowFocus: false,
       },
     },
   })

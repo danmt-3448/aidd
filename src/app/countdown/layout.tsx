@@ -1,11 +1,9 @@
-'use client'
+import type { ReactNode } from 'react'
 
-import { QueryProvider } from '@/lib/query/query-provider'
-
-export default function CountdownLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return <QueryProvider>{children}</QueryProvider>
+/**
+ * /countdown layout — Server Component.
+ * QueryProvider is now at root (src/app/providers.tsx); no per-route wrapper needed.
+ */
+export default function CountdownLayout({ children }: { children: ReactNode }) {
+  return <>{children}</>
 }

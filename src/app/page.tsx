@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { getIsAdmin } from '@/features/auth/get-is-admin'
-import { QueryProvider } from '@/lib/query/query-provider'
 import { HomepageConnected } from '@/features/homepage/components/homepage-connected'
 
 /**
@@ -10,9 +9,9 @@ import { HomepageConnected } from '@/features/homepage/components/homepage-conne
  * server-side, then hands plain serializable props to HomepageConnected,
  * which wires the client data hooks (useCountdown, useUnreadCount).
  *
- * QueryProvider is mounted here because the countdown + notification hooks
- * (and the FAB's KudoComposeModal) all use TanStack Query. Other routes
- * self-wrap the same way — there is no global provider in the root layout.
+ * QueryProvider is at root (src/app/providers.tsx) — shared across all routes.
+ * HomepageConnected uses TanStack Query hooks (useCountdown, useUnreadCount)
+ * which resolve against that single shared QueryClient.
  *
  * /todo route is still directly reachable (src/app/todo/ untouched).
  */
@@ -38,12 +37,10 @@ export default async function Home() {
     : null
 
   return (
-    <QueryProvider>
-      <HomepageConnected
-        uid={user?.id ?? null}
-        user={headerUser}
-        isAdmin={isAdmin}
-      />
-    </QueryProvider>
+    <HomepageConnected
+      uid={user?.id ?? null}
+      user={headerUser}
+      isAdmin={isAdmin}
+    />
   )
 }
