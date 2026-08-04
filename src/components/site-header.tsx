@@ -1,0 +1,246 @@
+'use client'
+
+/**
+ * SiteHeader — shared sticky header for all authenticated screens (Homepage,
+ * Board, Profile, Awards). Generalised from HomepageHeader.
+ *
+ * Figma: mms_A1_Header (node 2167:9091, screen i87tDx10uM)
+ * Design values preserved from HomepageHeader — do NOT restyle here.
+ *   - bg: rgba(16,20,23,0.8), backdrop-blur 12px
+ *   - height: 80px, padding: 12px 144px (→ xl:px-36)
+ *   - logo: 52×48px
+ *   - nav gap: 24px, font 14px Montserrat 700
+ *   - active link: #FFEA9E + bottom border 1px solid #FFEA9E + text-shadow glow
+ *   - right cluster gap: 16px
+ *
+ * Props:
+ *   user        — null = public header (no bell/account). Authenticated = bell + menu.
+ *   unreadCount — badge on bell (0 = no badge).
+ *   uid         — auth user id; required to fetch notifications in the panel.
+ *   isAdmin     — true adds Admin Dashboard in account dropdown.
+ *   activeNav   — drives aria-current="page" on the matching nav link.
+ *                 null = no link is marked active.
+ */
+
+import { useRef, useState, useCallback } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { montserrat } from '@/features/auth/fonts'
+import { useLanguageSwitcher } from './language-switcher'
+import { NotificationPanel } from '@/features/notifications/notification-panel'
+import { SiteAccountMenu } from './site-account-menu'
+import type { Locale } from '@/i18n/config'
+
+export type ActiveNav = 'about' | 'awards' | 'kudos' | null
+
+export interface SiteHeaderProps {
+  /** Null = public (unauthenticated) header — no bell, no account menu. */
+  user: { name: string; avatarUrl?: string } | null
+  /** Number of unread notifications. 0 = no badge. */
+  unreadCount: number
+  /** Auth user id — passed to NotificationPanel so it can fetch notifications. */
+  uid?: string | null
+  /** Show "Admin Dashboard" in account dropdown when true. */
+  isAdmin: boolean
+  /**
+   * Which nav item is currently active — drives aria-current="page".
+   * null = no item is active (neutral state, e.g. detail pages).
+   */
+  activeNav: ActiveNav
+}
+
+interface NavItemDef {
+  id: ActiveNav
+  label: string
+  href: string
+}
+
+const NAV_ITEMS: NavItemDef[] = [
+  { id: 'about',  label: 'About SAA 2025',    href: '/#about' },
+  { id: 'awards', label: 'Award Information', href: '/awards' },
+  { id: 'kudos',  label: 'Sun* Kudos',        href: '/board'  },
+]
+
+export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav }: SiteHeaderProps) {
+  const bellRef = useRef<HTMLButtonElement | null>(null)
+  const [panelOpen, setPanelOpen] = useState(false)
+
+  const togglePanel = useCallback(() => setPanelOpen((v) => !v), [])
+  const closePanel = useCallback(() => setPanelOpen(false), [])
+
+  // Language switcher — toggles vi ↔ en.
+  const { locale, switchLocale, isPending } = useLanguageSwitcher()
+  const nextLocale: Locale = locale === 'vi' ? 'en' : 'vi'
+
+  return (
+    <header
+      className="sticky top-0 z-50 flex w-full items-center justify-between px-4 py-3 md:px-16 xl:px-36"
+      style={{
+        minHeight: 80,
+        background: 'rgba(16,20,23,0.8)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+      }}
+      aria-label="Site header"
+    >
+      {/* Left: Logo + nav */}
+      <div className="flex items-center gap-6 md:gap-16">
+        {/* Logo */}
+        <Link href="/" aria-label="Sun* Homepage">
+          <div style={{ width: 52, height: 48, position: 'relative' }}>
+            <Image
+              src="/homepage/logo.png"
+              alt="Sun* Annual Awards 2025"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+        </Link>
+
+        {/* Nav links */}
+        <nav
+          className="hidden items-center md:flex"
+          style={{ gap: 24 }}
+          aria-label="Main navigation"
+        >
+          {NAV_ITEMS.map(({ id, label, href }) => {
+            const isActive = id === activeNav
+            return isActive ? (
+              <a
+                key={id}
+                href={href}
+                className={`${montserrat.className} flex items-center px-4 py-4 text-sm font-bold transition-colors`}
+                style={{
+                  color: '#FFEA9E',
+                  borderBottom: '1px solid #FFEA9E',
+                  textShadow: '0 4px 4px rgba(0,0,0,0.25), 0 0 6px #FAE287',
+                  lineHeight: '20px',
+                  letterSpacing: '0.1px',
+                }}
+                aria-current="page"
+              >
+                {label}
+              </a>
+            ) : (
+              <Link
+                key={id}
+                href={href}
+                className={`${montserrat.className} flex items-center rounded px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10`}
+                style={{ lineHeight: '20px', letterSpacing: '0.1px' }}
+              >
+                {label}
+              </Link>
+            )
+          })}
+        </nav>
+      </div>
+
+      {/* Right: Language + optional bell + optional account */}
+      <div className="flex items-center gap-2 md:gap-4">
+        {/* Language selector — toggles vi ↔ en */}
+        <button
+          className="flex items-center rounded px-3 py-2 transition-opacity hover:opacity-80"
+          style={{ gap: 6, background: 'transparent' }}
+          aria-label={`Chuyển sang ${nextLocale.toUpperCase()}`}
+          disabled={isPending}
+          onClick={() => switchLocale(nextLocale)}
+        >
+          {locale === 'vi' ? (
+            <div className="relative" style={{ width: 20, height: 15 }}>
+              <Image
+                src="/homepage/flag-vn.svg"
+                alt="VN"
+                fill
+                className="object-contain"
+              />
+            </div>
+          ) : (
+            /* No flag-en asset — use a globe emoji glyph as placeholder.
+               Flagged for visual-verify pass to add a proper EN flag asset. */
+            <span style={{ fontSize: 16, lineHeight: 1 }} aria-hidden="true">🌐</span>
+          )}
+          <span
+            className={montserrat.className}
+            style={{ fontSize: 16, fontWeight: 700, lineHeight: '24px', color: '#FFFFFF', letterSpacing: '0.15px' }}
+          >
+            {locale.toUpperCase()}
+          </span>
+          <div className="relative" style={{ width: 24, height: 24 }}>
+            <Image
+              src="/homepage/icon-chevron-down.svg"
+              alt=""
+              fill
+              className="object-contain"
+            />
+          </div>
+        </button>
+
+        {/* Notification bell — only when authenticated; wraps panel */}
+        {user !== null && (
+          <div className="relative">
+            <button
+              ref={bellRef}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full transition-opacity hover:opacity-80"
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+              aria-label={unreadCount > 0 ? `${unreadCount} thông báo chưa đọc` : 'Thông báo'}
+              aria-expanded={panelOpen}
+              aria-haspopup="dialog"
+              onClick={togglePanel}
+            >
+              <div className="relative" style={{ width: 24, height: 24 }}>
+                <Image
+                  src="/homepage/icon-notification.svg"
+                  alt=""
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              {unreadCount > 0 && (
+                <span
+                  className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-xs font-bold"
+                  style={{ background: '#EF4444', color: '#FFFFFF', fontSize: 10, lineHeight: '16px' }}
+                  aria-hidden="true"
+                >
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Panel — conditionally rendered; positions relative to bell */}
+            {panelOpen && uid && (
+              <NotificationPanel
+                uid={uid}
+                isOpen={panelOpen}
+                onClose={closePanel}
+                triggerRef={bellRef}
+              />
+            )}
+          </div>
+        )}
+
+        {/* Account menu — only when authenticated */}
+        {user !== null ? (
+          <SiteAccountMenu user={user} isAdmin={isAdmin} />
+        ) : (
+          /* Public: sign-in hint */
+          <Link
+            href="/login"
+            className="flex h-10 w-10 items-center justify-center rounded-full transition-opacity hover:opacity-80"
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
+            aria-label="Sign in"
+          >
+            <div className="relative" style={{ width: 24, height: 24 }}>
+              <Image
+                src="/homepage/icon-user-profile.svg"
+                alt=""
+                fill
+                className="object-contain"
+              />
+            </div>
+          </Link>
+        )}
+      </div>
+    </header>
+  )
+}

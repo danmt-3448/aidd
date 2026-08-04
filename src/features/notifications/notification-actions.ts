@@ -21,6 +21,16 @@ export interface Notification {
 }
 
 // ---------------------------------------------------------------------------
+// Cursor type — composite (created_at, id) for stable keyset pagination.
+// Mirrors the board feed pattern (board-queries.ts).
+// ---------------------------------------------------------------------------
+
+export interface NotificationCursor {
+  createdAt: string
+  id: string
+}
+
+// ---------------------------------------------------------------------------
 // Input schemas
 // ---------------------------------------------------------------------------
 
@@ -28,6 +38,13 @@ const uuidSchema = z.string().uuid({ message: 'id phải là UUID hợp lệ' })
 
 const listSchema = z.object({
   limit: z.number().int().min(1).max(100).default(20),
+  cursor: z
+    .object({
+      createdAt: z.string().datetime({ message: 'cursor.createdAt phải là ISO8601 hợp lệ' }),
+      id: z.string().uuid({ message: 'cursor.id phải là UUID hợp lệ' }),
+    })
+    .nullable()
+    .optional(),
 })
 
 // ---------------------------------------------------------------------------
@@ -82,38 +99,65 @@ export async function getUnreadCount(): Promise<UnreadCountResult> {
 // ---------------------------------------------------------------------------
 
 export type ListNotificationsResult =
-  | { data: Notification[] }
+  | { data: Notification[]; nextCursor: NotificationCursor | null }
   | { error: string }
 
 /**
  * Returns the most recent notifications for the calling user, newest first.
+ * Supports keyset pagination via `cursor` (created_at, id) — same pattern as
+ * listBoardKudos. When cursor is absent the first page is returned.
  */
 export async function listNotifications(
-  opts: { limit?: number } = {},
+  opts: { limit?: number; cursor?: NotificationCursor | null } = {},
 ): Promise<ListNotificationsResult> {
   const uid = await resolveUid()
-  if (!uid) return { data: [] }
+  if (!uid) return { data: [], nextCursor: null }
 
-  const parsed = listSchema.safeParse({ limit: opts.limit ?? 20 })
+  const parsed = listSchema.safeParse({
+    limit: opts.limit ?? 20,
+    cursor: opts.cursor ?? null,
+  })
   if (!parsed.success) {
-    return { error: 'Tham số limit không hợp lệ.' }
+    return { error: 'Tham số không hợp lệ.' }
   }
 
   try {
     const supabase = await createClient()
-    const { data, error } = await supabase
+    const { limit, cursor } = parsed.data
+
+    let query = supabase
       .from('notifications')
       .select('id, user_id, type, title, body, link, is_read, created_at')
       .eq('user_id', uid)
       .order('created_at', { ascending: false })
-      .limit(parsed.data.limit)
+      .order('id', { ascending: false })
+      .limit(limit + 1) // fetch one extra to detect next page
+
+    // Apply keyset cursor — rows older than (createdAt, id).
+    if (cursor) {
+      query = query.or(
+        `created_at.lt.${cursor.createdAt},and(created_at.eq.${cursor.createdAt},id.lt.${cursor.id})`,
+      )
+    }
+
+    const { data, error } = await query
 
     if (error) {
       console.error('[listNotifications]', error.message)
       return { error: 'Không thể tải thông báo. Vui lòng thử lại.' }
     }
 
-    return { data: (data ?? []) as Notification[] }
+    const rows = (data ?? []) as Notification[]
+    const hasNext = rows.length > limit
+    const page = hasNext ? rows.slice(0, limit) : rows
+
+    const lastRow = page[page.length - 1]
+    const nextCursor: NotificationCursor | null =
+      hasNext && lastRow
+        ? { createdAt: lastRow.created_at, id: lastRow.id }
+        : null
+
+    return { data: page, nextCursor }
   } catch (err) {
     console.error('[listNotifications] unexpected', err)
     return { error: 'Không thể tải thông báo. Vui lòng thử lại.' }

@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import {
   getUnreadCount,
   listNotifications,
   type Notification,
+  type NotificationCursor,
 } from './notification-actions'
 
 // ---------------------------------------------------------------------------
@@ -17,6 +18,7 @@ export const notificationKeys = {
   all: ['notifications'] as const,
   unreadCount: () => [...notificationKeys.all, 'unread-count'] as const,
   list: (limit: number) => [...notificationKeys.all, 'list', limit] as const,
+  infinite: () => [...notificationKeys.all, 'infinite'] as const,
 }
 
 // ---------------------------------------------------------------------------
@@ -85,6 +87,27 @@ export function useUnreadCount(uid: string | null): UseUnreadCountReturn {
           })
         },
       )
+      .on(
+        'postgres_changes',
+        {
+          // UPDATE fires when markRead / markAllRead flips is_read to true.
+          // Listening here keeps the badge accurate when another tab marks items
+          // read — without this, the count would only drop on next page focus.
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${uid}`,
+        },
+        () => {
+          // Invalidate both count and list so they re-fetch from source of truth.
+          void queryClient.invalidateQueries({
+            queryKey: notificationKeys.unreadCount(),
+          })
+          void queryClient.invalidateQueries({
+            queryKey: notificationKeys.all,
+          })
+        },
+      )
       .subscribe()
 
     return () => {
@@ -100,7 +123,7 @@ export function useUnreadCount(uid: string | null): UseUnreadCountReturn {
 }
 
 // ---------------------------------------------------------------------------
-// useNotificationList
+// useNotificationList — panel-sized flat query (first N items, no pagination)
 // ---------------------------------------------------------------------------
 
 export interface UseNotificationListReturn {
@@ -110,9 +133,12 @@ export interface UseNotificationListReturn {
 }
 
 /**
- * Returns the caller's recent notifications (newest first).
- * Pair with useUnreadCount — both share the same query key root so
- * invalidating `notificationKeys.all` refreshes both together.
+ * Returns the caller's recent notifications (newest first), capped at `limit`.
+ * Intended for the bell popover panel. For the full /notifications page use
+ * `useNotificationInfiniteList` instead.
+ *
+ * Pairs with useUnreadCount — both share the `notificationKeys.all` root so a
+ * single `invalidateQueries({ queryKey: notificationKeys.all })` refreshes both.
  */
 export function useNotificationList(
   uid: string | null,
@@ -133,5 +159,60 @@ export function useNotificationList(
     notifications: data ?? [],
     isLoading,
     error: error instanceof Error ? error.message : null,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// useNotificationInfiniteList — keyset-paginated list for /notifications page
+// ---------------------------------------------------------------------------
+
+export interface UseNotificationInfiniteListReturn {
+  notifications: Notification[]
+  isLoading: boolean
+  isFetchingNextPage: boolean
+  hasNextPage: boolean
+  error: string | null
+  fetchNextPage: () => void
+}
+
+/**
+ * Infinite keyset-paginated list for the full "Tất cả thông báo" screen.
+ * Cursor shape: (created_at, id) — mirrors listBoardKudos pattern.
+ */
+export function useNotificationInfiniteList(
+  uid: string | null,
+  pageSize = 20,
+): UseNotificationInfiniteListReturn {
+  const query = useInfiniteQuery<
+    { data: Notification[]; nextCursor: NotificationCursor | null },
+    Error,
+    { pages: { data: Notification[]; nextCursor: NotificationCursor | null }[] },
+    ReturnType<typeof notificationKeys.infinite>,
+    NotificationCursor | null
+  >({
+    queryKey: notificationKeys.infinite(),
+    queryFn: async ({ pageParam }) => {
+      const result = await listNotifications({
+        limit: pageSize,
+        cursor: pageParam ?? null,
+      })
+      if ('error' in result) throw new Error(result.error)
+      return result
+    },
+    initialPageParam: null,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    staleTime: 30_000,
+    enabled: uid !== null,
+  })
+
+  const notifications = query.data?.pages.flatMap((p) => p.data) ?? []
+
+  return {
+    notifications,
+    isLoading: query.isLoading,
+    isFetchingNextPage: query.isFetchingNextPage,
+    hasNextPage: query.hasNextPage,
+    error: query.error?.message ?? null,
+    fetchNextPage: () => { void query.fetchNextPage() },
   }
 }

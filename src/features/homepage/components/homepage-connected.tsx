@@ -40,7 +40,7 @@ export function HomepageConnected({ uid, user, isAdmin }: HomepageConnectedProps
 
   return (
     <HomepageScreen
-      header={{ unreadCount: count, user, isAdmin }}
+      header={{ unreadCount: count, user, uid, isAdmin }}
       countdown={{ days, hours, minutes }}
     />
   )

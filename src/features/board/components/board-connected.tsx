@@ -1,87 +1,46 @@
 'use client'
 
 /**
- * BoardConnected — integration layer (phase-15) between the board page shell
- * and the presentational BoardScreen.
- *
- * Responsibilities:
- *   - Calls Track B hooks (useBoardFeed, useHighlights, useSpotlight,
- *     useToggleHeart) and maps their outputs to BoardScreen props.
- *   - Maps BoardKudoRow → FeedCardProps via a small typed mapper.
- *   - Derives unique hashtags from the flattened feed rows (Track B does not
- *     join hashtag names into board-feed rows; we surface them as undefined
- *     per card and leave hashtag chip rendering to Track A's existing logic).
- *   - Wires infinite scroll via an IntersectionObserver sentinel placed below
- *     the BoardScreen (page-level scroll — no scrollable container to pierce).
- *   - Defers sidebar pieces that have no Track B query yet (phase-05).
- *   - Surfaces toggle-heart errors via a sonner toast.
- *
- * Must be rendered inside <QueryProvider> (board page.tsx supplies it) and a
- * <Toaster> for error toasts.
+ * BoardConnected — integration layer: renders SiteHeader (activeNav="kudos")
+ * + BoardScreen. Receives server-resolved identity (uid/user/isAdmin) from
+ * board/page.tsx and calls all Track B hooks. Surfaces errors via toasts.
+ * Must be inside <QueryProvider> + <Toaster> (root providers.tsx).
  */
 
-import { useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useRef } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
+import { SiteHeader } from '@/components/site-header'
+import { useUnreadCount } from '@/features/notifications/use-notifications'
 import { BoardScreen } from './board-screen'
 import { useBoardFeed } from '../use-board-feed'
 import { useHighlights } from '../use-highlights'
 import { useSpotlight } from '../use-spotlight'
 import { useToggleHeart } from '../use-toggle-heart'
-import type { BoardKudoRow } from '../board-queries'
-import type { FeedCardProps, BoardUserStats, LeaderboardEntry } from './board-types'
+import { useBoardUserStats } from '../use-board-user-stats'
+import { useRankingLeaderboard, useGiftLeaderboard } from '../use-board-leaderboards'
+import { useHashtagList } from '../use-hashtag-list'
+import type { FeedCardProps } from './board-types'
+import { mapKudoRowToFeedCard } from './board-connected-helpers'
 
-// ---------------------------------------------------------------------------
-// Mapper — BoardKudoRow (Track B) → FeedCardProps (Track A)
-//
-// The two interfaces are nearly identical; only `hashtags` is absent from
-// BoardKudoRow (the feed query does not join hashtag names). We omit it so
-// the card renders without a chip rather than showing invented data.
-// ---------------------------------------------------------------------------
+// Props — server-resolved identity passed from board/page.tsx
 
-function mapKudoRowToFeedCard(row: BoardKudoRow): FeedCardProps {
-  return {
-    id: row.id,
-    senderId: row.senderId,
-    senderName: row.senderName,
-    senderAvatarUrl: row.senderAvatarUrl,
-    receiverId: row.receiverId,
-    receiverName: row.receiverName,
-    receiverAvatarUrl: row.receiverAvatarUrl,
-    contentHtml: row.contentHtml,
-    heartCount: row.heartCount,
-    likedByMe: row.likedByMe,
-    createdAt: row.createdAt,
-    // hashtags: omitted — board-queries does not join hashtag names into feed
-    // rows. Phase-05 may extend listBoardKudos to include them.
-  }
+export interface BoardConnectedProps {
+  /** Auth user id, or null when unauthenticated. */
+  uid: string | null
+  /** Header identity — null renders the public header (no bell/account). */
+  user: { name: string; avatarUrl?: string } | null
+  /** Whether the signed-in user has admin privileges (server-resolved). */
+  isAdmin: boolean
 }
 
-// ---------------------------------------------------------------------------
-// DEFERRED (phase-05): real sidebar stats/leaderboards
-//
-// userStats, rankingLeaderboard, and giftLeaderboard belong to the
-// profile_stats queries that are out-of-scope for phase-04. We provide honest
-// zero/empty state here so the sidebar renders its own "Chưa có dữ liệu."
-// placeholders rather than fabricated numbers.
-// ---------------------------------------------------------------------------
-
-const DEFERRED_USER_STATS: BoardUserStats = {
-  kudosReceived: 0,
-  kudosSent: 0,
-  heartsReceived: 0,
-  secretBoxCount: 0,
-}
-
-const DEFERRED_LEADERBOARD: LeaderboardEntry[] = []
-
-// ---------------------------------------------------------------------------
-// BoardConnected
-// ---------------------------------------------------------------------------
-
-export function BoardConnected() {
+export function BoardConnected({ uid, user, isAdmin }: BoardConnectedProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const sentinelRef = useRef<HTMLDivElement | null>(null)
+
+  // Bell badge — opens realtime subscription only when uid is non-null.
+  const { count: unreadCount } = useUnreadCount(uid)
 
   // ── Track B hooks ─────────────────────────────────────────────────────────
   const {
@@ -97,24 +56,55 @@ export function BoardConnected() {
   const { nodes: spotlightNodes, error: spotlightError } = useSpotlight()
   const { toggle, error: toggleError, clearError } = useToggleHeart()
 
+  // ── BOARD-2: sidebar user stats (real data) ───────────────────────────────
+  const { stats: userStats, error: statsError } = useBoardUserStats(uid)
+
+  // ── BOARD-3 + BOARD-4: leaderboards ──────────────────────────────────────
+  const { entries: rankingLeaderboard, error: rankingError } = useRankingLeaderboard()
+  const { entries: giftLeaderboard, error: giftError } = useGiftLeaderboard()
+
+  // ── BOARD-1: hashtag chips ────────────────────────────────────────────────
+  const { hashtags: hashtagList, nameToId } = useHashtagList()
+
+  // Derive the display-name list for the carousel chips (e.g. ["ThanhOm", ...]).
+  // The carousel shows names; clicking routes via UUID URL param.
+  const hashtagNames = hashtagList.map((h) => h.name)
+
+  // Active hashtag display name — derived from current URL param UUID.
+  const activeHashtagId = searchParams.get('hashtag')
+  const activeHashtag = activeHashtagId
+    ? (hashtagList.find((h) => h.id === activeHashtagId)?.name ?? null)
+    : null
+
+  // ── Hashtag routing ───────────────────────────────────────────────────────
+  // Push ?hashtag=<uuid> when a chip is clicked. Passing null clears the param.
+  // Feed + spotlight both read searchParams.get('hashtag') directly via their
+  // own useSearchParams() calls — no prop drilling needed.
+  const handleHashtagChange = useCallback(
+    (name: string | null) => {
+      const params = new URLSearchParams(searchParams.toString())
+      if (name === null) {
+        params.delete('hashtag')
+      } else {
+        const id = nameToId.get(name)
+        if (id) {
+          params.set('hashtag', id)
+        } else {
+          params.delete('hashtag')
+        }
+      }
+      router.push('?' + params.toString(), { scroll: false })
+    },
+    [router, searchParams, nameToId],
+  )
+
   // ── Surface query errors as toasts (non-blocking) ─────────────────────────
-  useEffect(() => {
-    if (feedError) {
-      toast.error(feedError)
-    }
-  }, [feedError])
-
-  useEffect(() => {
-    if (highlightsError) {
-      toast.error(highlightsError)
-    }
-  }, [highlightsError])
-
-  useEffect(() => {
-    if (spotlightError) {
-      toast.error(spotlightError)
-    }
-  }, [spotlightError])
+  useEffect(() => { if (feedError) toast.error(feedError) }, [feedError])
+  useEffect(() => { if (highlightsError) toast.error(highlightsError) }, [highlightsError])
+  useEffect(() => { if (spotlightError) toast.error(spotlightError) }, [spotlightError])
+  useEffect(() => { if (statsError) toast.error(statsError) }, [statsError])
+  useEffect(() => { if (rankingError) toast.error(rankingError) }, [rankingError])
+  useEffect(() => { if (giftError) toast.error(giftError) }, [giftError])
 
   // Surface toggle-heart errors — clear after toast so it doesn't re-fire.
   useEffect(() => {
@@ -124,9 +114,7 @@ export function BoardConnected() {
     }
   }, [toggleError, clearError])
 
-  // ── Infinite scroll sentinel ──────────────────────────────────────────────
-  // The page itself scrolls (no inner scroll container). A sentinel div below
-  // BoardScreen fires fetchNextPage when it enters the viewport.
+  // ── Infinite scroll sentinel — page-level scroll, rootMargin pre-fires ───
   useEffect(() => {
     const el = sentinelRef.current
     if (!el) return
@@ -145,27 +133,21 @@ export function BoardConnected() {
     return () => observer.disconnect()
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  // ── Map Track B rows → Track A FeedCardProps ─────────────────────────────
   const feed: FeedCardProps[] = feedRows.map(mapKudoRowToFeedCard)
   const highlights: FeedCardProps[] = highlightRows.map(mapKudoRowToFeedCard)
 
-  // Derive totalKudos from the spotlight aggregation (sum of all kudoCount
-  // values reflects the total kudos in the visible dataset). Falls back to
-  // 0 while spotlight hasn't resolved (feedRows.length would be misleading —
-  // it only reflects the current feed page, not the total).
+  // Sum spotlight kudoCount for the header total; falls back to 0 until resolved.
   const totalKudos =
     spotlightNodes.length > 0
       ? spotlightNodes.reduce((sum, n) => sum + n.kudoCount, 0)
       : 0
 
-  // ── Callbacks ─────────────────────────────────────────────────────────────
   function handleToggleHeart(kudoId: string) {
     toggle(kudoId)
   }
 
   function handleCopyLink(_kudoId: string) {
     // Copy-link toast is handled inside BoardScreen itself.
-    // This prop is available for analytics / URL param sync (future phase).
   }
 
   function handleOpenProfile(id: string) {
@@ -176,48 +158,48 @@ export function BoardConnected() {
     router.push('/secret-box')
   }
 
-  // ── Loading state — show a minimal skeleton until the first page arrives ──
-  // BoardScreen renders the empty-state message itself, so we only guard the
-  // case where the initial load hasn't fired at all.
+  const header = (
+    <SiteHeader user={user} unreadCount={unreadCount} uid={uid} isAdmin={isAdmin} activeNav="kudos" />
+  )
+
   if (feedLoading && feed.length === 0) {
     return (
-      <div
-        className="flex min-h-screen items-center justify-center"
-        style={{ backgroundColor: 'rgba(0,16,26,1)' }}
-        aria-busy="true"
-        aria-label="Đang tải bảng Kudos…"
-      />
+      <div className="min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
+        {header}
+        <div
+          className="flex flex-1 items-center justify-center"
+          style={{ minHeight: 'calc(100vh - 80px)' }}
+          aria-busy="true"
+          aria-label="Đang tải bảng Kudos…"
+        />
+      </div>
     )
   }
 
   return (
-    <>
+    <div className="min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
+      {header}
+
       <BoardScreen
         highlights={highlights}
         feed={feed}
-        // hashtags: unique tag strings — omitted from board-feed rows in
-        // phase-04; pass empty array so the carousel filter renders no chips.
-        // Phase-05 may extend the feed query to join hashtag names.
-        hashtags={[]}
+        hashtags={hashtagNames}
+        activeHashtag={activeHashtag}
         spotlight={spotlightNodes}
         totalKudos={totalKudos}
-        // DEFERRED (phase-05): real sidebar stats/leaderboards
-        userStats={DEFERRED_USER_STATS}
-        rankingLeaderboard={DEFERRED_LEADERBOARD}
-        giftLeaderboard={DEFERRED_LEADERBOARD}
+        userStats={userStats}
+        rankingLeaderboard={rankingLeaderboard}
+        giftLeaderboard={giftLeaderboard}
+        onHashtagChange={handleHashtagChange}
         onToggleHeart={handleToggleHeart}
         onCopyLink={handleCopyLink}
         onOpenProfile={handleOpenProfile}
         onOpenSecretBox={handleOpenSecretBox}
       />
 
-      {/* Infinite-scroll sentinel — sits below BoardScreen in page flow.
-          IntersectionObserver fires fetchNextPage when this div enters the
-          viewport (rootMargin: 200px pre-fires before the user hits bottom).
-          Invisible; no layout impact. */}
+      {/* Infinite-scroll sentinel — invisible, triggers fetchNextPage */}
       <div ref={sentinelRef} aria-hidden style={{ height: 1 }} />
 
-      {/* Loading indicator for subsequent pages */}
       {isFetchingNextPage && (
         <div
           className="flex justify-center py-4"
@@ -231,6 +213,6 @@ export function BoardConnected() {
           />
         </div>
       )}
-    </>
+    </div>
   )
 }

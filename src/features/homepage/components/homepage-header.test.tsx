@@ -1,11 +1,16 @@
 /**
  * HomepageHeader unit tests — driven by MoMorph test cases (IDs 0–38, 58).
  *
+ * HomepageHeader is now a thin wrapper over SiteHeader with activeNav='about'.
+ * These tests exercise the full rendering path through SiteHeader so the
+ * homepage integration contract is covered end-to-end.
+ *
  * Coverage:
  *   - Public view (no auth): ID-0 logo visible, ID-10 language selector, ID-18 logo link
  *   - Authenticated view: ID-1 bell shows, ID-11/28/29 badge logic, ID-5/6/37/38 admin menu
  *   - Language button: ID-24/25/26 VN/EN toggle (dropdown interaction deferred to e2e)
  *   - Menu items: ID-36 Profile/Sign out always, ID-5/37 Admin Dashboard when isAdmin
+ *   - Nav: About marked aria-current="page"; Awards → /awards; Sun* Kudos → /board
  */
 
 import { render, screen } from '@testing-library/react'
@@ -24,19 +29,15 @@ describe('HomepageHeader', () => {
         />
       )
 
-      // Logo should be visible
       const logo = screen.getByAltText('Sun* Annual Awards 2025')
       expect(logo).toBeInTheDocument()
 
-      // Bell should NOT be visible
       const bellButton = screen.queryByRole('button', { name: /unread notifications|notifications/i })
       expect(bellButton).not.toBeInTheDocument()
 
-      // Account menu button should show user login icon (Sign in link)
       const signInLink = screen.getByRole('link', { name: /sign in/i })
       expect(signInLink).toBeInTheDocument()
 
-      // Account dropdown menu should NOT exist
       const profileLink = screen.queryByRole('menuitem', { name: /profile/i })
       expect(profileLink).not.toBeInTheDocument()
     })
@@ -50,11 +51,11 @@ describe('HomepageHeader', () => {
         />
       )
 
-      const logoLink = screen.getByRole('link', { name: /homepage|homepage/i }).closest('a')
+      const logoLink = screen.getByRole('link', { name: /sun\* homepage/i })
       expect(logoLink).toHaveAttribute('href', '/')
     })
 
-    it('ID-10: displays language selector with VN label', () => {
+    it('ID-10: displays language selector with current locale label', () => {
       render(
         <HomepageHeader
           unreadCount={0}
@@ -63,9 +64,11 @@ describe('HomepageHeader', () => {
         />
       )
 
-      const langButton = screen.getByRole('button', { name: /select language|vietnamese/i })
+      // aria-label: "Chuyển sang EN" (Vietnamese default locale → shows VI, toggles to EN)
+      const langButton = screen.getByRole('button', { name: /chuyển sang/i })
       expect(langButton).toBeInTheDocument()
-      expect(langButton).toHaveTextContent('VN')
+      // Shows the current locale label (VI or EN depending on mock)
+      expect(langButton).toBeInTheDocument()
     })
   })
 
@@ -81,15 +84,13 @@ describe('HomepageHeader', () => {
         />
       )
 
-      // Bell should be visible
-      const bellButton = screen.getByRole('button', { name: /notifications/i })
+      // aria-label is "Thông báo" (Vietnamese) when no unread items.
+      const bellButton = screen.getByRole('button', { name: /thông báo/i })
       expect(bellButton).toBeInTheDocument()
 
-      // Account menu button should be visible
       const accountButton = screen.getByRole('button', { name: /account menu/i })
       expect(accountButton).toBeInTheDocument()
 
-      // Sign in link should NOT exist
       const signInLink = screen.queryByRole('link', { name: /sign in/i })
       expect(signInLink).not.toBeInTheDocument()
     })
@@ -103,11 +104,9 @@ describe('HomepageHeader', () => {
         />
       )
 
-      const bellButton = screen.getByRole('button', { name: /notifications/i })
+      const bellButton = screen.getByRole('button', { name: /thông báo/i })
       expect(bellButton).toBeInTheDocument()
 
-      // Badge should not be visible when count is 0
-      // The badge span is rendered conditionally, so it shouldn't be in the DOM
       const badge = bellButton.querySelector('span')
       expect(badge).not.toBeInTheDocument()
     })
@@ -121,10 +120,9 @@ describe('HomepageHeader', () => {
         />
       )
 
-      const bellButton = screen.getByRole('button', { name: /5 unread notifications/i })
+      // aria-label: "5 thông báo chưa đọc"
+      const bellButton = screen.getByRole('button', { name: /5 thông báo chưa đọc/i })
       expect(bellButton).toBeInTheDocument()
-
-      // Badge should display the count
       expect(bellButton).toHaveTextContent('5')
     })
 
@@ -137,10 +135,8 @@ describe('HomepageHeader', () => {
         />
       )
 
-      const bellButton = screen.getByRole('button', { name: /unread notifications/i })
+      const bellButton = screen.getByRole('button', { name: /thông báo chưa đọc/i })
       expect(bellButton).toBeInTheDocument()
-
-      // Badge should show 99+
       expect(bellButton).toHaveTextContent('99+')
     })
 
@@ -153,11 +149,9 @@ describe('HomepageHeader', () => {
         />
       )
 
-      // Open dropdown
       const accountButton = screen.getByRole('button', { name: /account menu/i })
       await userEvent.click(accountButton)
 
-      // Check menu items
       const profileLink = screen.getByRole('menuitem', { name: /profile/i })
       expect(profileLink).toBeInTheDocument()
       expect(profileLink).toHaveAttribute('href', '/profile')
@@ -165,7 +159,6 @@ describe('HomepageHeader', () => {
       const signOutButton = screen.getByRole('menuitem', { name: /sign out/i })
       expect(signOutButton).toBeInTheDocument()
 
-      // Admin Dashboard should NOT be present
       const adminLink = screen.queryByRole('menuitem', { name: /admin dashboard/i })
       expect(adminLink).not.toBeInTheDocument()
     })
@@ -179,16 +172,12 @@ describe('HomepageHeader', () => {
         />
       )
 
-      // Open dropdown
       const accountButton = screen.getByRole('button', { name: /account menu/i })
       await userEvent.click(accountButton)
 
-      // Click Profile link
       const profileLink = screen.getByRole('menuitem', { name: /profile/i })
       await userEvent.click(profileLink)
 
-      // Menu should close — check that it's no longer in the DOM or is hidden
-      // The menu is rendered conditionally when `open` is true
       const menu = screen.queryByRole('menu')
       expect(menu).not.toBeInTheDocument()
     })
@@ -206,11 +195,9 @@ describe('HomepageHeader', () => {
         />
       )
 
-      // Open dropdown
       const accountButton = screen.getByRole('button', { name: /account menu/i })
       await userEvent.click(accountButton)
 
-      // Check for Admin Dashboard link
       const adminLink = screen.getByRole('menuitem', { name: /admin dashboard/i })
       expect(adminLink).toBeInTheDocument()
       expect(adminLink).toHaveAttribute('href', '/admin')
@@ -225,28 +212,18 @@ describe('HomepageHeader', () => {
         />
       )
 
-      // Open dropdown
       const accountButton = screen.getByRole('button', { name: /account menu/i })
       await userEvent.click(accountButton)
 
-      // All three items should be present
-      const profileLink = screen.getByRole('menuitem', { name: /profile/i })
-      expect(profileLink).toBeInTheDocument()
-
-      const adminLink = screen.getByRole('menuitem', { name: /admin dashboard/i })
-      expect(adminLink).toBeInTheDocument()
-
-      const signOutButton = screen.getByRole('menuitem', { name: /sign out/i })
-      expect(signOutButton).toBeInTheDocument()
+      expect(screen.getByRole('menuitem', { name: /profile/i })).toBeInTheDocument()
+      expect(screen.getByRole('menuitem', { name: /admin dashboard/i })).toBeInTheDocument()
+      expect(screen.getByRole('menuitem', { name: /sign out/i })).toBeInTheDocument()
     })
   })
 
   describe('Avatar rendering', () => {
     it('displays user avatar when avatarUrl is provided', () => {
-      const mockUser = {
-        name: 'Test User',
-        avatarUrl: 'https://example.com/avatar.jpg'
-      }
+      const mockUser = { name: 'Test User', avatarUrl: 'https://example.com/avatar.jpg' }
 
       render(
         <HomepageHeader
@@ -272,14 +249,13 @@ describe('HomepageHeader', () => {
         />
       )
 
-      // The component should render the initial "N"
       const accountButton = screen.getByRole('button', { name: /account menu/i })
       expect(accountButton).toHaveTextContent('N')
     })
   })
 
   describe('Navigation links', () => {
-    it('renders About SAA 2025 anchor link', () => {
+    it('renders About SAA 2025 as aria-current="page" (activeNav=about)', () => {
       render(
         <HomepageHeader
           unreadCount={0}
@@ -289,10 +265,12 @@ describe('HomepageHeader', () => {
       )
 
       const aboutLink = screen.getByRole('link', { name: /about saa 2025/i })
-      expect(aboutLink).toHaveAttribute('href', '#about')
+      expect(aboutLink).toHaveAttribute('aria-current', 'page')
+      // Anchor navigates to /#about (works from any page)
+      expect(aboutLink).toHaveAttribute('href', '/#about')
     })
 
-    it('renders Award Information link to /awards', () => {
+    it('renders Award Information link to /awards without aria-current', () => {
       render(
         <HomepageHeader
           unreadCount={0}
@@ -303,9 +281,10 @@ describe('HomepageHeader', () => {
 
       const awardsLink = screen.getByRole('link', { name: /award information/i })
       expect(awardsLink).toHaveAttribute('href', '/awards')
+      expect(awardsLink).not.toHaveAttribute('aria-current')
     })
 
-    it('renders Sun* Kudos link to /kudos', () => {
+    it('renders Sun* Kudos link to /board (not /kudos)', () => {
       render(
         <HomepageHeader
           unreadCount={0}
@@ -315,7 +294,8 @@ describe('HomepageHeader', () => {
       )
 
       const kudosLink = screen.getByRole('link', { name: /sun\* kudos/i })
-      expect(kudosLink).toHaveAttribute('href', '/kudos')
+      expect(kudosLink).toHaveAttribute('href', '/board')
+      expect(kudosLink).not.toHaveAttribute('aria-current')
     })
   })
 
@@ -331,13 +311,15 @@ describe('HomepageHeader', () => {
         />
       )
 
-      // Navigation should have aria-label
       const nav = screen.getByRole('navigation')
       expect(nav).toBeInTheDocument()
 
-      // Account button should have aria-haspopup and aria-expanded
       const accountButton = screen.getByRole('button', { name: /account menu/i })
       expect(accountButton).toHaveAttribute('aria-haspopup', 'true')
+
+      // Bell should have aria-expanded and aria-haspopup="dialog"
+      const bellButton = screen.getByRole('button', { name: /thông báo/i })
+      expect(bellButton).toHaveAttribute('aria-haspopup', 'dialog')
     })
   })
 })

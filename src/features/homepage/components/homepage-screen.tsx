@@ -53,6 +53,7 @@ export function HomepageScreen({ header, countdown }: HomepageScreenProps) {
       <HomepageHeader
         unreadCount={header.unreadCount}
         user={header.user}
+        uid={header.uid}
         isAdmin={header.isAdmin}
       />
 
@@ -63,7 +64,7 @@ export function HomepageScreen({ header, countdown }: HomepageScreenProps) {
             Anonymous visitors get no FAB. */}
         <HomepageHero
           countdown={countdown}
-          onQuickAction={header.user !== null ? () => setComposeOpen(true) : undefined}
+          onWriteKudo={header.user !== null ? () => setComposeOpen(true) : undefined}
         />
 
         {/* Inner content block — padded, max-width container */}
