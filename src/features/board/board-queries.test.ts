@@ -49,9 +49,14 @@ function makeQueryMock(result: { data: unknown; error: unknown }) {
 interface MockClient {
   auth: { getUser: Mock }
   from: Mock
+  rpc: Mock
 }
 
-function makeClient(uid: string | null, fromImpl: (table: string) => unknown): MockClient {
+function makeClient(
+  uid: string | null,
+  fromImpl: (table: string) => unknown,
+  rpcResult: { data: unknown; error: unknown } = { data: [], error: null },
+): MockClient {
   return {
     auth: {
       getUser: vi.fn().mockResolvedValue({
@@ -60,6 +65,7 @@ function makeClient(uid: string | null, fromImpl: (table: string) => unknown): M
       }),
     },
     from: vi.fn((table: string) => fromImpl(table)),
+    rpc: vi.fn(() => Promise.resolve(rpcResult)),
   }
 }
 
@@ -75,99 +81,109 @@ import {
 
 // ---------------------------------------------------------------------------
 // getHighlightKudos
+//
+// After the RPC migration, getHighlightKudos calls:
+//   1. supabase.from('special_day_config').select('hearts_multiplier').eq(...).maybeSingle()
+//   2. supabase.rpc('get_highlight_kudos', { p_today, p_multiplier })
+//
+// The RPC returns flat rows (no nested hearts[]) pre-ranked by the DB.
+// RPC row shape: { id, receiver_id, content_html, created_at, is_anonymous,
+//                  sender_id, sender_name, sender_avatar_url,
+//                  receiver_name, receiver_avatar_url,
+//                  heart_count, weighted_score, liked_by_me }
 // ---------------------------------------------------------------------------
+
+// Build an RPC row as the DB would return it.
+function makeRpcRow(overrides: Partial<{
+  id: string
+  receiver_id: string | null
+  content_html: string
+  created_at: string
+  is_anonymous: boolean
+  sender_id: string | null
+  sender_name: string | null
+  sender_avatar_url: string | null
+  receiver_name: string | null
+  receiver_avatar_url: string | null
+  heart_count: number
+  weighted_score: number
+  liked_by_me: boolean
+}> = {}) {
+  return {
+    id: 'k1',
+    receiver_id: 'r1',
+    content_html: '<p>hello</p>',
+    created_at: '2026-08-01T00:00:00Z',
+    is_anonymous: false,
+    sender_id: 's1',
+    sender_name: 'Sender',
+    sender_avatar_url: null,
+    receiver_name: 'Receiver',
+    receiver_avatar_url: null,
+    heart_count: 0,
+    weighted_score: 0,
+    liked_by_me: false,
+    ...overrides,
+  }
+}
 
 describe('getHighlightKudos', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('returns top-5 rows ordered by weighted heart count', async () => {
-    // 6 kudos; kudo with id='k6' has 4 hearts (2 special) and should rank
-    // first when multiplier=2. k1 has 3 plain hearts → second.
-    const kudoRows = Array.from({ length: 6 }, (_, i) => {
-      const id = `k${i + 1}`
-      const hearts =
-        id === 'k6'
-          ? [
-              { user_id: 'u1', is_special_day: true },
-              { user_id: 'u2', is_special_day: true },
-              { user_id: 'u3', is_special_day: false },
-              { user_id: 'u4', is_special_day: false },
-            ]
-          : id === 'k1'
-            ? [
-                { user_id: 'u1', is_special_day: false },
-                { user_id: 'u2', is_special_day: false },
-                { user_id: 'u3', is_special_day: false },
-              ]
-            : []
-      return {
-        id,
-        sender_id: null,
-        sender_name: 'Ẩn danh',
-        sender_avatar_url: null,
-        receiver_name: 'Receiver',
-        receiver_avatar_url: null,
-        content_html: '<p>hello</p>',
-        created_at: '2026-08-01T00:00:00Z',
-        hearts,
-      }
-    })
+  it('returns top-5 rows ordered by weighted heart count (RPC pre-ranks)', async () => {
+    // The RPC returns rows already ranked by weighted_score DESC.
+    // k6: heart_count=4, weighted_score=6 (2 special × (2-1) bonus = 4+2=6)
+    // k1: heart_count=3, weighted_score=3
+    // DB guarantees k6 first — caller just maps the rows in order.
+    const rpcRows = [
+      makeRpcRow({ id: 'k6', heart_count: 4, weighted_score: 6 }),
+      makeRpcRow({ id: 'k1', heart_count: 3, weighted_score: 3 }),
+      makeRpcRow({ id: 'k2', heart_count: 0, weighted_score: 0 }),
+      makeRpcRow({ id: 'k3', heart_count: 0, weighted_score: 0 }),
+      makeRpcRow({ id: 'k4', heart_count: 0, weighted_score: 0 }),
+    ]
 
     mockCreateClient.mockResolvedValue(
-      makeClient('viewer', (table) => {
-        if (table === 'special_day_config') {
-          // Return multiplier=2 for today.
-          const m = makeQueryMock({ data: { hearts_multiplier: 2 }, error: null })
-          return m
-        }
-        // kudos_public
-        const m: Record<string, unknown> = {}
-        m.from = vi.fn(() => m)
-        m.select = vi.fn(() => m)
-        m.order = vi.fn(() => m)
-        m.limit = vi.fn(() => Promise.resolve({ data: kudoRows, error: null }))
-        return m
-      }),
+      makeClient(
+        'viewer',
+        (table) => {
+          if (table === 'special_day_config') {
+            return makeQueryMock({ data: { hearts_multiplier: 2 }, error: null })
+          }
+          return makeQueryMock({ data: null, error: null })
+        },
+        { data: rpcRows, error: null },
+      ),
     )
 
     const result = await getHighlightKudos()
     expect('error' in result).toBe(false)
     if ('error' in result) return
 
-    // At most 5 rows.
     expect(result.data.length).toBeLessThanOrEqual(5)
-
-    // k6: score = 4 + 2*(2-1) = 6; k1: score = 3 + 0 = 3. k6 must be first.
     expect(result.data[0]?.id).toBe('k6')
     expect(result.data[1]?.id).toBe('k1')
   })
 
-  it('returns ≤5 rows even when more kudos exist', async () => {
-    const kudoRows = Array.from({ length: 20 }, (_, i) => ({
-      id: `k${i}`,
-      sender_id: null,
-      sender_name: 'Ẩn danh',
-      sender_avatar_url: null,
-      receiver_name: 'Receiver',
-      receiver_avatar_url: null,
-      content_html: '<p>x</p>',
-      created_at: '2026-08-01T00:00:00Z',
-      hearts: [{ user_id: `u${i}`, is_special_day: false }],
-    }))
+  it('returns ≤5 rows (RPC enforces LIMIT 5 server-side)', async () => {
+    // DB returns at most 5 — simulate exactly 5.
+    const rpcRows = Array.from({ length: 5 }, (_, i) =>
+      makeRpcRow({ id: `k${i}`, heart_count: 1, weighted_score: 1 }),
+    )
 
     mockCreateClient.mockResolvedValue(
-      makeClient(null, (table) => {
-        if (table === 'special_day_config') {
+      makeClient(
+        null,
+        (table) => {
+          if (table === 'special_day_config') {
+            return makeQueryMock({ data: null, error: null })
+          }
           return makeQueryMock({ data: null, error: null })
-        }
-        const m: Record<string, unknown> = {}
-        m.select = vi.fn(() => m)
-        m.order = vi.fn(() => m)
-        m.limit = vi.fn(() => Promise.resolve({ data: kudoRows, error: null }))
-        return m
-      }),
+        },
+        { data: rpcRows, error: null },
+      ),
     )
 
     const result = await getHighlightKudos()
@@ -176,32 +192,31 @@ describe('getHighlightKudos', () => {
     expect(result.data.length).toBeLessThanOrEqual(5)
   })
 
-  it('masks sender: senderId=null for anonymous kudo', async () => {
-    const kudoRows = [
-      {
+  it('masks sender: senderId=null for anonymous kudo (RPC applies mask)', async () => {
+    // The RPC applies the same anonymous mask as kudos_public:
+    // sender_id=null, sender_name=anonymous_name??'Ẩn danh', sender_avatar_url=null.
+    const rpcRows = [
+      makeRpcRow({
         id: 'k1',
-        sender_id: null, // masked by kudos_public view
+        is_anonymous: true,
+        sender_id: null,
         sender_name: 'Ẩn danh',
         sender_avatar_url: null,
         receiver_name: 'Alice',
-        receiver_avatar_url: null,
-        content_html: '<p>hi</p>',
-        created_at: '2026-08-01T00:00:00Z',
-        hearts: [],
-      },
+      }),
     ]
 
     mockCreateClient.mockResolvedValue(
-      makeClient(null, (table) => {
-        if (table === 'special_day_config') {
+      makeClient(
+        null,
+        (table) => {
+          if (table === 'special_day_config') {
+            return makeQueryMock({ data: null, error: null })
+          }
           return makeQueryMock({ data: null, error: null })
-        }
-        const m: Record<string, unknown> = {}
-        m.select = vi.fn(() => m)
-        m.order = vi.fn(() => m)
-        m.limit = vi.fn(() => Promise.resolve({ data: kudoRows, error: null }))
-        return m
-      }),
+        },
+        { data: rpcRows, error: null },
+      ),
     )
 
     const result = await getHighlightKudos()
@@ -211,20 +226,58 @@ describe('getHighlightKudos', () => {
     expect(result.data[0]?.receiverName).toBe('Alice')
   })
 
-  it('returns error when Supabase query fails', async () => {
+  it('maps liked_by_me from RPC (no client-side hearts.some())', async () => {
+    const rpcRows = [makeRpcRow({ id: 'k1', liked_by_me: true, heart_count: 1 })]
+
     mockCreateClient.mockResolvedValue(
-      makeClient(null, (table) => {
-        if (table === 'special_day_config') {
+      makeClient(
+        'viewer',
+        (table) => {
+          if (table === 'special_day_config') {
+            return makeQueryMock({ data: null, error: null })
+          }
           return makeQueryMock({ data: null, error: null })
-        }
-        const m: Record<string, unknown> = {}
-        m.select = vi.fn(() => m)
-        m.order = vi.fn(() => m)
-        m.limit = vi.fn(() =>
-          Promise.resolve({ data: null, error: { message: 'DB error' } }),
-        )
-        return m
-      }),
+        },
+        { data: rpcRows, error: null },
+      ),
+    )
+
+    const result = await getHighlightKudos()
+    expect('error' in result).toBe(false)
+    if ('error' in result) return
+    expect(result.data[0]?.likedByMe).toBe(true)
+  })
+
+  it('returns error when RPC fails', async () => {
+    mockCreateClient.mockResolvedValue(
+      makeClient(
+        null,
+        (table) => {
+          if (table === 'special_day_config') {
+            return makeQueryMock({ data: null, error: null })
+          }
+          return makeQueryMock({ data: null, error: null })
+        },
+        { data: null, error: { message: 'DB error' } },
+      ),
+    )
+
+    const result = await getHighlightKudos()
+    expect('error' in result).toBe(true)
+  })
+
+  it('returns error when special_day_config fetch fails', async () => {
+    mockCreateClient.mockResolvedValue(
+      makeClient(
+        null,
+        (table) => {
+          if (table === 'special_day_config') {
+            return makeQueryMock({ data: null, error: { message: 'config error' } })
+          }
+          return makeQueryMock({ data: null, error: null })
+        },
+        { data: [], error: null },
+      ),
     )
 
     const result = await getHighlightKudos()

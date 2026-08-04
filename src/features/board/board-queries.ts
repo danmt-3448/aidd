@@ -98,8 +98,6 @@ export type HighlightKudosResult =
   | { error: string }
 
 export async function getHighlightKudos(): Promise<HighlightKudosResult> {
-  const uid = await resolveUid()
-
   try {
     const supabase = await createClient()
 
@@ -118,69 +116,49 @@ export async function getHighlightKudos(): Promise<HighlightKudosResult> {
 
     const multiplier = sdRow?.hearts_multiplier ?? 1
 
-    // Fetch all hearts in a single query to compute weighted counts server-side.
-    // We pull from kudos_public + join hearts; the weighting happens in JS because
-    // Supabase's query builder does not support conditional aggregates without raw SQL.
-    // The join column (kudo_id on hearts, id on kudos_public) is safe.
-    const { data: rows, error } = await supabase
-      .from('kudos_public')
-      .select(
-        `id, sender_id, sender_name, sender_avatar_url,
-         receiver_id, receiver_name, receiver_avatar_url, content_html, created_at,
-         hearts(user_id, is_special_day)`,
-      )
-      .order('created_at', { ascending: false })
-      // TODO(correctness): server-side ranking RPC; 2000-row window is an interim bound
-      .limit(2000)
-
-    if (error) {
-      console.error('[getHighlightKudos] query', error.message)
-      return { error: 'Không thể tải nổi bật. Vui lòng thử lại.' }
-    }
-
-    type HeartRow = { user_id: string; is_special_day: boolean }
-    type RawRow = {
+    // Server-side weighted ranking via RPC — returns only 5 rows.
+    // Replaces the former 2000-row select + JS sort.
+    // The RPC applies the same anonymous-sender mask as kudos_public and
+    // computes liked_by_me using auth.uid() inside the security-definer function.
+    type RpcRow = {
       id: string
+      receiver_id: string | null
+      content_html: string
+      created_at: string
+      is_anonymous: boolean
       sender_id: string | null
       sender_name: string | null
       sender_avatar_url: string | null
-      receiver_id: string | null
       receiver_name: string | null
       receiver_avatar_url: string | null
-      content_html: string
-      created_at: string
-      hearts: HeartRow[]
+      heart_count: number
+      weighted_score: number
+      liked_by_me: boolean
     }
 
-    const mapped = (rows as RawRow[]).map((r) => {
-      const hearts: HeartRow[] = Array.isArray(r.hearts) ? r.hearts : []
-      const specialCount = hearts.filter((h) => h.is_special_day).length
-      const weightedScore =
-        hearts.length + specialCount * (multiplier - 1)
-      return {
-        row: {
-          id: r.id,
-          senderId: r.sender_id,
-          senderName: r.sender_name ?? 'Ẩn danh',
-          senderAvatarUrl: r.sender_avatar_url,
-          receiverId: r.receiver_id ?? '',
-          receiverName: r.receiver_name ?? '',
-          receiverAvatarUrl: r.receiver_avatar_url,
-          contentHtml: r.content_html,
-          createdAt: r.created_at,
-          heartCount: hearts.length,
-          likedByMe: uid
-            ? hearts.some((h) => h.user_id === uid)
-            : false,
-        } satisfies BoardKudoRow,
-        score: weightedScore,
-      }
+    const { data: rows, error } = await supabase.rpc('get_highlight_kudos', {
+      p_today: today,
+      p_multiplier: multiplier,
     })
 
-    const top5 = mapped
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 5)
-      .map((m) => m.row)
+    if (error) {
+      console.error('[getHighlightKudos] rpc', error.message)
+      return { error: 'Không thể tải nổi bật. Vui lòng thử lại.' }
+    }
+
+    const top5: BoardKudoRow[] = ((rows ?? []) as RpcRow[]).map((r) => ({
+      id: r.id,
+      senderId: r.sender_id,
+      senderName: r.sender_name ?? 'Ẩn danh',
+      senderAvatarUrl: r.sender_avatar_url,
+      receiverId: r.receiver_id ?? '',
+      receiverName: r.receiver_name ?? '',
+      receiverAvatarUrl: r.receiver_avatar_url,
+      contentHtml: r.content_html,
+      createdAt: r.created_at,
+      heartCount: Number(r.heart_count),
+      likedByMe: r.liked_by_me,
+    }))
 
     return { data: top5 }
   } catch (err) {
