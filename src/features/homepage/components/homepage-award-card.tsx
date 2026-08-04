@@ -1,0 +1,123 @@
+/**
+ * HomepageAwardCard — compact card used in the 6-card grid on the Homepage.
+ *
+ * Figma: mms_C2.1_Top Talent Award (node 2167:9075), 336×504px per card.
+ * Layout:
+ *   - Square image area (336×336px, border-radius 24px, border 1px #FFEA9E,
+ *     box-shadow glow #FAE287, mix-blend-mode screen on the inner layer)
+ *   - Award title: Montserrat 400 24px #FFEA9E, line-height 32px
+ *   - Description: Montserrat 400 16px white, line-height 24px, 2-line clamp
+ *   - "Chi tiết" link: text link with Up arrow icon
+ *
+ * Card onClick → /awards#{slug} (deep-link to the award anchor on the /awards page).
+ * Data source: AWARDS from @/features/awards/award-config (DRY — no re-definition).
+ */
+
+import Image from 'next/image'
+import Link from 'next/link'
+import { montserrat } from '@/features/auth/fonts'
+import type { Award } from '@/features/awards/types'
+
+interface HomepageAwardCardProps {
+  award: Award
+}
+
+export function HomepageAwardCard({ award }: HomepageAwardCardProps) {
+  const href = `/awards#${award.hashtagAnchor}`
+
+  return (
+    <article
+      className="flex flex-col"
+      style={{ gap: 24, width: '100%' }}
+      aria-label={`Award: ${award.title}`}
+    >
+      {/* Image square */}
+      <Link href={href} tabIndex={-1} aria-hidden="true">
+        <div
+          className="relative overflow-hidden"
+          style={{
+            width: '100%',
+            aspectRatio: '1 / 1',
+            borderRadius: 24,
+            border: '1px solid #FFEA9E',
+            boxShadow: '0 4px 4px rgba(0,0,0,0.25), 0 0 6px #FAE287',
+            background: 'rgba(0,16,26,0.8)',
+          }}
+        >
+          <Image
+            src="/homepage/award-card-bg.png"
+            alt={award.title}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 336px"
+          />
+        </div>
+      </Link>
+
+      {/* Text block */}
+      <div className="flex flex-col" style={{ gap: 4 }}>
+        {/* Title */}
+        <Link
+          href={href}
+          className="transition-opacity hover:opacity-80"
+          aria-label={`${award.title} — xem chi tiết`}
+        >
+          <h3
+            className={montserrat.className}
+            style={{
+              fontSize: 24,
+              fontWeight: 400,
+              lineHeight: '32px',
+              color: '#FFEA9E',
+              margin: 0,
+            }}
+          >
+            {award.title}
+          </h3>
+        </Link>
+
+        {/* Description — 2-line clamp */}
+        <p
+          className={montserrat.className}
+          style={{
+            fontSize: 16,
+            fontWeight: 400,
+            lineHeight: '24px',
+            color: '#FFFFFF',
+            letterSpacing: '0.5px',
+            overflow: 'hidden',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+          }}
+        >
+          {award.description}
+        </p>
+
+        {/* "Chi tiết" link with arrow */}
+        <Link
+          href={href}
+          className={`${montserrat.className} inline-flex items-center gap-1 font-bold transition-opacity hover:opacity-80`}
+          style={{
+            fontSize: 16,
+            fontWeight: 700,
+            lineHeight: '24px',
+            color: '#FFEA9E',
+            padding: '16px 0',
+          }}
+          aria-label={`Xem chi tiết giải ${award.title}`}
+        >
+          Chi tiết
+          <div className="relative" style={{ width: 24, height: 24, flexShrink: 0 }}>
+            <Image
+              src="/homepage/icon-arrow-up.svg"
+              alt=""
+              fill
+              className="object-contain"
+            />
+          </div>
+        </Link>
+      </div>
+    </article>
+  )
+}

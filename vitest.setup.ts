@@ -6,10 +6,16 @@ vi.mock('next/font/google', () => ({
   Montserrat: () => ({
     className: 'mock-montserrat',
     variable: '--font-montserrat',
+    style: {
+      fontFamily: 'var(--font-montserrat)',
+    },
   }),
   Montserrat_Alternates: () => ({
     className: 'mock-montserrat-alt',
     variable: '--font-montserrat-alt',
+    style: {
+      fontFamily: 'var(--font-montserrat-alt)',
+    },
   }),
 }))
 

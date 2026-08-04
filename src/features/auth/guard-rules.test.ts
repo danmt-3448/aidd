@@ -3,19 +3,33 @@ import { isPublic, sanitizeNext, PUBLIC_PATHS } from './guard-rules'
 
 describe('guard-rules', () => {
   describe('PUBLIC_PATHS', () => {
-    it('should contain /login, /auth, /dev-login', () => {
+    it('should contain /, /login, /auth, /dev-login', () => {
+      expect(PUBLIC_PATHS).toContain('/')
       expect(PUBLIC_PATHS).toContain('/login')
       expect(PUBLIC_PATHS).toContain('/auth')
       expect(PUBLIC_PATHS).toContain('/dev-login')
-      expect(PUBLIC_PATHS.length).toBe(3)
+    })
+
+    it('/awards and /rules are auth-guarded (NOT in PUBLIC_PATHS)', () => {
+      // phase-15 decision: /awards and /rules require authentication
+      expect(PUBLIC_PATHS).not.toContain('/awards')
+      expect(PUBLIC_PATHS).not.toContain('/rules')
     })
   })
 
   describe('isPublic', () => {
     it('should return true for exact public paths', () => {
+      expect(isPublic('/')).toBe(true)
       expect(isPublic('/login')).toBe(true)
       expect(isPublic('/auth')).toBe(true)
       expect(isPublic('/dev-login')).toBe(true)
+    })
+
+    it('/awards and /rules are NOT public (auth-guarded per phase-15)', () => {
+      expect(isPublic('/awards')).toBe(false)
+      expect(isPublic('/rules')).toBe(false)
+      expect(isPublic('/awards/some-subpage')).toBe(false)
+      expect(isPublic('/rules/detail')).toBe(false)
     })
 
     it('should return true for subpaths of public routes', () => {
@@ -27,11 +41,14 @@ describe('guard-rules', () => {
     })
 
     it('should return false for protected paths', () => {
-      expect(isPublic('/')).toBe(false)
       expect(isPublic('/todo')).toBe(false)
       expect(isPublic('/foo')).toBe(false)
       expect(isPublic('/profile')).toBe(false)
       expect(isPublic('/admin')).toBe(false)
+      expect(isPublic('/kudos')).toBe(false)
+      expect(isPublic('/secret-box')).toBe(false)
+      expect(isPublic('/awards')).toBe(false)
+      expect(isPublic('/rules')).toBe(false)
     })
 
     it('should return false for partial matches that do not start with public path', () => {

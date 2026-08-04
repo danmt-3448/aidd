@@ -34,7 +34,7 @@ const avatar = (seed) =>
 
 // Fixed UUIDs preserved from the previous SQL seed (integration tests depend on them).
 const USERS = [
-  { id: '11111111-0000-0000-0000-000000000001', email: 'nguyen.van.an@sun-asterisk.com', full_name: 'Nguyễn Văn An', seed: 'NguyenVanAn' },
+  { id: '11111111-0000-0000-0000-000000000001', email: 'nguyen.van.an@sun-asterisk.com', full_name: 'Nguyễn Văn An', seed: 'NguyenVanAn', is_admin: true },
   { id: '11111111-0000-0000-0000-000000000002', email: 'tran.thi.binh@sun-asterisk.com', full_name: 'Trần Thị Bình', seed: 'TranThiBinh' },
   { id: '11111111-0000-0000-0000-000000000003', email: 'le.van.cuong@sun-asterisk.com', full_name: 'Lê Văn Cường', seed: 'LeVanCuong' },
   { id: '11111111-0000-0000-0000-000000000004', email: 'pham.thi.dung@sun-asterisk.com', full_name: 'Phạm Thị Dung', seed: 'PhamThiDung' },
@@ -75,6 +75,24 @@ for (const u of USERS) {
   } else {
     failed += 1
     console.error(`  FAILED   ${u.email}: ${error.message}`)
+  }
+}
+
+// Mark admin users via shell SQL (RLS prevents service role from updating)
+import { execSync } from 'child_process'
+
+const adminUsers = USERS.filter((u) => u.is_admin)
+if (adminUsers.length > 0) {
+  try {
+    for (const u of adminUsers) {
+      const sql = `UPDATE public.profiles SET is_admin = true WHERE id = '${u.id}';`
+      execSync(`psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c "${sql}"`, {
+        stdio: 'pipe',
+      })
+      console.log(`  admin    ${u.email}`)
+    }
+  } catch (err) {
+    console.error(`WARNING: failed to set admin flags: ${err.message}`)
   }
 }
 
