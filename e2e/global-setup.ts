@@ -1,76 +1,70 @@
-import { chromium, FullConfig } from '@playwright/test'
+import { chromium, type Page } from '@playwright/test'
+import * as fs from 'fs/promises'
 
 /**
  * Global setup: authenticate test users and save their session state.
- * This runs once before all tests in the worker process.
+ * Runs once before all tests.
  *
- * Saves storageState for:
- * - Regular user: e2e/.auth/user.json (authenticated, non-admin)
- * - Admin user: e2e/.auth/admin.json (authenticated, is_admin=true)
+ * Produces:
+ *   e2e/.auth/user.json  — regular user (tran.thi.binh@)
+ *   e2e/.auth/admin.json — admin user  (nguyen.van.an@, is_admin=true)
  *
- * IMPORTANT: Use localhost (not 127.0.0.1) to ensure cookies match the domain
- * that Playwright config uses for baseURL.
+ * Cookie note: storageState is captured from the BrowserContext after a real
+ * browser login flow through /dev-login. The SSR auth cookie (sb-127-auth-token)
+ * is set by the Next.js server on the response and lands in the context's
+ * cookie jar with domain=localhost. Capturing from context (not page) ensures
+ * httpOnly cookies are included in the saved state.
  */
-async function globalSetup(config: FullConfig) {
+async function globalSetup() {
   const baseURL = 'http://localhost:3000'
+  const authDir = 'e2e/.auth'
 
-  // Create auth dir
-  await import('fs').then((fs) =>
-    fs.promises.mkdir('e2e/.auth', { recursive: true }),
-  )
+  await fs.mkdir(authDir, { recursive: true })
 
-  // Regular user credentials
   const regularUserEmail = 'tran.thi.binh@sun-asterisk.com'
   const adminEmail = 'nguyen.van.an@sun-asterisk.com'
   const password = 'TestPass123!'
 
-  // === Authenticate regular user ===
-  const userBrowser = await chromium.launch()
-  const userContext = await userBrowser.newContext()
-  const userPage = await userContext.newPage()
+  // Authenticate regular user
+  {
+    const browser = await chromium.launch()
+    const context = await browser.newContext({ baseURL })
+    const page = await context.newPage()
+    await authenticateUser(page, regularUserEmail, password)
+    await context.storageState({ path: `${authDir}/user.json` })
+    await browser.close()
+  }
 
-  await authenticateUser(userPage, baseURL, regularUserEmail, password)
-  await userContext.storageState({ path: 'e2e/.auth/user.json' })
-  await userBrowser.close()
+  // Authenticate admin user
+  {
+    const browser = await chromium.launch()
+    const context = await browser.newContext({ baseURL })
+    const page = await context.newPage()
+    await authenticateUser(page, adminEmail, password)
+    await context.storageState({ path: `${authDir}/admin.json` })
+    await browser.close()
+  }
 
-  // === Authenticate admin user ===
-  const adminBrowser = await chromium.launch()
-  const adminContext = await adminBrowser.newContext()
-  const adminPage = await adminContext.newPage()
-
-  await authenticateUser(adminPage, baseURL, adminEmail, password)
-  await adminContext.storageState({ path: 'e2e/.auth/admin.json' })
-  await adminBrowser.close()
-
-  console.log('Global setup: authenticated regular user and admin user')
+  console.log('[global-setup] storageState saved: user.json + admin.json')
 }
 
 /**
- * Log in via /dev-login route (test-only, no Google OAuth needed).
- * Polls for session establishment, ensuring the login is complete before returning.
+ * Log in via /dev-login and wait for redirect to /kudos.
+ * Fills both email and password explicitly — does not rely on pre-filled defaults.
  */
 async function authenticateUser(
-  page: Awaited<ReturnType<typeof chromium.launch>>['newPage'],
-  baseURL: string,
+  page: Page,
   email: string,
   password: string,
-) {
-  await page.goto(`${baseURL}/dev-login`)
+): Promise<void> {
+  await page.goto('/dev-login')
 
-  // Fill email and password (password already pre-filled in the form)
-  const emailInput = page.locator('input[placeholder*="you@"]')
-  const passwordInput = page.locator('input[type="password"]')
-  const submitButton = page.locator('button:has-text("Đăng nhập")')
+  await page.locator('input[placeholder*="you@"]').fill(email)
+  await page.locator('input[type="password"]').fill(password)
+  await page.locator('button:has-text("Đăng nhập")').click()
 
-  await emailInput.fill(email)
-  // Password field already has TestPass123! as default
-  // await passwordInput.fill(password)
-  await submitButton.click()
-
-  // Wait for redirect to /kudos (or another protected route) to confirm session
-  await page.waitForURL(/^.*\/(kudos|board|profile|awards).*$/, { timeout: 10000 })
-
-  // Extra safety: wait for network idle
+  // Wait for post-login redirect to confirm session established
+  await page.waitForURL(/\/(kudos|board|profile|awards)/, { timeout: 15_000 })
   await page.waitForLoadState('networkidle')
 }
 

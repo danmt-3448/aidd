@@ -110,13 +110,19 @@ async function fillMinimumValidForm(page: Page): Promise<void> {
 
 // ── Test Suite ───────────────────────────────────────────────────────────────
 
-test.describe('Viết Kudo — E2E (MoMorph ihQ26W78P2)', () => {
-  // ── Access Guard ────────────────────────────────────────────────────────────
+// ID-1 runs without auth — override project storageState so the guard redirect fires
+test.describe('Viết Kudo — Access Guard (unauthenticated)', () => {
+  test.use({ storageState: { cookies: [], origins: [] } })
 
   test('ID-1: unauthenticated access to /kudos redirects to /login', async ({ page }) => {
     await page.goto('/kudos')
-    await expect(page).toHaveURL('/login')
+    await page.waitForLoadState('networkidle')
+    await expect(page).toHaveURL('/login', { timeout: 5_000 })
   })
+})
+
+test.describe('Viết Kudo — E2E (MoMorph ihQ26W78P2)', () => {
+  // ── Access Guard ────────────────────────────────────────────────────────────
 
   test('ID-0: authenticated user navigating to /kudos stays on /kudos', async ({ page }) => {
     await devLogin(page)
