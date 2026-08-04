@@ -9,6 +9,19 @@ Dates and descriptions derived from `git log` (branch `develop`). Commits listed
 
 _(Nothing merged to main yet — all work is on `develop`.)_
 
+### Performance
+- **BE indexes + RLS hoisting:** new migration `20260804000000_perf_indexes_and_rpc.sql` — added
+  indexes on `kudos.sender_id`, `secret_box_badges(user_id, opened_at)`, `profiles.full_name` (trigram),
+  `kudos(created_at, id)`, `notifications(user_id, created_at)`; wrapped `auth.uid()` in `(select auth.uid())`
+  across 9 RLS policies so it's evaluated once per statement. EXPLAIN confirms Seq Scans replaced by index scans.
+- **Highlight-kudos RPC:** replaced the 2000-row client-side ranking in `getHighlightKudos` with a
+  `get_highlight_kudos()` SQL RPC returning the top-5 weighted rows in one query.
+- **FE bundle:** Tiptap editor lazy-loaded (`next/dynamic`, `ssr:false`) — ProseMirror + 7 @tiptap
+  packages code-split out of the initial `/kudos` load; `QueryProvider`/`Toaster` consolidated to a single
+  SSR-safe root instance; `refetchOnWindowFocus:false`; `/awards` statically generated; added
+  `@next/bundle-analyzer` (`npm run analyze`).
+- **Guidelines:** added `docs/performance-guidelines.md` (budgets + FE/BE checklist + measurement flow).
+
 ---
 
 ## [0.2.0] — 2026-08-03
