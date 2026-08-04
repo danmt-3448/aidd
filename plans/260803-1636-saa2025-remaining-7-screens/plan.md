@@ -26,19 +26,19 @@ fully parallel to Track B (backend/logic). Integration is the ONLY cross-track m
 | 03 | [Notification service + Realtime](phase-03-notification-service.md) | B·logic | planned | 01 |
 | 04 | [Hearts + board queries + Realtime](phase-04-hearts-board-queries.md) | B·logic | planned | 01 |
 | 05 | [Profile stats + direction queries](phase-05-profile-queries.md) | B·logic | planned | 01 |
-| 06 | [Secret-box open logic](phase-06-secret-box-logic.md) | B·logic | planned | 01 |
-| 07 | [Prize + Rules static content](phase-07-static-content.md) | B·logic | planned | — |
+| 06 | [Secret-box open logic](phase-06-secret-box-logic.md) | B·logic | completed | 01 |
+| 07 | [Prize + Rules static content](phase-07-static-content.md) | B·logic | completed | — |
 | 07b | [Seed demo data (Nhóm B lively)](phase-07b-seed-demo-data.md) | B·tooling | planned | 01,06 |
 | 08 | [UI · Countdown](phase-08-ui-countdown.md) | A·UI | completed | — |
-| 09 | [UI · Prize](phase-09-ui-prize.md) | A·UI | planned | — |
-| 10 | [UI · Rules](phase-10-ui-rules.md) | A·UI | planned | — |
+| 09 | [UI · Prize](phase-09-ui-prize.md) | A·UI | completed | — |
+| 10 | [UI · Rules](phase-10-ui-rules.md) | A·UI | completed | — |
 | 11 | [UI · Homepage](phase-11-ui-homepage.md) | A·UI | planned | — |
 | 12 | [UI · Live board](phase-12-ui-live-board.md) | A·UI | planned | — |
 | 13 | [UI · Profile](phase-13-ui-profile.md) | A·UI | planned | — |
-| 14 | [UI · Secret box](phase-14-ui-secret-box.md) | A·UI | planned | — |
-| 15 | [Integration (UI ↔ backend)](phase-15-integration.md) | A+B | planned | 01,02,03,04,05,06,07,08,09,10,11,12,13,14 |
-| 16 | [Tests (Vitest + Playwright)](phase-16-tests.md) | test | planned | 15 |
-| 17 | [Review + security audit + docs](phase-17-review-docs.md) | review | planned | 16 |
+| 14 | [UI · Secret box](phase-14-ui-secret-box.md) | A·UI | completed | — |
+| 15 | [Integration (UI ↔ backend)](phase-15-integration.md) | A+B | partial (awards·rules·secret-box done + QA-verified; other 4 screens pending) | 01,02,03,04,05,06,07,08,09,10,11,12,13,14 |
+| 16 | [Tests (Vitest + Playwright)](phase-16-tests.md) | test | partial (awards·rules·secret-box: 157 unit + 6 E2E + RPC DB-layer verified) | 15 |
+| 17 | [Review + security audit + docs](phase-17-review-docs.md) | review | partial (3 screens reviewed: reviewer-260804-0840; docs pending) | 16 |
 
 ## Key dependencies
 
