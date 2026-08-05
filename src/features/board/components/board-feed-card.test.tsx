@@ -215,6 +215,38 @@ describe('BoardFeedCard', () => {
     expect(screen.getByText('Ẩn danh')).toBeInTheDocument()
   })
 
+  it('sender name span has truncate class for responsive overflow (@375 fix)', () => {
+    render(
+      <BoardFeedCard
+        {...BASE_CARD}
+        senderName="Nguyễn Văn Rất Dài Tên"
+        onToggleHeart={vi.fn()}
+        onCopyLink={vi.fn()}
+        onOpenProfile={vi.fn()}
+      />,
+    )
+    // The span wrapping the sender name must have the truncate class so long
+    // names do not wrap to multiple lines at narrow viewports.
+    const senderSpan = screen.getByText('Nguyễn Văn Rất Dài Tên')
+    expect(senderSpan).toHaveClass('truncate')
+  })
+
+  it('receiver name span has truncate class for responsive overflow (@375 fix)', () => {
+    render(
+      <BoardFeedCard
+        {...BASE_CARD}
+        receiverName="Trần Thị Bình"
+        onToggleHeart={vi.fn()}
+        onCopyLink={vi.fn()}
+        onOpenProfile={vi.fn()}
+      />,
+    )
+    // The span wrapping the receiver name must truncate at narrow viewports
+    // to prevent the sender → arrow → receiver row from breaking.
+    const receiverSpan = screen.getByText('Trần Thị Bình')
+    expect(receiverSpan).toHaveClass('truncate')
+  })
+
   it('renders empty state when hashtags array is empty', () => {
     render(
       <BoardFeedCard
@@ -227,5 +259,142 @@ describe('BoardFeedCard', () => {
     )
     // No hashtag chips visible
     expect(screen.queryByText('#ThanhOm')).not.toBeInTheDocument()
+  })
+
+  // ── Extended fields (V2 rework) ─────────────────────────────────────────────
+
+  it('renders kudoTitle when provided', () => {
+    render(
+      <BoardFeedCard
+        {...BASE_CARD}
+        kudoTitle="IDOL GIỚI TRẺ"
+        onToggleHeart={vi.fn()}
+        onCopyLink={vi.fn()}
+        onOpenProfile={vi.fn()}
+      />,
+    )
+    expect(screen.getByText('IDOL GIỚI TRẺ')).toBeInTheDocument()
+  })
+
+  it('does not render kudoTitle section when not provided', () => {
+    render(
+      <BoardFeedCard
+        {...BASE_CARD}
+        onToggleHeart={vi.fn()}
+        onCopyLink={vi.fn()}
+        onOpenProfile={vi.fn()}
+      />,
+    )
+    expect(screen.queryByText('IDOL GIỚI TRẺ')).not.toBeInTheDocument()
+  })
+
+  it('renders senderDepartment below sender name', () => {
+    render(
+      <BoardFeedCard
+        {...BASE_CARD}
+        senderDepartment="CEVC10"
+        onToggleHeart={vi.fn()}
+        onCopyLink={vi.fn()}
+        onOpenProfile={vi.fn()}
+      />,
+    )
+    expect(screen.getByText('CEVC10')).toBeInTheDocument()
+  })
+
+  it('renders receiverDepartment below receiver name', () => {
+    render(
+      <BoardFeedCard
+        {...BASE_CARD}
+        senderDepartment="CEVC10"
+        receiverDepartment="CEDN01"
+        onToggleHeart={vi.fn()}
+        onCopyLink={vi.fn()}
+        onOpenProfile={vi.fn()}
+      />,
+    )
+    expect(screen.getByText('CEDN01')).toBeInTheDocument()
+  })
+
+  it('renders tier badge when senderTier is provided', () => {
+    render(
+      <BoardFeedCard
+        {...BASE_CARD}
+        senderTier={2}
+        onToggleHeart={vi.fn()}
+        onCopyLink={vi.fn()}
+        onOpenProfile={vi.fn()}
+      />,
+    )
+    expect(screen.getByLabelText(/Tier: Rising Hero/i)).toBeInTheDocument()
+  })
+
+  it('renders tier badge when receiverTier is provided', () => {
+    render(
+      <BoardFeedCard
+        {...BASE_CARD}
+        receiverTier={3}
+        onToggleHeart={vi.fn()}
+        onCopyLink={vi.fn()}
+        onOpenProfile={vi.fn()}
+      />,
+    )
+    expect(screen.getByLabelText(/Tier: Legend Hero/i)).toBeInTheDocument()
+  })
+
+  it('does not render image gallery when imageUrls is empty', () => {
+    const { container } = render(
+      <BoardFeedCard
+        {...BASE_CARD}
+        imageUrls={[]}
+        onToggleHeart={vi.fn()}
+        onCopyLink={vi.fn()}
+        onOpenProfile={vi.fn()}
+      />,
+    )
+    expect(container.querySelector('[aria-label="Ảnh đính kèm"]')).not.toBeInTheDocument()
+  })
+
+  it('does not render image gallery when imageUrls is omitted', () => {
+    const { container } = render(
+      <BoardFeedCard
+        {...BASE_CARD}
+        onToggleHeart={vi.fn()}
+        onCopyLink={vi.fn()}
+        onOpenProfile={vi.fn()}
+      />,
+    )
+    expect(container.querySelector('[aria-label="Ảnh đính kèm"]')).not.toBeInTheDocument()
+  })
+
+  it('truncates hashtags beyond 5 and shows overflow badge', () => {
+    render(
+      <BoardFeedCard
+        {...BASE_CARD}
+        hashtags={['#A', '#B', '#C', '#D', '#E', '#F', '#G']}
+        onToggleHeart={vi.fn()}
+        onCopyLink={vi.fn()}
+        onOpenProfile={vi.fn()}
+      />,
+    )
+    // First 5 shown
+    expect(screen.getByText('#A')).toBeInTheDocument()
+    expect(screen.getByText('#E')).toBeInTheDocument()
+    // 6th and 7th hidden; overflow badge "+2" shown
+    expect(screen.queryByText('#F')).not.toBeInTheDocument()
+    expect(screen.getByText('+2')).toBeInTheDocument()
+  })
+
+  it('heart count renders formatted with locale separator for large numbers', () => {
+    render(
+      <BoardFeedCard
+        {...BASE_CARD}
+        heartCount={1000}
+        onToggleHeart={vi.fn()}
+        onCopyLink={vi.fn()}
+        onOpenProfile={vi.fn()}
+      />,
+    )
+    // vi-VN locale formats 1000 as "1.000"
+    expect(screen.getByText('1.000')).toBeInTheDocument()
   })
 })

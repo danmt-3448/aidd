@@ -5,6 +5,9 @@
  * + BoardScreen. Receives server-resolved identity (uid/user/isAdmin) from
  * board/page.tsx and calls all Track B hooks. Surfaces errors via toasts.
  * Must be inside <QueryProvider> + <Toaster> (root providers.tsx).
+ *
+ * Dev-only: ?ui_state=full|empty|error|loading bypasses Supabase/realtime
+ * and renders from board-mock.ts. No side-effect channels fire in override mode.
  */
 
 import { useCallback, useEffect, useRef } from 'react'
@@ -18,19 +21,15 @@ import { useHighlights } from '../use-highlights'
 import { useSpotlight } from '../use-spotlight'
 import { useToggleHeart } from '../use-toggle-heart'
 import { useBoardUserStats } from '../use-board-user-stats'
-import { useRankingLeaderboard, useGiftLeaderboard } from '../use-board-leaderboards'
+import { useGiftLeaderboard } from '../use-board-leaderboards'
 import { useHashtagList } from '../use-hashtag-list'
-import type { FeedCardProps } from './board-types'
-import { mapKudoRowToFeedCard } from './board-connected-helpers'
-
-// Props — server-resolved identity passed from board/page.tsx
+import { useDepartmentList } from '../use-department-list'
+import { useUiStateOverride } from '../use-ui-state-override'
+import { resolveOverrideData } from './board-connected-helpers'
 
 export interface BoardConnectedProps {
-  /** Auth user id, or null when unauthenticated. */
   uid: string | null
-  /** Header identity — null renders the public header (no bell/account). */
   user: { name: string; avatarUrl?: string } | null
-  /** Whether the signed-in user has admin privileges (server-resolved). */
   isAdmin: boolean
 }
 
@@ -39,10 +38,12 @@ export function BoardConnected({ uid, user, isAdmin }: BoardConnectedProps) {
   const searchParams = useSearchParams()
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
-  // Bell badge — opens realtime subscription only when uid is non-null.
+  const uiOverride = useUiStateOverride()
+  const isOverride = uiOverride !== null
+
   const { count: unreadCount } = useUnreadCount(uid)
 
-  // ── Track B hooks ─────────────────────────────────────────────────────────
+  // ── Track B hooks (always called — Rules of Hooks) ────────────────────────
   const {
     allRows: feedRows,
     isLoading: feedLoading,
@@ -55,123 +56,116 @@ export function BoardConnected({ uid, user, isAdmin }: BoardConnectedProps) {
   const { highlights: highlightRows, error: highlightsError } = useHighlights()
   const { nodes: spotlightNodes, error: spotlightError } = useSpotlight()
   const { toggle, error: toggleError, clearError } = useToggleHeart()
-
-  // ── BOARD-2: sidebar user stats (real data) ───────────────────────────────
   const { stats: userStats, error: statsError } = useBoardUserStats(uid)
-
-  // ── BOARD-3 + BOARD-4: leaderboards ──────────────────────────────────────
-  const { entries: rankingLeaderboard, error: rankingError } = useRankingLeaderboard()
   const { entries: giftLeaderboard, error: giftError } = useGiftLeaderboard()
+  const { hashtags: hashtagList, nameToId: hashtagNameToId } = useHashtagList()
+  const { departments: departmentList, nameToId: deptNameToId, error: deptListError } = useDepartmentList()
 
-  // ── BOARD-1: hashtag chips ────────────────────────────────────────────────
-  const { hashtags: hashtagList, nameToId } = useHashtagList()
+  // ── Resolve data (override wins when active) ──────────────────────────────
+  const resolved = resolveOverrideData(uiOverride, {
+    feedRows,
+    highlightRows,
+    spotlightNodes,
+    userStats,
+    giftLeaderboard,
+    hashtagNames: hashtagList.map((h) => h.name),
+    departmentNames: departmentList.map((d) => d.name),
+    feedLoading,
+    feedError,
+  })
 
-  // Derive the display-name list for the carousel chips (e.g. ["ThanhOm", ...]).
-  // The carousel shows names; clicking routes via UUID URL param.
-  const hashtagNames = hashtagList.map((h) => h.name)
-
-  // Active hashtag display name — derived from current URL param UUID.
+  // ── Routing helpers ───────────────────────────────────────────────────────
   const activeHashtagId = searchParams.get('hashtag')
   const activeHashtag = activeHashtagId
     ? (hashtagList.find((h) => h.id === activeHashtagId)?.name ?? null)
     : null
 
-  // ── Hashtag routing ───────────────────────────────────────────────────────
-  // Push ?hashtag=<uuid> when a chip is clicked. Passing null clears the param.
-  // Feed + spotlight both read searchParams.get('hashtag') directly via their
-  // own useSearchParams() calls — no prop drilling needed.
+  const activeDeptId = searchParams.get('department')
+  const activeDepartment = activeDeptId
+    ? (departmentList.find((d) => d.id === activeDeptId)?.name ?? null)
+    : null
+
   const handleHashtagChange = useCallback(
     (name: string | null) => {
       const params = new URLSearchParams(searchParams.toString())
       if (name === null) {
         params.delete('hashtag')
       } else {
-        const id = nameToId.get(name)
-        if (id) {
-          params.set('hashtag', id)
-        } else {
-          params.delete('hashtag')
-        }
+        const id = hashtagNameToId.get(name)
+        if (id) params.set('hashtag', id)
+        else params.delete('hashtag')
       }
       router.push('?' + params.toString(), { scroll: false })
     },
-    [router, searchParams, nameToId],
+    [router, searchParams, hashtagNameToId],
   )
 
-  // ── Surface query errors as toasts (non-blocking) ─────────────────────────
-  useEffect(() => { if (feedError) toast.error(feedError) }, [feedError])
-  useEffect(() => { if (highlightsError) toast.error(highlightsError) }, [highlightsError])
-  useEffect(() => { if (spotlightError) toast.error(spotlightError) }, [spotlightError])
-  useEffect(() => { if (statsError) toast.error(statsError) }, [statsError])
-  useEffect(() => { if (rankingError) toast.error(rankingError) }, [rankingError])
-  useEffect(() => { if (giftError) toast.error(giftError) }, [giftError])
+  const handleDepartmentChange = useCallback(
+    (name: string | null) => {
+      const params = new URLSearchParams(searchParams.toString())
+      if (name === null) {
+        params.delete('department')
+      } else {
+        const id = deptNameToId.get(name)
+        if (id) params.set('department', id)
+        else params.delete('department')
+      }
+      router.push('?' + params.toString(), { scroll: false })
+    },
+    [router, searchParams, deptNameToId],
+  )
 
-  // Surface toggle-heart errors — clear after toast so it doesn't re-fire.
-  useEffect(() => {
-    if (toggleError) {
-      toast.error(toggleError)
-      clearError()
-    }
-  }, [toggleError, clearError])
+  // ── Error toasts (suppressed in override mode) ────────────────────────────
+  // Each error needs its own effect so React can track per-dependency changes.
+  useEffect(() => { if (!isOverride && feedError) toast.error(feedError) }, [isOverride, feedError])
+  useEffect(() => { if (!isOverride && highlightsError) toast.error(highlightsError) }, [isOverride, highlightsError])
+  useEffect(() => { if (!isOverride && spotlightError) toast.error(spotlightError) }, [isOverride, spotlightError])
+  useEffect(() => { if (!isOverride && statsError) toast.error(statsError) }, [isOverride, statsError])
+  useEffect(() => { if (!isOverride && giftError) toast.error(giftError) }, [isOverride, giftError])
+  useEffect(() => { if (!isOverride && deptListError) toast.error(deptListError) }, [isOverride, deptListError])
+  useEffect(() => { if (toggleError) { toast.error(toggleError); clearError() } }, [toggleError, clearError])
 
-  // ── Infinite scroll sentinel — page-level scroll, rootMargin pre-fires ───
+  // ── Infinite scroll (disabled in override mode) ───────────────────────────
   useEffect(() => {
+    if (isOverride) return
     const el = sentinelRef.current
     if (!el) return
-
     const observer = new IntersectionObserver(
       (entries) => {
-        const entry = entries[0]
-        if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage()
-        }
+        if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) fetchNextPage()
       },
       { rootMargin: '200px' },
     )
-
     observer.observe(el)
     return () => observer.disconnect()
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
-
-  const feed: FeedCardProps[] = feedRows.map(mapKudoRowToFeedCard)
-  const highlights: FeedCardProps[] = highlightRows.map(mapKudoRowToFeedCard)
-
-  // Sum spotlight kudoCount for the header total; falls back to 0 until resolved.
-  const totalKudos =
-    spotlightNodes.length > 0
-      ? spotlightNodes.reduce((sum, n) => sum + n.kudoCount, 0)
-      : 0
-
-  function handleToggleHeart(kudoId: string) {
-    toggle(kudoId)
-  }
-
-  function handleCopyLink(_kudoId: string) {
-    // Copy-link toast is handled inside BoardScreen itself.
-  }
-
-  function handleOpenProfile(id: string) {
-    router.push('/profile?id=' + id)
-  }
-
-  function handleOpenSecretBox() {
-    router.push('/secret-box')
-  }
+  }, [isOverride, hasNextPage, isFetchingNextPage, fetchNextPage])
 
   const header = (
     <SiteHeader user={user} unreadCount={unreadCount} uid={uid} isAdmin={isAdmin} activeNav="kudos" />
   )
 
-  if (feedLoading && feed.length === 0) {
+  // Loading skeleton gate
+  if (resolved.feedLoading && resolved.feed.length === 0) {
     return (
       <div className="min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
         {header}
-        <div
-          className="flex flex-1 items-center justify-center"
-          style={{ minHeight: 'calc(100vh - 80px)' }}
-          aria-busy="true"
-          aria-label="Đang tải bảng Kudos…"
-        />
+        <div className="flex flex-1 items-center justify-center" style={{ minHeight: 'calc(100vh - 80px)' }}
+          aria-busy="true" aria-label="Đang tải bảng Kudos…" />
+      </div>
+    )
+  }
+
+  // Error gate
+  if (resolved.feedError && resolved.feed.length === 0) {
+    return (
+      <div className="min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
+        {header}
+        <div className="flex flex-1 items-center justify-center" style={{ minHeight: 'calc(100vh - 80px)' }}
+          role="alert" aria-label="Lỗi tải bảng Kudos">
+          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            Không thể tải dữ liệu. Vui lòng thử lại.
+          </p>
+        </div>
       </div>
     )
   }
@@ -179,38 +173,32 @@ export function BoardConnected({ uid, user, isAdmin }: BoardConnectedProps) {
   return (
     <div className="min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
       {header}
-
       <BoardScreen
-        highlights={highlights}
-        feed={feed}
-        hashtags={hashtagNames}
+        highlights={resolved.highlights}
+        feed={resolved.feed}
+        hashtags={resolved.hashtagNames}
         activeHashtag={activeHashtag}
-        spotlight={spotlightNodes}
-        totalKudos={totalKudos}
-        userStats={userStats}
-        rankingLeaderboard={rankingLeaderboard}
-        giftLeaderboard={giftLeaderboard}
+        departments={resolved.departmentNames}
+        activeDepartment={activeDepartment}
+        spotlight={resolved.spotlightNodes}
+        totalKudos={resolved.totalKudos}
+        userStats={resolved.userStats}
+        giftLeaderboard={resolved.giftLeaderboard}
         onHashtagChange={handleHashtagChange}
-        onToggleHeart={handleToggleHeart}
-        onCopyLink={handleCopyLink}
-        onOpenProfile={handleOpenProfile}
-        onOpenSecretBox={handleOpenSecretBox}
+        onDepartmentChange={handleDepartmentChange}
+        onToggleHeart={(kudoId) => { if (!isOverride) toggle(kudoId) }}
+        onCopyLink={() => { /* handled inside BoardScreen */ }}
+        onOpenProfile={(id) => router.push('/profile?id=' + id)}
+        onOpenSecretBox={() => router.push('/secret-box')}
       />
 
-      {/* Infinite-scroll sentinel — invisible, triggers fetchNextPage */}
-      <div ref={sentinelRef} aria-hidden style={{ height: 1 }} />
+      {!isOverride && <div ref={sentinelRef} aria-hidden style={{ height: 1 }} />}
 
-      {isFetchingNextPage && (
-        <div
-          className="flex justify-center py-4"
-          style={{ backgroundColor: 'rgba(0,16,26,1)' }}
-          aria-live="polite"
-          aria-label="Đang tải thêm Kudos…"
-        >
-          <div
-            className="h-5 w-5 animate-spin rounded-full border-2 border-transparent"
-            style={{ borderTopColor: 'rgba(255,255,255,0.4)' }}
-          />
+      {!isOverride && isFetchingNextPage && (
+        <div className="flex justify-center py-4" style={{ backgroundColor: 'rgba(0,16,26,1)' }}
+          aria-live="polite" aria-label="Đang tải thêm Kudos…">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-transparent"
+            style={{ borderTopColor: 'rgba(255,255,255,0.4)' }} />
         </div>
       )}
     </div>

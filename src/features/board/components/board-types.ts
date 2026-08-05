@@ -24,6 +24,39 @@ export interface FeedCardProps {
   createdAt: string
   /** Optional: rendered as colored chip, e.g. "#ThanhOm" */
   hashtags?: string[]
+
+  // ── Extended fields (Figma V2 — optional for BE backward-compat) ──────────
+  /**
+   * Kudo heading shown above content body, e.g. "IDOL GIỚI TRẺ".
+   * BE contract: kudos_public.title (text, nullable)
+   */
+  kudoTitle?: string
+  /**
+   * Sender's department/team label, e.g. "CEVC10".
+   * BE contract: kudos_public.sender_department (text, nullable)
+   */
+  senderDepartment?: string
+  /**
+   * Receiver's department/team label, e.g. "CEVC10".
+   * BE contract: kudos_public.receiver_department (text, nullable)
+   */
+  receiverDepartment?: string
+  /**
+   * Sender's tier level (1–4) based on total kudos sent count.
+   * 1 = New Hero, 2 = Rising Hero, 3 = Legend Hero, 4 = Super Hero (MM_MEDIA_Super Hero)
+   * BE contract: kudos_public.sender_tier (smallint 1..4, nullable)
+   */
+  senderTier?: 1 | 2 | 3 | 4
+  /**
+   * Receiver's tier level (1–4) based on total kudos received count.
+   * BE contract: kudos_public.receiver_tier (smallint 1..4, nullable)
+   */
+  receiverTier?: 1 | 2 | 3 | 4
+  /**
+   * Attached image URLs (up to 5 displayed per row at 80×80px).
+   * BE contract: kudos_public.image_urls (text[], nullable) — JSON array of storage URLs
+   */
+  imageUrls?: string[]
 }
 
 /** One node in the Spotlight word-cloud. */
@@ -49,4 +82,10 @@ export interface LeaderboardEntry {
   name: string
   avatarUrl: string | null
   score: number
+  /**
+   * Prize description for the "Nhận quà" leaderboard, e.g. "Nhận được 1 áo phông SAA".
+   * Optional — only the gift leaderboard needs this field.
+   * BE contract: kudos_public.prize_description (text, nullable)
+   */
+  prize?: string
 }

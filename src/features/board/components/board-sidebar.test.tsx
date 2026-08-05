@@ -1,3 +1,10 @@
+/**
+ * board-sidebar.test.tsx
+ *
+ * Rework pass 2 (D7): rankingLeaderboard removed from BoardSidebar per Figma.
+ * Sidebar now shows ONLY stats + gift leaderboard ("10 Sunner Nhận Quà Mới Nhất").
+ */
+
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { BoardSidebar } from './board-sidebar'
@@ -10,30 +17,30 @@ const STATS: BoardUserStats = {
   secretBoxCount: 3,
 }
 
-function makeEntries(count: number): LeaderboardEntry[] {
+function makeEntries(count: number, withPrize = false): LeaderboardEntry[] {
   return Array.from({ length: count }, (_, i) => ({
     rank: i + 1,
     id: `u${i + 1}`,
     name: `User ${i + 1}`,
     avatarUrl: null,
     score: 50 - i * 4,
+    prize: withPrize ? `Prize ${i + 1}` : undefined,
   }))
 }
 
 describe('BoardSidebar', () => {
-  it('renders all four stats values', () => {
+  it('renders all stats values', () => {
     render(
       <BoardSidebar
         stats={STATS}
-        rankingLeaderboard={[]}
         giftLeaderboard={[]}
         onOpenSecretBox={vi.fn()}
       />,
     )
-    expect(screen.getByLabelText(/12 Kudos nhận/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/8 Kudos gửi/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/47 Hearts/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/3 Secret Box/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/12 Số Kudos bạn nhận được/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/8 Số Kudos bạn đã gửi/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/47 Số tim bạn nhận được/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/3 Số Secret Box bạn đã mở/i)).toBeInTheDocument()
   })
 
   it('calls onOpenSecretBox when "Mở quà" is clicked', () => {
@@ -41,7 +48,6 @@ describe('BoardSidebar', () => {
     render(
       <BoardSidebar
         stats={STATS}
-        rankingLeaderboard={[]}
         giftLeaderboard={[]}
         onOpenSecretBox={onOpenSecretBox}
       />,
@@ -50,13 +56,12 @@ describe('BoardSidebar', () => {
     expect(onOpenSecretBox).toHaveBeenCalledOnce()
   })
 
-  it('renders ranking leaderboard entries', () => {
+  it('renders gift leaderboard entries', () => {
     const entries = makeEntries(3)
     render(
       <BoardSidebar
         stats={STATS}
-        rankingLeaderboard={entries}
-        giftLeaderboard={[]}
+        giftLeaderboard={entries}
         onOpenSecretBox={vi.fn()}
       />,
     )
@@ -64,40 +69,39 @@ describe('BoardSidebar', () => {
     expect(screen.getByText('User 3')).toBeInTheDocument()
   })
 
-  it('renders gift leaderboard entries', () => {
-    const entries = makeEntries(2)
+  it('shows empty state when gift leaderboard is empty', () => {
     render(
       <BoardSidebar
         stats={STATS}
-        rankingLeaderboard={[]}
+        giftLeaderboard={[]}
+        onOpenSecretBox={vi.fn()}
+      />,
+    )
+    expect(screen.getByText(/chưa có dữ liệu/i)).toBeInTheDocument()
+  })
+
+  it('renders prize description for gift leaderboard entries', () => {
+    const entries: LeaderboardEntry[] = [
+      { rank: 1, id: 'g1', name: 'Ngô Thị Mai', avatarUrl: null, score: 50, prize: 'Nhận được 1 áo phông SAA' },
+      { rank: 2, id: 'g2', name: 'Cao Xuân Bách', avatarUrl: null, score: 46, prize: 'Nhận được 1 ly giữ nhiệt Sun*' },
+    ]
+    render(
+      <BoardSidebar
+        stats={STATS}
         giftLeaderboard={entries}
         onOpenSecretBox={vi.fn()}
       />,
     )
-    expect(screen.getByText('User 2')).toBeInTheDocument()
+    expect(screen.getByText('Nhận được 1 áo phông SAA')).toBeInTheDocument()
+    expect(screen.getByText('Nhận được 1 ly giữ nhiệt Sun*')).toBeInTheDocument()
   })
 
-  it('shows empty state for ranking leaderboard when no entries', () => {
-    render(
-      <BoardSidebar
-        stats={STATS}
-        rankingLeaderboard={[]}
-        giftLeaderboard={[]}
-        onOpenSecretBox={vi.fn()}
-      />,
-    )
-    // Both leaderboards empty → two "Chưa có dữ liệu." messages
-    const msgs = screen.getAllByText(/chưa có dữ liệu/i)
-    expect(msgs.length).toBeGreaterThanOrEqual(2)
-  })
-
-  it('top-3 rank labels are present', () => {
+  it('renders top-3 rank badges in gift leaderboard', () => {
     const entries = makeEntries(5)
     render(
       <BoardSidebar
         stats={STATS}
-        rankingLeaderboard={entries}
-        giftLeaderboard={[]}
+        giftLeaderboard={entries}
         onOpenSecretBox={vi.fn()}
       />,
     )
