@@ -14,22 +14,31 @@ Trước khi spawn bất kỳ subagent nào: tra **bảng Step → Role → Skil
 /tkm:predict-risks + review ← plan-reviewer: validate. Chưa APPROVED → KHÔNG build
         ↓
 Build SONG SONG (2 track không block nhau):
-  Track A  fe-developer  → /momorph-implement-design   (UI + mock data từ Figma)
+  Track A  fe-developer  → /momorph-implement-design   (UI + behavior, mock data từ Figma)
   Track B  be-developer  → /tkm:takumi (BE phases)      (schema + actions + hooks)
         ↓
+┌───────────── UI-First Gate (BẮT BUỘC mỗi screen) ─────────────┐
+│ /aidd-ui-gate  → 1440 pixel-perfect + behavior mock → PASS?   │  ← chốt chặn
+└───────────────────────────────┬───────────────────────────────┘
+                             PASS
+                                ↓
 /tkm:takumi (integration)  ← integration-engineer: wire UI ↔ backend, thay mock = real data
 ```
 
 **Rules:**
 - Plan chưa APPROVED → không build (PLAN-FIRST).
-- Track A ∥ Track B: không chung file, không block nhau.
+- Track A ∥ Track B: không chung file, không block *code* của nhau.
+- **[UI-FIRST]** Screen chưa PASS `/aidd-ui-gate` → CẤM integration, CẤM viết test, CẤM ship. Xem `ui-first-gate.md`.
+- BE build song song vẫn OK — chỉ bị giữ ở cửa integration, không làm lại.
 - Edit file tại chỗ — không tạo bản `*-enhanced` / `*-v2`.
 - **[IMPORTANT]** Compile (`tsc --noEmit`) sau mỗi file để bắt lỗi sớm.
 
 #### 2. Testing — DEV → QA feedback loop
 
+> **[UI-FIRST] Precondition:** chỉ bước vào Step 2 khi screen đã **PASS `/aidd-ui-gate`** + integrate xong. KHÔNG viết e2e/unit trước khi UI+behavior pass — test-cases từ MoMorph lúc này chỉ dùng làm **checklist behavior cho gate**, chưa viết code test. (Ghi đè "test-first" cho tới khi qua gate — xem `ui-first-gate.md`.)
+
 ```
-/tkm:generate-testcases   ← test-writer: generate từ MoMorph spec (TDD prep)
+/tkm:generate-testcases   ← test-writer: generate từ MoMorph spec (làm checklist gate; viết code test SAU khi qua gate)
         ↓
 /tkm:run-tests (write)    ← test-writer: viết Vitest + Playwright
         ↓

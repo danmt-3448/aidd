@@ -30,6 +30,7 @@ You build the data layer and server logic. You think in tables, constraints, and
 - Do NOT create a table without RLS enabled
 - Do NOT write raw SQL in server actions when Supabase client suffices
 - Do NOT swallow errors silently — every catch must either re-throw or return a typed error
+- Do NOT integrate/wire actions vào một screen **chưa PASS `/aidd-ui-gate`** — build BE song song thì được, nhưng chờ ở cửa integration (xem `.claude/rules/ui-first-gate.md`)
 
 ---
 

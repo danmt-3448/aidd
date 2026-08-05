@@ -29,7 +29,8 @@ Next.js app generated from Figma design + MoMorph screen specs, using the Takumi
 | Implement màn (UI + logic full) | `fe-developer.md` + `be-developer.md` | `/tkm:takumi <URL>` | implementer ×2 |
 | Multi-screen / phức tạp | `fe-developer.md` + `be-developer.md` | `/tkm:create-plan` → `/tkm:takumi <plan>` | implementer ×N |
 | Design / refine DB schema | `be-developer.md` | `/tkm:design-database` | implementer |
-| Integration (wire UI ↔ backend) | `integration-engineer.md` | `/tkm:takumi` (integration phase) | implementer |
+| **UI-First Gate** (chốt UI+behavior trước integration) | `code-reviewer.md` | `/aidd-ui-gate <URL/route>` | reviewer |
+| Integration (wire UI ↔ backend) — **chỉ sau khi PASS gate** | `integration-engineer.md` | `/tkm:takumi` (integration phase) | implementer |
 | Fix bug | `fe-developer.md` hoặc `be-developer.md` | `/tkm:fix-bug <mô tả> <URL>` | implementer |
 | Debug issue (diagnose trước fix) | `fe/be/integration-engineer.md` | `/tkm:debug-code` | debugger |
 | Dọn code (sau feature) | `fe-developer.md` hoặc `be-developer.md` | `/tkm:clean-code` | code-simplifier |
@@ -107,9 +108,12 @@ Quy tắc: **skill trước, code sau** — không code ad-hoc. Takumi điều p
 
 ## UI Fidelity: bám Figma + responsive (BẮT BUỘC)
 
-- **Pixel-perfect với Figma** — KHÔNG đoán giá trị visual (màu/spacing/size/font); lấy qua MoMorph MCP. Chạy visual-diff loop (Playwright vs Figma reference) tới khi khớp.
-- **Responsive default-on** — mọi màn phải adapt theo viewport, dùng breakpoint **Tailwind mặc định**: `sm 640 · md 768 · lg 1024 · xl 1280`. Mobile-first. Test ở **375 / 768 / 1280px**.
-- Design là artboard **desktop** → pixel-perfect ở size desktop; size khác adapt hợp lý (`clamp()` cho font lớn, stack cột, `width:100%` cho media). Màn nào có artboard mobile riêng → khớp luôn.
+> Đây là tiêu chuẩn của **UI-First Gate** — xem `.claude/rules/ui-first-gate.md`. Mỗi screen phải qua gate (`/aidd-ui-gate`) trước integration/test/ship.
+
+- **Chuẩn desktop = 1440px, giống Figma ~95% (KHÔNG bắt pixel-perfect)** — lệch nhỏ px/sắc độ OK; chỉ sai khi lệch rõ (layout/màu/font/element). Vẫn KHÔNG đoán giá trị visual — lấy qua MoMorph MCP làm mốc. **Bỏ 1280** (không còn là checkpoint).
+- **Behavior/logic ưu tiên số 1 — phải đúng 100%** (validation, navigation, states, interactive). Sai behavior → FAIL gate kể cả UI đẹp.
+- **Responsive default-on** — màn nhỏ hơn chỉ cần adapt đúng, KHÔNG yêu cầu pixel-perfect. Test ở **1440 (~95% giống) / 768 (adapt) / 375 (adapt)**. Mobile-first, breakpoint Tailwind mặc định `sm 640 · md 768 · lg 1024 · xl 1280`.
+- Design là artboard **desktop 1440** → giống ~95% ở 1440; size khác adapt hợp lý (`clamp()` cho font lớn, stack cột, `width:100%` cho media). Màn nào có artboard mobile riêng → khớp luôn.
 - Không hardcode `width/height` cố định cho element rộng > 50% viewport.
 
 ## Gen-Code Workflow (MoMorph → code)
@@ -121,21 +125,23 @@ Match the scenario to the task (see the hands-on README):
 3. **UI only from design** → `/momorph-implement-design <MoMorph Screen URLs>`
 4. **Fix a bug on a screen** → `/tkm:fix-bug <description> <MoMorph Screen URL>`
 
-Rules: **never guess visual values** — MCP design data is authoritative. Fetch spec + test cases, resolve gaps via clarification, then build. UI (Track A) and backend/logic (Track B) run in parallel.
+Rules: **never guess visual values** — MCP design data is authoritative. Fetch spec + test cases, resolve gaps via clarification, then build. UI (Track A) and backend/logic (Track B) run in parallel — **nhưng mỗi screen phải qua UI-First Gate (`/aidd-ui-gate`, 1440 giống ~95% + behavior mock đúng 100%) TRƯỚC khi integration/test/ship**. Xem `.claude/rules/ui-first-gate.md`.
 
-## Testing (TDD)
+## Testing (UI-First — test SAU gate, KHÔNG test-first)
 
-- Write tests first, driven by the MoMorph **test cases** for the screen.
+> **Ghi đè TDD:** với screen chưa qua UI-First Gate, **KHÔNG viết e2e/unit**. Test cases MoMorph lúc này chỉ là **checklist behavior cho gate**. Viết code test **chỉ sau khi** screen PASS `/aidd-ui-gate` + integrate xong. Lý do: UI/logic còn đổi → test viết sớm phải viết lại, tốn công. Xem `.claude/rules/ui-first-gate.md`.
+
 - **Unit (Vitest):** component logic, hooks, stores, utils, validation.
 - **E2E (Playwright):** user flows per the screen spec (auth, navigation, form submit, error states).
 - Do **not** wave through failing tests or fake a green build. Fix, then re-run.
 
-## Definition of Done
+## Definition of Done (theo thứ tự UI-First)
 
-- **UI:** pixel-accurate to the Figma design.
-- **Logic:** behaves exactly per the MoMorph screen spec.
-- **Quality:** Unit + E2E tests present and passing, built TDD-style.
-- Reviewer agent runs after implementation.
+1. **UI-First Gate PASS** — `/aidd-ui-gate`: 1440px giống Figma **~95%** (không pixel-perfect) + **behavior mock đúng 100%** + responsive 768/375. **Đây là cửa đầu tiên, chưa PASS thì các bước sau chưa được bắt đầu.**
+2. **Integration:** wire real BE data, thay hết mock.
+3. **Logic:** behaves exactly per the MoMorph screen spec (với data thật).
+4. **Quality:** Unit + E2E tests present and passing (viết SAU gate, không test-first).
+5. Reviewer agent runs after implementation.
 
 ## Commands
 

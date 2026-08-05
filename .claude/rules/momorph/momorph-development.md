@@ -9,6 +9,8 @@
 3. **NEVER proceed without user confirmation** — present ambiguities interactively, wait for ALL answers
 4. **`clarifications.md`** in plan directory holds prior decisions — authoritative, do not re-ask resolved items
 
+> **⛔ UI-First Gate áp lên section này.** Xem `.claude/rules/ui-first-gate.md`. Hai track vẫn chạy song song, nhưng mỗi screen phải **qua UI-First Gate** (`/aidd-ui-gate`) trước khi integration/test/ship. "No blocking merge point" bên dưới nghĩa là hai track không block *code* của nhau — KHÔNG có nghĩa integration được phép chạy trên UI chưa qua gate.
+
 ## Parallel Execution Strategy
 
 **OVERRIDE: This section modifies both `tkm:takumi` and `tkm:create-plan` workflows.** When MoMorph context is detected. This section is the **full protocol**.
@@ -70,7 +72,7 @@ Track A agents complete asynchronously. As each finishes:
 4. If backend implementation already done for that screen → integration phase starts immediately
 5. If backend still in progress → integration happens when backend for that screen completes
 
-**There is NO blocking merge point.** Both tracks run freely. Integration happens incrementally as outputs become available.
+**Both tracks run freely** — neither blocks the other's *code*. BUT integration for a screen starts only **after that screen passes the UI-First Gate** (`/aidd-ui-gate` → PASS). BE code built in parallel is not wasted — it waits at the integration door, then gets wired + re-scanned once the UI is verified. See `.claude/rules/ui-first-gate.md`.
 
 **Handoff sau integration:** mỗi màn integrate xong → chuyển sang `primary-workflow.md` **Step 2 (Testing) → Step 3 (Review) → Step 4 (Docs/Ship)** với các role tương ứng (test-writer/test-runner → code-reviewer → doc-writer). Không màn nào coi là done khi chưa qua test + review.
 
