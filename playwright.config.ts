@@ -19,7 +19,7 @@ export default defineConfig({
   reporter: 'html',
   globalSetup: path.resolve(__dirname, './e2e/global-setup.ts'),
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3001',
     trace: 'on-first-retry',
   },
 
