@@ -1,23 +1,23 @@
 'use client'
 
 /**
- * BoardHighlightCarousel — top-5 HIGHLIGHT KUDOS carousel.
+ * BoardHighlightCarousel — top-5 HIGHLIGHT KUDOS carousel with dropdown filters.
  *
- * Design tokens from MoMorph MCP screen MaZUn5xHXZ:
- *   Section label: "HIGHLIGHT KUDOS" Montserrat 700 12px tracking-[1.5px] color rgba(255,255,255,0.5)
- *   Arrow buttons: 40×40 circle bg rgba(255,255,255,0.08) border rgba(255,255,255,0.12)
- *     disabled: opacity 0.3, pointer-events none
- *   Pagination: "2/5" Montserrat 700 14px color rgba(255,255,255,0.6)
- *   Hashtag filter chips: pill bg rgba(255,255,255,0.06) border rgba(255,255,255,0.12)
- *     active chip: bg rgba(255,234,158,0.15) border rgba(255,234,158,0.4) color #FFEA9E
+ * Design tokens from MoMorph MCP screen MaZUn5xHXZ (rework pass 2):
+ *   D5 — eyebrow "Sun* Annual Awards 2025" Montserrat 700 24px white above section title.
+ *   Section title: "HIGHLIGHT KUDOS" Montserrat 700 57px #FFEA9E.
+ *   Arrow buttons: 80×80 circle (large) bg rgba(255,255,255,0.08) on desktop.
+ *   Pagination: Montserrat 700 14px rgba(255,255,255,0.6).
+ *   Cards rendered with variant="highlight" (cream bg + gold border).
  *
- * Hand-rolled carousel (no external library) — one card visible at a time,
- * prev/next arrows disabled at boundary, pagination "current/total".
+ * Hand-rolled carousel, one card visible at a time. Filter change resets to index 0.
  */
 
 import { useState } from 'react'
 import { montserrat } from '@/features/auth/fonts'
 import { BoardFeedCard } from './board-feed-card'
+import { BoardFilterDropdown } from './board-filter-dropdown'
+import { SectionEyebrow } from './board-section-eyebrow'
 import type { FeedCardProps } from './board-types'
 
 export interface BoardHighlightCarouselProps {
@@ -25,6 +25,9 @@ export interface BoardHighlightCarouselProps {
   hashtags: string[]
   activeHashtag: string | null
   onHashtagChange: (tag: string | null) => void
+  departments?: string[]
+  activeDepartment?: string | null
+  onDepartmentChange?: (dept: string | null) => void
   onToggleHeart: (kudoId: string) => void
   onCopyLink: (kudoId: string) => void
   onOpenProfile: (id: string) => void
@@ -32,17 +35,8 @@ export interface BoardHighlightCarouselProps {
 
 function ChevronLeft() {
   return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M15 18l-6-6 6-6" />
     </svg>
   )
@@ -50,30 +44,16 @@ function ChevronLeft() {
 
 function ChevronRight() {
   return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M9 18l6-6-6-6" />
     </svg>
   )
 }
 
-interface ArrowButtonProps {
-  onClick: () => void
-  disabled: boolean
-  label: string
-  children: React.ReactNode
-}
-
-function ArrowButton({ onClick, disabled, label, children }: ArrowButtonProps) {
+function ArrowButton({ onClick, disabled, label, children }: {
+  onClick: () => void; disabled: boolean; label: string; children: React.ReactNode
+}) {
   return (
     <button
       type="button"
@@ -82,9 +62,7 @@ function ArrowButton({ onClick, disabled, label, children }: ArrowButtonProps) {
       aria-label={label}
       className="flex items-center justify-center transition-opacity"
       style={{
-        width: 40,
-        height: 40,
-        borderRadius: '50%',
+        width: 48, height: 48, borderRadius: '50%',
         background: 'rgba(255,255,255,0.08)',
         border: '1px solid rgba(255,255,255,0.12)',
         color: 'rgba(255,255,255,0.8)',
@@ -99,146 +77,130 @@ function ArrowButton({ onClick, disabled, label, children }: ArrowButtonProps) {
 }
 
 export function BoardHighlightCarousel({
-  cards,
-  hashtags,
-  activeHashtag,
-  onHashtagChange,
-  onToggleHeart,
-  onCopyLink,
-  onOpenProfile,
+  cards, hashtags, activeHashtag, onHashtagChange,
+  departments = [], activeDepartment = null, onDepartmentChange,
+  onToggleHeart, onCopyLink, onOpenProfile,
 }: BoardHighlightCarouselProps) {
   const [current, setCurrent] = useState(0)
-  const total = cards.length
 
-  // Filter cards by active hashtag when set
   const filtered = activeHashtag
     ? cards.filter((c) => c.hashtags?.includes(activeHashtag))
     : cards
 
   const filteredTotal = filtered.length
-  // Clamp current to filtered range
   const safeIdx = Math.min(current, Math.max(0, filteredTotal - 1))
-
-  function handlePrev() {
-    setCurrent((i) => Math.max(0, i - 1))
-  }
-
-  function handleNext() {
-    setCurrent((i) => Math.min(filteredTotal - 1, i + 1))
-  }
-
   const card = filteredTotal > 0 ? filtered[safeIdx] : null
+
+  function handleHashtagChange(v: string) {
+    onHashtagChange(v === '' ? null : v)
+    setCurrent(0)
+  }
+
+  function handleDepartmentChange(v: string) {
+    onDepartmentChange?.(v === '' ? null : v)
+    setCurrent(0)
+  }
 
   return (
     <section aria-label="Highlight Kudos">
-      {/* Section label */}
-      <p
-        className="mb-4 tracking-[1.5px]"
-        style={{
-          fontFamily: montserrat.style.fontFamily,
-          fontWeight: 700,
-          fontSize: 12,
-          color: 'rgba(255,255,255,0.5)',
-          textTransform: 'uppercase',
-        }}
-      >
-        Highlight Kudos
-      </p>
+      {/* D5 — eyebrow above the title row */}
+      <SectionEyebrow />
 
-      {/* Hashtag filter chips */}
-      {hashtags.length > 0 && (
-        <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Lọc theo hashtag">
-          <button
-            type="button"
-            onClick={() => {
-              onHashtagChange(null)
-              setCurrent(0)
-            }}
-            aria-pressed={activeHashtag === null}
-            className="rounded-full px-3 py-1 text-xs font-bold transition-colors"
-            style={{
-              fontFamily: montserrat.style.fontFamily,
-              background:
-                activeHashtag === null
-                  ? 'rgba(255,234,158,0.15)'
-                  : 'rgba(255,255,255,0.06)',
-              border:
-                activeHashtag === null
-                  ? '1px solid rgba(255,234,158,0.4)'
-                  : '1px solid rgba(255,255,255,0.12)',
-              color: activeHashtag === null ? '#FFEA9E' : 'rgba(255,255,255,0.7)',
-            }}
-          >
-            Tất cả
-          </button>
-          {hashtags.map((tag) => {
-            const isActive = activeHashtag === tag
-            return (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => {
-                  onHashtagChange(isActive ? null : tag)
-                  setCurrent(0)
-                }}
-                aria-pressed={isActive}
-                className="rounded-full px-3 py-1 text-xs font-bold transition-colors"
-                style={{
-                  fontFamily: montserrat.style.fontFamily,
-                  background: isActive
-                    ? 'rgba(255,234,158,0.15)'
-                    : 'rgba(255,255,255,0.06)',
-                  border: isActive
-                    ? '1px solid rgba(255,234,158,0.4)'
-                    : '1px solid rgba(255,255,255,0.12)',
-                  color: isActive ? '#FFEA9E' : 'rgba(255,255,255,0.7)',
-                }}
-              >
-                {tag}
-              </button>
-            )
-          })}
-        </div>
-      )}
+      {/* Title LEFT + filters RIGHT — per Figma (title trái, filter phải) */}
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <h2
+          style={{
+            fontFamily: montserrat.style.fontFamily,
+            fontWeight: 700,
+            fontSize: 'clamp(32px, 4vw, 57px)',
+            color: '#FFEA9E',
+            lineHeight: 1.1,
+            letterSpacing: '-0.25px',
+          }}
+        >
+          HIGHLIGHT KUDOS
+        </h2>
 
-      {/* Card + controls */}
+        {/* Dropdown filters — Hashtag + Phòng ban — top right */}
+        {(hashtags.length > 0 || departments.length > 0) && (
+          <div className="flex flex-wrap gap-3" role="group" aria-label="Bộ lọc Highlight">
+            {hashtags.length > 0 && (
+              <BoardFilterDropdown
+                id="highlight-hashtag-filter"
+                label="Hashtag"
+                value={activeHashtag ?? ''}
+                options={hashtags}
+                onChange={handleHashtagChange}
+              />
+            )}
+            {departments.length > 0 && (
+              <BoardFilterDropdown
+                id="highlight-department-filter"
+                label="Phòng ban"
+                value={activeDepartment ?? ''}
+                options={departments}
+                onChange={handleDepartmentChange}
+              />
+            )}
+          </div>
+        )}
+      </div>
+
       {card ? (
         <>
           <BoardFeedCard
             {...card}
+            variant="highlight"
             onToggleHeart={onToggleHeart}
             onCopyLink={onCopyLink}
             onOpenProfile={onOpenProfile}
           />
 
-          {/* Navigation row */}
-          <div className="mt-4 flex items-center justify-between">
-            <ArrowButton
-              onClick={handlePrev}
-              disabled={safeIdx === 0}
-              label="Kudo trước"
-            >
+          <div className="mt-6 flex items-center justify-between gap-4">
+            <ArrowButton onClick={() => setCurrent((i) => Math.max(0, i - 1))}
+              disabled={safeIdx === 0} label="Kudo trước">
               <ChevronLeft />
             </ArrowButton>
 
-            <span
-              style={{
-                fontFamily: montserrat.style.fontFamily,
-                fontWeight: 700,
-                fontSize: 14,
-                color: 'rgba(255,255,255,0.6)',
-              }}
-              aria-live="polite"
-              aria-atomic
-            >
-              {safeIdx + 1}/{filteredTotal}
-            </span>
+            {/* Pagination: dot indicators + current/total text */}
+            <div className="flex flex-col items-center gap-2" aria-live="polite" aria-atomic>
+              {/* Dot indicators — active dot is gold and larger */}
+              <div className="flex items-center gap-2" role="tablist" aria-label="Trang Highlight">
+                {filtered.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    role="tab"
+                    aria-selected={i === safeIdx}
+                    aria-label={`Trang ${i + 1}`}
+                    onClick={() => setCurrent(i)}
+                    className="transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFEA9E]"
+                    style={{
+                      width: i === safeIdx ? 20 : 8,
+                      height: 8,
+                      borderRadius: 999,
+                      background: i === safeIdx ? '#FFEA9E' : 'rgba(255,255,255,0.25)',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      flexShrink: 0,
+                    }}
+                  />
+                ))}
+              </div>
+              {/* Numeric page label */}
+              <span
+                style={{
+                  fontFamily: montserrat.style.fontFamily, fontWeight: 700, fontSize: 13,
+                  color: 'rgba(255,255,255,0.5)',
+                }}
+              >
+                {safeIdx + 1}/{filteredTotal}
+              </span>
+            </div>
 
-            <ArrowButton
-              onClick={handleNext}
-              disabled={safeIdx >= filteredTotal - 1}
-              label="Kudo tiếp theo"
-            >
+            <ArrowButton onClick={() => setCurrent((i) => Math.min(filteredTotal - 1, i + 1))}
+              disabled={safeIdx >= filteredTotal - 1} label="Kudo tiếp theo">
               <ChevronRight />
             </ArrowButton>
           </div>
@@ -246,13 +208,10 @@ export function BoardHighlightCarousel({
       ) : (
         <p
           className="py-8 text-center text-sm"
-          style={{
-            fontFamily: montserrat.style.fontFamily,
-            color: 'rgba(255,255,255,0.4)',
-          }}
+          style={{ fontFamily: montserrat.style.fontFamily, color: 'rgba(255,255,255,0.4)' }}
           aria-live="polite"
         >
-          {total === 0
+          {cards.length === 0
             ? 'Hiện tại chưa có Kudos nào.'
             : 'Không có Kudos nào khớp với bộ lọc.'}
         </p>

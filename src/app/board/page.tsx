@@ -1,17 +1,46 @@
 /**
  * /board — Sun* Kudos Live Board page.
  *
- * Server Component shell: QueryProvider + Toaster are now mounted at the root
- * layout (src/app/providers.tsx) and shared across all routes.
- * BoardConnected carries its own 'use client' boundary with all data hooks.
- * Auth guard is applied at the middleware layer.
+ * Server Component shell: resolves the caller's identity (session + admin flag)
+ * server-side, then passes plain serializable props to BoardConnected.
  *
- * Integration phase-15: mock data removed; BoardConnected calls real Track B
- * hooks (use-board-feed, use-highlights, use-spotlight, use-toggle-heart).
+ * Pattern mirrors /app/page.tsx (Homepage) — server reads auth once and hands
+ * { uid, user, isAdmin } to the client integration layer. QueryProvider +
+ * Toaster are mounted at root (src/app/providers.tsx).
+ *
+ * Auth guard is applied at the middleware layer (board is not in PUBLIC_PATHS).
  */
 
+import { createClient } from '@/lib/supabase/server'
+import { getIsAdmin } from '@/features/auth/get-is-admin'
 import { BoardConnected } from '@/features/board/components/board-connected'
 
-export default function BoardPage() {
-  return <BoardConnected />
+export default async function BoardPage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const isAdmin = user ? await getIsAdmin() : false
+
+  // Header identity from the OAuth session metadata — no extra profile query.
+  const headerUser = user
+    ? {
+        name:
+          (user.user_metadata?.full_name as string | undefined) ??
+          (user.user_metadata?.name as string | undefined) ??
+          'Sunner',
+        avatarUrl:
+          (user.user_metadata?.avatar_url as string | undefined) ??
+          (user.user_metadata?.picture as string | undefined),
+      }
+    : null
+
+  return (
+    <BoardConnected
+      uid={user?.id ?? null}
+      user={headerUser}
+      isAdmin={isAdmin}
+    />
+  )
 }

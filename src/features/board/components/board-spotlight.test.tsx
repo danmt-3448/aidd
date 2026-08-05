@@ -31,18 +31,24 @@ describe('BoardSpotlight', () => {
     expect(onOpenProfile).toHaveBeenCalledWith('u2')
   })
 
-  it('filters nodes by search query', () => {
+  it('renders all nodes as word-cloud buttons (no search filter per Figma V3)', () => {
+    // Search bar removed in redesign — spotlight shows all nodes in the cloud.
     render(<BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={NOOP} />)
-    const input = screen.getByRole('searchbox')
-    fireEvent.change(input, { target: { value: 'alice' } })
     expect(screen.getByRole('button', { name: /Alice Nguyen/i })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /Bob Tran/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Bob Tran/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Carol Le/i })).toBeInTheDocument()
   })
 
-  it('shows not-found message when search yields no results', () => {
-    render(<BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={NOOP} />)
-    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'xyz123' } })
-    expect(screen.getByText(/không tìm thấy/i)).toBeInTheDocument()
+  it('renders activity log entries when provided', () => {
+    const activityLog = [
+      { time: '09:01', name: 'Alice Nguyen' },
+      { time: '09:15', name: 'Bob Tran' },
+    ]
+    render(
+      <BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={NOOP} activityLog={activityLog} />,
+    )
+    expect(screen.getByText(/09:01/)).toBeInTheDocument()
+    expect(screen.getByText(/09:15/)).toBeInTheDocument()
   })
 
   it('expand toggle changes aria-pressed state', () => {
@@ -58,5 +64,21 @@ describe('BoardSpotlight', () => {
   it('shows empty state when nodes is empty', () => {
     render(<BoardSpotlight nodes={[]} totalKudos={0} onOpenProfile={NOOP} />)
     expect(screen.getByText(/chưa có dữ liệu/i)).toBeInTheDocument()
+  })
+
+  // ── V4 word-cloud rework ─────────────────────────────────────────────────────
+
+  it('renders node names as text (word-cloud), not as avatar initials only', () => {
+    render(<BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={NOOP} />)
+    // Full name visible as button text (word-cloud style)
+    const btn = screen.getByRole('button', { name: /Alice Nguyen.*10 kudos/i })
+    expect(btn).toHaveTextContent('Alice Nguyen')
+  })
+
+  it('word-cloud buttons have title tooltip with name and kudo count', () => {
+    render(<BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={NOOP} />)
+    const btn = screen.getByRole('button', { name: /Alice Nguyen.*10 kudos/i })
+    expect(btn).toHaveAttribute('title', expect.stringContaining('Alice Nguyen'))
+    expect(btn).toHaveAttribute('title', expect.stringContaining('10'))
   })
 })

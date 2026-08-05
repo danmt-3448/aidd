@@ -3,12 +3,16 @@
 /**
  * BoardKvBanner — hero banner at the top of the Live Board.
  *
- * Design tokens from MoMorph MCP screen MaZUn5xHXZ:
- *   Container: full-width, min-height 200px, bg rgba(0,16,26,1)
- *   Gradient overlay: linear-gradient bottom rgba(0,16,26,0) → rgba(0,16,26,1)
- *   Title: "Hệ thống ghi nhận lời cảm ơn" Montserrat 700 36px #FFFFFF
- *   Subtitle row: SAA 2025 KUDOS logo (inline SVG wordmark) + decorative line
- *   Background keyvisual image reused from /homepage/keyvisual-bg.png
+ * Assets exported from Figma (MoMorph screen MaZUn5xHXZ):
+ *   - /images/board/kudos-logo.svg   — KUDOS wordmark (node 2940:13440, 593×106 vector).
+ *   - /images/board/kv-background.png — full-bleed KV artwork (MM_MEDIA_KV, 1440×512).
+ *
+ * Layout matches Figma A_KV Kudos frame:
+ *   Row 1 — subtitle "Hệ thống ghi nhận và cảm ơn" (white)
+ *   Row 2 — large KUDOS wordmark image (flame + KUDOS)
+ *   (NO "SAA 2025 · KUDOS" eyebrow — not present in the Figma banner.)
+ *   Feather artwork covers the full banner; a soft left gradient keeps text legible.
+ *   The write-kudo/search row (rendered by BoardScreen) overlaps this banner's base.
  */
 
 import Image from 'next/image'
@@ -18,84 +22,54 @@ export function BoardKvBanner() {
   return (
     <div
       className="relative w-full overflow-hidden"
-      style={{ minHeight: 200, background: 'rgba(0,16,26,1)' }}
-      aria-label="Sun* Kudos — Hệ thống ghi nhận lời cảm ơn"
+      style={{ minHeight: 420, background: '#00101A' }}
+      aria-label="Sun* Kudos — Hệ thống ghi nhận và cảm ơn"
     >
-      {/* Background keyvisual — decorative, reuse homepage asset */}
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-30">
+      {/* Full-bleed KV artwork (feathers cover the whole banner) */}
+      <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
         <Image
-          src="/homepage/keyvisual-bg.png"
+          src="/images/board/kv-background.png"
           alt=""
           fill
-          className="object-cover object-top"
           priority
-          aria-hidden
+          className="object-cover"
+          style={{ objectPosition: 'center right' }}
         />
       </div>
 
-      {/* Bottom fade gradient */}
+      {/* Soft left gradient — legibility without hiding the feathers */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24"
+        className="pointer-events-none absolute inset-0 z-10"
         style={{
           background:
-            'linear-gradient(to bottom, rgba(0,16,26,0) 0%, rgba(0,16,26,1) 100%)',
+            'linear-gradient(90deg,#00101A 0%,rgba(0,16,26,0.85) 18%,rgba(0,16,26,0.35) 45%,rgba(0,16,26,0) 70%)',
         }}
         aria-hidden
       />
 
-      {/* Content */}
-      <div className="relative z-20 flex flex-col items-center justify-center gap-4 px-4 py-12 text-center md:py-16">
-        {/* SAA 2025 KUDOS logo — text wordmark */}
-        <div className="flex items-center gap-3">
-          {/* Sun* logo icon */}
-          <div className="relative" style={{ width: 40, height: 36 }}>
-            <Image
-              src="/homepage/logo.png"
-              alt="Sun*"
-              fill
-              className="object-contain"
-            />
-          </div>
-          <span
-            style={{
-              fontFamily: montserrat.style.fontFamily,
-              fontWeight: 700,
-              fontSize: 13,
-              letterSpacing: '3px',
-              color: '#FFEA9E',
-              textTransform: 'uppercase',
-            }}
-          >
-            SAA 2025 · KUDOS
-          </span>
-        </div>
-
-        {/* Main title */}
-        <h1
+      {/* Content — 144px side padding (Figma), extra bottom room for search overlap */}
+      <div className="relative z-20 flex flex-col gap-4 px-6 pb-24 pt-12 md:px-16 lg:px-[144px] lg:pt-16">
+        {/* Subtitle first (above the wordmark), matching Figma */}
+        <p
           style={{
             fontFamily: montserrat.style.fontFamily,
             fontWeight: 700,
-            fontSize: 'clamp(24px, 4vw, 36px)',
+            fontSize: 'clamp(18px, 2vw, 26px)',
             color: '#FFFFFF',
-            lineHeight: '1.2',
-            letterSpacing: '-0.5px',
-            maxWidth: 640,
+            lineHeight: 1.3,
           }}
         >
-          Hệ thống ghi nhận lời cảm ơn
-        </h1>
+          Hệ thống ghi nhận và cảm ơn
+        </p>
 
-        {/* Decorative separator */}
-        <div
-          className="mx-auto"
-          style={{
-            width: 64,
-            height: 2,
-            background:
-              'linear-gradient(to right, rgba(255,234,158,0), rgba(255,234,158,0.8), rgba(255,234,158,0))',
-            borderRadius: 2,
-          }}
-          aria-hidden
+        {/* KUDOS wordmark — exported vector (flame + KUDOS), large */}
+        <Image
+          src="/images/board/kudos-logo.svg"
+          alt="KUDOS"
+          width={593}
+          height={106}
+          priority
+          className="h-auto w-[clamp(260px,42vw,600px)]"
         />
       </div>
     </div>

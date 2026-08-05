@@ -1,46 +1,69 @@
 'use client'
 
 /**
- * board-sidebar-stats.tsx — stats grid + "Mở quà" button for the board sidebar.
- * Extracted from board-sidebar.tsx to keep files under 200 lines.
+ * board-sidebar-stats.tsx — stats rows + "Mở quà" button for the board sidebar.
+ *
+ * Design tokens from MoMorph MCP screen MaZUn5xHXZ (V5 rework):
+ *   Layout: row-based (was grid) — label left, value right-aligned
+ *   Label: Montserrat 400, 14px, rgba(255,255,255,0.7)
+ *   Value: Montserrat 700, 14px, #FFEA9E
+ *   Divider between stat groups: 1px solid rgba(255,255,255,0.1)
+ *   "Mở quà" CTA: same gold pill as before
+ *
+ * BoardUserStats.secretBoxCount is split into "opened" vs "unopened" display
+ * — Figma shows two rows for secret box:
+ *   Row 4: "Số Secret Box bạn đã mở: 25"
+ *   Row 5: "Số Secret Box chưa mở: 25"
+ * The current interface exposes a single secretBoxCount. We display it under
+ * "đã mở" and leave "chưa mở" as 0 until BE exposes the split field.
+ * TRACKED: add secretBoxUnopened to BoardUserStats when BE splits the count.
  */
 
 import { montserrat } from '@/features/auth/fonts'
 import type { BoardUserStats } from './board-types'
 
-interface StatItemProps {
+interface StatRowProps {
   label: string
   value: number
 }
 
-function StatItem({ label, value }: StatItemProps) {
+function StatRow({ label, value }: StatRowProps) {
   return (
-    <div className="flex flex-col gap-1">
-      <p
-        className="tracking-[1.5px]"
+    <div className="flex items-center justify-between gap-4">
+      <span
         style={{
           fontFamily: montserrat.style.fontFamily,
-          fontWeight: 700,
-          fontSize: 11,
-          color: 'rgba(255,255,255,0.5)',
-          textTransform: 'uppercase',
+          fontWeight: 400,
+          fontSize: 14,
+          color: 'rgba(255,255,255,0.7)',
+          lineHeight: '20px',
         }}
       >
         {label}
-      </p>
-      <p
+      </span>
+      <span
         style={{
           fontFamily: montserrat.style.fontFamily,
           fontWeight: 700,
-          fontSize: 28,
+          fontSize: 14,
           color: '#FFEA9E',
-          lineHeight: '34px',
+          lineHeight: '20px',
+          flexShrink: 0,
         }}
         aria-label={`${value} ${label}`}
       >
         {value.toLocaleString('vi-VN')}
-      </p>
+      </span>
     </div>
+  )
+}
+
+function Divider() {
+  return (
+    <div
+      aria-hidden
+      style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '4px 0' }}
+    />
   )
 }
 
@@ -52,7 +75,7 @@ export interface StatsCardProps {
 export function StatsCard({ stats, onOpenSecretBox }: StatsCardProps) {
   return (
     <div
-      className="flex flex-col gap-5"
+      className="flex flex-col gap-4"
       style={{
         background: 'rgba(255,255,255,0.03)',
         border: '1px solid rgba(255,255,255,0.08)',
@@ -60,11 +83,17 @@ export function StatsCard({ stats, onOpenSecretBox }: StatsCardProps) {
         padding: 20,
       }}
     >
-      <div className="grid grid-cols-2 gap-4">
-        <StatItem label="Kudos nhận" value={stats.kudosReceived} />
-        <StatItem label="Kudos gửi" value={stats.kudosSent} />
-        <StatItem label="Hearts" value={stats.heartsReceived} />
-        <StatItem label="Secret Box" value={stats.secretBoxCount} />
+      <div className="flex flex-col gap-2">
+        <StatRow label="Số Kudos bạn nhận được" value={stats.kudosReceived} />
+        <Divider />
+        <StatRow label="Số Kudos bạn đã gửi" value={stats.kudosSent} />
+        <Divider />
+        <StatRow label="Số tim bạn nhận được" value={stats.heartsReceived} />
+        <Divider />
+        {/* secretBoxCount shown as "đã mở"; "chưa mở" pending BE split */}
+        <StatRow label="Số Secret Box bạn đã mở" value={stats.secretBoxCount} />
+        <Divider />
+        <StatRow label="Số Secret Box chưa mở" value={stats.secretBoxUnopened ?? 0} />
       </div>
 
       <button
@@ -80,7 +109,7 @@ export function StatsCard({ stats, onOpenSecretBox }: StatsCardProps) {
           padding: '10px 20px',
         }}
       >
-        Mở quà
+        Mở Secret Box
       </button>
     </div>
   )

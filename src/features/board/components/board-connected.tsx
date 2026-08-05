@@ -181,6 +181,7 @@ export function BoardConnected({ uid, user, isAdmin }: BoardConnectedProps) {
         departments={resolved.departmentNames}
         activeDepartment={activeDepartment}
         spotlight={resolved.spotlightNodes}
+        spotlightActivity={resolved.spotlightActivity}
         totalKudos={resolved.totalKudos}
         userStats={resolved.userStats}
         giftLeaderboard={resolved.giftLeaderboard}

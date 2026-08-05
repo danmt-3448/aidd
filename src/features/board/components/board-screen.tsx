@@ -3,22 +3,19 @@
 /**
  * BoardScreen — root composer for the Sun* Kudos Live Board page.
  *
- * Layout (desktop 1280px):
- *   ┌─────────────────── full-width KV banner ───────────────────┐
- *   │              write-kudo trigger (max-w content)            │
- *   ├──────────────────────────────────┬────────────────────────-┤
- *   │  left column (flex-1)            │  right sidebar (320px)  │
- *   │  • Highlight Carousel            │  • Stats + Open Gift     │
- *   │  • All Kudos Feed                │  • Leaderboard ×2        │
- *   │  • Spotlight word-cloud          │                          │
- *   └──────────────────────────────────┴─────────────────────────┘
+ * Layout (desktop 1440px per Figma):
+ *   ┌──────────────────── full-width KV banner (512px) ────────────────────┐
+ *   │          write-kudo trigger + profile search row (144px padding)     │
+ *   │  ── Highlight Carousel (FULL WIDTH) ──────────────────────────────── │
+ *   │  ── Spotlight Board (FULL WIDTH) ─────────────────────────────────── │
+ *   ├──────────────────────────────────────┬───────────────────────────────┤
+ *   │  All Kudos feed (flex-1)             │  right sidebar (374px)        │
+ *   │                                      │  • Stats + Open Gift          │
+ *   │                                      │  • 10 Sunner Nhận Quà         │
+ *   └──────────────────────────────────────┴───────────────────────────────┘
  *
- * Mobile (375): single column, sidebar stacks below content.
- * Tablet (768): same as mobile, sidebar at bottom.
- * Desktop (1280+): two-column layout as above.
- *
- * All data arrives as props — mock wired in board-mock.ts, real wiring in
- * integration phase (swaps mock callbacks → Track B hooks).
+ * Rework pass 2 (D7): rankingLeaderboard removed — Figma has only gift list.
+ * Rework pass 2 (D4): profile search wired through BoardWriteKudoTrigger.
  */
 
 import { useState } from 'react'
@@ -30,32 +27,27 @@ import { BoardHighlightCarousel } from './board-highlight-carousel'
 import { BoardAllKudosFeed } from './board-all-kudos-feed'
 import { BoardSpotlight } from './board-spotlight'
 import { BoardSidebar } from './board-sidebar'
-import type { FeedCardProps, SpotlightNode, BoardUserStats, LeaderboardEntry } from './board-types'
+import { HomepageFooter } from '@/features/homepage/components/homepage-footer'
+import type { FeedCardProps, SpotlightNode, BoardUserStats, LeaderboardEntry, SpotlightActivityEntry } from './board-types'
 
 export interface BoardScreenProps {
-  /** Top-5 highlight kudos for the carousel */
   highlights: FeedCardProps[]
-  /** All kudos for the main feed */
   feed: FeedCardProps[]
-  /** Unique hashtag strings derived from feed cards (Track B provides; mock computes locally) */
   hashtags: string[]
-  /** Spotlight word-cloud nodes */
+  activeHashtag: string | null
+  departments: string[]
+  activeDepartment: string | null
   spotlight: SpotlightNode[]
-  /** Total kudo count for spotlight header */
+  spotlightActivity: SpotlightActivityEntry[]
   totalKudos: number
-  /** Sidebar stats for the current user */
   userStats: BoardUserStats
-  /** Top 10 ranking leaderboard */
-  rankingLeaderboard: LeaderboardEntry[]
-  /** Top 10 gift leaderboard */
+  /** Top-10 gift recipients — only leaderboard shown per Figma D7 */
   giftLeaderboard: LeaderboardEntry[]
-  /** Called when heart is toggled — integration wires useToggleHeart */
+  onHashtagChange: (tag: string | null) => void
+  onDepartmentChange: (name: string | null) => void
   onToggleHeart: (kudoId: string) => void
-  /** Called when copy link is triggered */
   onCopyLink: (kudoId: string) => void
-  /** Called when avatar/name/detail is clicked */
   onOpenProfile: (id: string) => void
-  /** Called when "Mở quà" is clicked */
   onOpenSecretBox: () => void
 }
 
@@ -63,18 +55,22 @@ export function BoardScreen({
   highlights,
   feed,
   hashtags,
+  activeHashtag,
+  departments,
+  activeDepartment,
   spotlight,
+  spotlightActivity,
   totalKudos,
   userStats,
-  rankingLeaderboard,
   giftLeaderboard,
+  onHashtagChange,
+  onDepartmentChange,
   onToggleHeart,
   onCopyLink,
   onOpenProfile,
   onOpenSecretBox,
 }: BoardScreenProps) {
   const [composeOpen, setComposeOpen] = useState(false)
-  const [activeHashtag, setActiveHashtag] = useState<string | null>(null)
 
   function handleCopyLink(kudoId: string) {
     const url = `${window.location.origin}/board?kudo=${kudoId}`
@@ -84,56 +80,66 @@ export function BoardScreen({
   }
 
   return (
-    <div
-      className="min-h-screen w-full"
-      style={{ backgroundColor: 'rgba(0,16,26,1)' }}
-    >
+    <div className="w-full">
       {/* KV Banner — full width */}
       <BoardKvBanner />
 
-      {/* Content area */}
-      <div className="mx-auto w-full max-w-[1512px] px-4 pb-16 pt-6 md:px-8 xl:px-16">
-        {/* Write-kudo trigger — full width above columns */}
-        <div className="mb-8">
-          <BoardWriteKudoTrigger onOpen={() => setComposeOpen(true)} />
+      {/* Content area — 144px horizontal padding on desktop per Figma.
+          Negative top margin pulls the search row up to overlap the banner base (Figma). */}
+      <div className="relative z-30 mx-auto -mt-20 w-full max-w-[1440px] px-4 pb-20 md:px-10 lg:px-[144px]">
+        {/* Write-kudo + profile search row (D4) */}
+        <div className="mb-10">
+          <BoardWriteKudoTrigger
+            onOpen={() => setComposeOpen(true)}
+            onProfileSearch={(q) => {
+              // Profile search handler — integration phase wires to router/search
+              void q
+            }}
+          />
         </div>
 
-        {/* Two-column layout on xl, stacked on smaller */}
-        <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:gap-8">
-          {/* Left column — main feed content */}
-          <div className="flex min-w-0 flex-1 flex-col gap-10">
-            {/* Highlight carousel */}
-            <BoardHighlightCarousel
-              cards={highlights}
-              hashtags={hashtags}
-              activeHashtag={activeHashtag}
-              onHashtagChange={setActiveHashtag}
-              onToggleHeart={onToggleHeart}
-              onCopyLink={handleCopyLink}
-              onOpenProfile={onOpenProfile}
-            />
+        {/* Highlight Carousel — FULL WIDTH (outside 2-col layout per Figma) */}
+        <div className="mb-16">
+          <BoardHighlightCarousel
+            cards={highlights}
+            hashtags={hashtags}
+            activeHashtag={activeHashtag}
+            onHashtagChange={onHashtagChange}
+            departments={departments}
+            activeDepartment={activeDepartment}
+            onDepartmentChange={onDepartmentChange}
+            onToggleHeart={onToggleHeart}
+            onCopyLink={handleCopyLink}
+            onOpenProfile={onOpenProfile}
+          />
+        </div>
 
-            {/* All kudos feed */}
+        {/* Spotlight Board — FULL WIDTH (outside 2-col layout per Figma) */}
+        <div className="mb-16">
+          <BoardSpotlight
+            nodes={spotlight}
+            totalKudos={totalKudos}
+            activityLog={spotlightActivity}
+            onOpenProfile={onOpenProfile}
+          />
+        </div>
+
+        {/* Two-column layout: All Kudos feed (flex-1) + Sidebar (374px) — per Figma */}
+        <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:gap-10">
+          {/* Left column — all kudos feed */}
+          <div className="min-w-0 flex-1">
             <BoardAllKudosFeed
               cards={feed}
               onToggleHeart={onToggleHeart}
               onCopyLink={handleCopyLink}
               onOpenProfile={onOpenProfile}
             />
-
-            {/* Spotlight word-cloud */}
-            <BoardSpotlight
-              nodes={spotlight}
-              totalKudos={totalKudos}
-              onOpenProfile={onOpenProfile}
-            />
           </div>
 
-          {/* Right sidebar — fixed width on xl */}
-          <div className="w-full xl:w-[320px] xl:flex-shrink-0">
+          {/* Right sidebar — 374px per Figma */}
+          <div className="w-full xl:w-[374px] xl:flex-shrink-0">
             <BoardSidebar
               stats={userStats}
-              rankingLeaderboard={rankingLeaderboard}
               giftLeaderboard={giftLeaderboard}
               onOpenSecretBox={onOpenSecretBox}
             />
@@ -141,7 +147,9 @@ export function BoardScreen({
         </div>
       </div>
 
-      {/* Kudo compose modal — conditional mount */}
+      {/* Site footer — same shared footer as homepage (Figma board has it too) */}
+      <HomepageFooter />
+
       {composeOpen && (
         <KudoComposeModal onClose={() => setComposeOpen(false)} />
       )}

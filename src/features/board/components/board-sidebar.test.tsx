@@ -43,7 +43,7 @@ describe('BoardSidebar', () => {
     expect(screen.getByLabelText(/3 Số Secret Box bạn đã mở/i)).toBeInTheDocument()
   })
 
-  it('calls onOpenSecretBox when "Mở quà" is clicked', () => {
+  it('calls onOpenSecretBox when "Mở Secret Box" is clicked', () => {
     const onOpenSecretBox = vi.fn()
     render(
       <BoardSidebar
@@ -52,7 +52,7 @@ describe('BoardSidebar', () => {
         onOpenSecretBox={onOpenSecretBox}
       />,
     )
-    fireEvent.click(screen.getByRole('button', { name: /mở quà/i }))
+    fireEvent.click(screen.getByRole('button', { name: /mở secret box/i }))
     expect(onOpenSecretBox).toHaveBeenCalledOnce()
   })
 

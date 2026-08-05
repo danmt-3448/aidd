@@ -108,7 +108,8 @@ describe('BoardHighlightCarousel', () => {
     expect(next).toBeDisabled()
   })
 
-  it('renders hashtag filter chips', () => {
+  it('renders hashtag filter as a dropdown (combobox)', () => {
+    // V3: filter is now a <select> dropdown, not chip buttons.
     render(
       <BoardHighlightCarousel
         cards={CARDS}
@@ -120,11 +121,13 @@ describe('BoardHighlightCarousel', () => {
         onOpenProfile={NOOP}
       />,
     )
-    expect(screen.getByRole('button', { name: '#Even' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '#Odd' })).toBeInTheDocument()
+    const select = screen.getByRole('combobox', { name: /hashtag/i })
+    expect(select).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: '#Even' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: '#Odd' })).toBeInTheDocument()
   })
 
-  it('calls onHashtagChange when chip is clicked', () => {
+  it('calls onHashtagChange when dropdown selection changes', () => {
     const onHashtagChange = vi.fn()
     render(
       <BoardHighlightCarousel
@@ -137,7 +140,8 @@ describe('BoardHighlightCarousel', () => {
         onOpenProfile={NOOP}
       />,
     )
-    fireEvent.click(screen.getByRole('button', { name: '#Even' }))
+    const select = screen.getByRole('combobox', { name: /hashtag/i })
+    fireEvent.change(select, { target: { value: '#Even' } })
     expect(onHashtagChange).toHaveBeenCalledWith('#Even')
   })
 
@@ -156,7 +160,8 @@ describe('BoardHighlightCarousel', () => {
     expect(screen.getByText(/chưa có Kudos nào/i)).toBeInTheDocument()
   })
 
-  it('active hashtag chip has aria-pressed true', () => {
+  it('active hashtag is reflected as the selected dropdown value', () => {
+    // V3: active filter is expressed as the <select> value, not aria-pressed.
     render(
       <BoardHighlightCarousel
         cards={CARDS}
@@ -168,7 +173,7 @@ describe('BoardHighlightCarousel', () => {
         onOpenProfile={NOOP}
       />,
     )
-    expect(screen.getByRole('button', { name: '#Even' })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByRole('button', { name: '#Odd' })).toHaveAttribute('aria-pressed', 'false')
+    const select = screen.getByRole('combobox', { name: /hashtag/i }) as HTMLSelectElement
+    expect(select.value).toBe('#Even')
   })
 })

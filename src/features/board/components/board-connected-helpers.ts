@@ -6,7 +6,7 @@
 
 import type { BoardKudoRow } from '../board-queries'
 import type { UiStateOverride } from '../use-ui-state-override'
-import type { FeedCardProps, SpotlightNode, BoardUserStats, LeaderboardEntry } from './board-types'
+import type { FeedCardProps, SpotlightNode, BoardUserStats, LeaderboardEntry, SpotlightActivityEntry } from './board-types'
 import {
   MOCK_FEED_CARDS,
   MOCK_HIGHLIGHT_CARDS,
@@ -15,6 +15,7 @@ import {
   MOCK_TOTAL_KUDOS,
   MOCK_USER_STATS,
   MOCK_GIFT_LEADERBOARD,
+  MOCK_SPOTLIGHT_ACTIVITY,
 } from '../board-mock'
 
 /**
@@ -50,7 +51,10 @@ export const ZERO_STATS: BoardUserStats = {
   kudosSent: 0,
   heartsReceived: 0,
   secretBoxCount: 0,
+  secretBoxUnopened: 0,
 }
+
+export const EMPTY_ACTIVITY: SpotlightActivityEntry[] = []
 
 // ---------------------------------------------------------------------------
 // Override resolvers — each returns mock/empty/undefined based on ui_state.
@@ -73,6 +77,7 @@ export interface ResolvedBoardData {
   feed: FeedCardProps[]
   highlights: FeedCardProps[]
   spotlightNodes: SpotlightNode[]
+  spotlightActivity: SpotlightActivityEntry[]
   totalKudos: number
   userStats: BoardUserStats
   giftLeaderboard: LeaderboardEntry[]
@@ -94,6 +99,7 @@ export function resolveOverrideData(
       feed: realFeed,
       highlights: realHighlights,
       spotlightNodes: real.spotlightNodes,
+      spotlightActivity: EMPTY_ACTIVITY,
       totalKudos,
       userStats: real.userStats,
       giftLeaderboard: real.giftLeaderboard,
@@ -105,13 +111,13 @@ export function resolveOverrideData(
   }
 
   if (override === 'full') {
-    const totalKudos = MOCK_SPOTLIGHT_NODES.reduce((sum, n) => sum + n.kudoCount, 0)
     return {
       feed: MOCK_FEED_CARDS,
       highlights: MOCK_HIGHLIGHT_CARDS,
       spotlightNodes: MOCK_SPOTLIGHT_NODES,
-      // MOCK_TOTAL_KUDOS is the design-sourced value (388); override with that.
-      totalKudos: MOCK_TOTAL_KUDOS > totalKudos ? MOCK_TOTAL_KUDOS : totalKudos,
+      spotlightActivity: MOCK_SPOTLIGHT_ACTIVITY,
+      // Always use the design-sourced value from Figma (388 KUDOS shown in design).
+      totalKudos: MOCK_TOTAL_KUDOS,
       userStats: MOCK_USER_STATS,
       giftLeaderboard: MOCK_GIFT_LEADERBOARD,
       hashtagNames: MOCK_HASHTAGS,
@@ -126,6 +132,7 @@ export function resolveOverrideData(
       feed: EMPTY_FEED,
       highlights: EMPTY_FEED,
       spotlightNodes: EMPTY_NODES,
+      spotlightActivity: EMPTY_ACTIVITY,
       totalKudos: 0,
       userStats: ZERO_STATS,
       giftLeaderboard: EMPTY_LEADERBOARD,
@@ -141,6 +148,7 @@ export function resolveOverrideData(
       feed: EMPTY_FEED,
       highlights: EMPTY_FEED,
       spotlightNodes: EMPTY_NODES,
+      spotlightActivity: EMPTY_ACTIVITY,
       totalKudos: 0,
       userStats: ZERO_STATS,
       giftLeaderboard: EMPTY_LEADERBOARD,
@@ -156,6 +164,7 @@ export function resolveOverrideData(
     feed: EMPTY_FEED,
     highlights: EMPTY_FEED,
     spotlightNodes: EMPTY_NODES,
+    spotlightActivity: EMPTY_ACTIVITY,
     totalKudos: 0,
     userStats: ZERO_STATS,
     giftLeaderboard: EMPTY_LEADERBOARD,

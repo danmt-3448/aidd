@@ -1,15 +1,16 @@
 'use client'
 
 /**
- * BoardSidebar — right-column panel with user stats + two leaderboards.
+ * BoardSidebar — right-column panel with user stats + gift leaderboard.
+ *
+ * Rework pass 2 (D7):
+ *   D7 — Figma shows ONLY "10 SUNNER NHẬN QUÀ MỚI NHẤT" in the sidebar.
+ *        Ranking leaderboard ("THĂNG HẠNG") is NOT present in the design.
+ *        rankingLeaderboard prop removed from this component.
  *
  * Design tokens from MoMorph MCP screen MaZUn5xHXZ:
- *   Sidebar bg: rgba(255,255,255,0.02), border: 1px solid rgba(255,255,255,0.06)
+ *   Sidebar bg: rgba(255,255,255,0.02), border 1px solid rgba(255,255,255,0.06)
  *   radius 16px, padding 24px, gap 24px between sections.
- *
- * Sub-components extracted to stay under 200 lines per file:
- *   StatsCard      → board-sidebar-stats.tsx
- *   SidebarLeaderboard → board-sidebar-leaderboard.tsx
  */
 
 import { StatsCard } from './board-sidebar-stats'
@@ -18,20 +19,19 @@ import type { BoardUserStats, LeaderboardEntry } from './board-types'
 
 export interface BoardSidebarProps {
   stats: BoardUserStats
-  rankingLeaderboard: LeaderboardEntry[]
+  /** Top-10 gift recipients — only leaderboard shown per Figma D7 */
   giftLeaderboard: LeaderboardEntry[]
   onOpenSecretBox: () => void
 }
 
 export function BoardSidebar({
   stats,
-  rankingLeaderboard,
   giftLeaderboard,
   onOpenSecretBox,
 }: BoardSidebarProps) {
   return (
     <aside
-      aria-label="Thống kê và bảng xếp hạng"
+      aria-label="Thống kê và danh sách nhận quà"
       className="flex flex-col gap-6"
       style={{
         background: 'rgba(255,255,255,0.02)',
@@ -45,20 +45,11 @@ export function BoardSidebar({
 
       <div aria-hidden style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
 
-      {/* 10 Sunner thăng hạng */}
+      {/* 10 Sunner nhận quà mới nhất — per Figma D7 (only leaderboard) */}
       <SidebarLeaderboard
-        title="10 Sunner Thăng Hạng"
-        entries={rankingLeaderboard}
-        scoreLabel="kudos"
-      />
-
-      <div aria-hidden style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
-
-      {/* 10 Sunner nhận quà */}
-      <SidebarLeaderboard
-        title="10 Sunner Nhận Quà"
+        title="10 Sunner Nhận Quà Mới Nhất"
         entries={giftLeaderboard}
-        scoreLabel="quà"
+        showPrize
       />
     </aside>
   )

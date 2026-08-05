@@ -1,293 +1,177 @@
 'use client'
 
 /**
- * BoardSpotlight — recipient word-cloud with search, kudo count, pan/zoom toggle.
+ * BoardSpotlight — recipient word-cloud with kudo count, artwork, activity log, expand toggle.
  *
- * Design tokens from MoMorph MCP screen MaZUn5xHXZ:
- *   Container bg: rgba(255,255,255,0.02), border: 1px solid rgba(255,255,255,0.08)
- *   radius 16px, padding 24px
- *   Title: "SPOTLIGHT" Montserrat 700 12px tracking-[1.5px] rgba(255,255,255,0.5)
- *   Total count: "388 KUDOS" Montserrat 700 28px #FFEA9E
- *   Search bar: bg rgba(255,255,255,0.06), border rgba(255,255,255,0.12), radius 999px
- *     padding 10px 16px, placeholder color rgba(255,255,255,0.3), Montserrat 13px
- *   Pan/zoom toggle: "Thu gọn" / "Mở rộng" pill button
- *   Node bubbles: radius proportional to kudoCount, max size clipped
- *     bg gradient from rgba(255,234,158,0.12) to rgba(255,234,158,0.04)
- *     border rgba(255,234,158,0.2), name label Montserrat 700 11-14px
- *     count badge: #FFEA9E text, 10px
- *
- * Rendering approach: CSS absolute-positioned bubbles on a relative container.
- * Positions are deterministic from receiverId hash so they are stable across renders.
- * No external library (YAGNI).
+ * Design (Figma screen MaZUn5xHXZ):
+ *   Container: dark box, bo góc có viền, nền tối texture
+ *   Layout: "388 KUDOS" centered top · word-cloud dày · artwork gradient mép trái
+ *   Bottom-left: activity log (4–5 dòng "HH:MM {tên} đã nhận được một Kudos mới")
+ *   Bottom-right: icon mở rộng (expand arrows icon button)
+ *   Artwork: gradient màu tràn mép trái (purple/blue/teal) - no exportable Figma asset
  */
 
-import Image from 'next/image'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { montserrat } from '@/features/auth/fonts'
-import type { SpotlightNode } from './board-types'
+import { BoardSpotlightWordCloud, computeWordLayout } from './board-spotlight-word-cloud'
+import { SectionEyebrow } from './board-section-eyebrow'
+import type { SpotlightNode, SpotlightActivityEntry } from './board-types'
 
 export interface BoardSpotlightProps {
   nodes: SpotlightNode[]
   totalKudos: number
+  activityLog?: SpotlightActivityEntry[]
   onOpenProfile: (receiverId: string) => void
 }
 
-/** Deterministic pseudo-random from string — used to scatter bubbles. */
-function hashStr(s: string): number {
-  let h = 0
-  for (let i = 0; i < s.length; i++) {
-    h = (Math.imul(31, h) + s.charCodeAt(i)) | 0
+/** Expand / Compress arrows icon */
+function ExpandIcon({ expanded }: { expanded: boolean }) {
+  if (expanded) {
+    return (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+        stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+        aria-hidden>
+        <path d="M4 14h6m0 0v6m0-6l-7 7M20 10h-6m0 0V4m0 6l7-7" />
+      </svg>
+    )
   }
-  return Math.abs(h)
-}
-
-interface BubbleLayout {
-  node: SpotlightNode
-  size: number
-  top: number
-  left: number
-  fontSize: number
-}
-
-function computeLayout(nodes: SpotlightNode[]): BubbleLayout[] {
-  if (nodes.length === 0) return []
-  const maxCount = Math.max(...nodes.map((n) => n.kudoCount), 1)
-  return nodes.map((node, idx) => {
-    const ratio = node.kudoCount / maxCount
-    const size = Math.round(64 + ratio * 64) // 64–128px
-    const fontSize = Math.round(10 + ratio * 4) // 10–14px
-    // Scatter using hash; keep within 10%–85% of container
-    const h = hashStr(node.receiverId + idx)
-    const top = 10 + (h % 70) // 10–79%
-    const left = 5 + ((h * 7) % 85) // 5–89%
-    return { node, size, top, left, fontSize }
-  })
-}
-
-function SearchIcon() {
   return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="rgba(255,255,255,0.3)"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className="flex-shrink-0"
-    >
-      <circle cx="11" cy="11" r="8" />
-      <path d="M21 21l-4.35-4.35" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+      stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      aria-hidden>
+      <path d="M15 3h6m0 0v6m0-6l-7 7M9 21H3m0 0v-6m0 6l7-7" />
     </svg>
   )
 }
 
-export function BoardSpotlight({ nodes, totalKudos, onOpenProfile }: BoardSpotlightProps) {
-  const [search, setSearch] = useState('')
-  const [expanded, setExpanded] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  const filtered = useMemo(() => {
-    if (!search.trim()) return nodes
-    const q = search.toLowerCase()
-    return nodes.filter((n) => n.name.toLowerCase().includes(q))
-  }, [nodes, search])
-
-  const layout = useMemo(() => computeLayout(filtered), [filtered])
-
-  const cloudHeight = expanded ? 480 : 280
-
+function ActivityLog({ entries }: { entries: SpotlightActivityEntry[] }) {
+  if (entries.length === 0) return null
   return (
-    <section
-      aria-label="Spotlight — nhận được nhiều Kudos nhất"
-      style={{
-        background: 'rgba(255,255,255,0.02)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: 16,
-        padding: 24,
-      }}
-    >
-      {/* Header row */}
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <p
-            className="mb-1 tracking-[1.5px]"
-            style={{
-              fontFamily: montserrat.style.fontFamily,
-              fontWeight: 700,
-              fontSize: 12,
-              color: 'rgba(255,255,255,0.5)',
-              textTransform: 'uppercase',
-            }}
-          >
-            Spotlight
-          </p>
-          <p
-            style={{
-              fontFamily: montserrat.style.fontFamily,
-              fontWeight: 700,
-              fontSize: 28,
-              color: '#FFEA9E',
-              lineHeight: '34px',
-            }}
-            aria-label={`${totalKudos} kudos tổng`}
-          >
-            {totalKudos.toLocaleString('vi-VN')} KUDOS
-          </p>
-        </div>
-
-        {/* Pan/zoom toggle */}
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          aria-pressed={expanded}
-          aria-label={expanded ? 'Thu gọn spotlight' : 'Mở rộng spotlight'}
-          className="rounded-full px-4 py-2 text-xs font-bold transition-colors"
+    <div className="flex flex-col gap-1" aria-label="Hoạt động gần đây">
+      {entries.map((entry, i) => (
+        <p
+          key={i}
           style={{
             fontFamily: montserrat.style.fontFamily,
-            background: expanded
-              ? 'rgba(255,234,158,0.15)'
-              : 'rgba(255,255,255,0.06)',
-            border: expanded
-              ? '1px solid rgba(255,234,158,0.4)'
-              : '1px solid rgba(255,255,255,0.12)',
-            color: expanded ? '#FFEA9E' : 'rgba(255,255,255,0.7)',
+            fontSize: 11,
+            color: 'rgba(255,255,255,0.55)',
+            lineHeight: '16px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
         >
-          {expanded ? 'Thu gọn' : 'Mở rộng'}
-        </button>
-      </div>
+          <span style={{ color: 'rgba(255,234,158,0.7)', fontWeight: 600 }}>{entry.time}</span>
+          {' '}
+          <span style={{ fontWeight: 600, color: 'rgba(255,255,255,0.75)' }}>{entry.name}</span>
+          {' '}đã nhận được một Kudos mới
+        </p>
+      ))}
+    </div>
+  )
+}
 
-      {/* Search bar */}
-      <div
-        className="mb-4 flex items-center gap-2"
+export function BoardSpotlight({ nodes, totalKudos, activityLog = [], onOpenProfile }: BoardSpotlightProps) {
+  const [expanded, setExpanded] = useState(false)
+
+  const layout = useMemo(() => computeWordLayout(nodes), [nodes])
+  const cloudHeight = expanded ? 400 : 220
+
+  return (
+    <section aria-label="Spotlight Board — nhận được nhiều Kudos nhất">
+      {/* Eyebrow + section title */}
+      <SectionEyebrow />
+      <h2
         style={{
-          background: 'rgba(255,255,255,0.06)',
-          border: '1px solid rgba(255,255,255,0.12)',
-          borderRadius: 999,
-          padding: '10px 16px',
+          fontFamily: montserrat.style.fontFamily,
+          fontWeight: 700,
+          fontSize: 'clamp(32px, 4vw, 57px)',
+          color: '#FFEA9E',
+          lineHeight: 1.1,
+          letterSpacing: '-0.25px',
+          marginBottom: 16,
         }}
       >
-        <SearchIcon />
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Tìm kiếm thành viên..."
-          aria-label="Tìm kiếm trong spotlight"
-          className="flex-1 bg-transparent text-sm outline-none placeholder:text-[rgba(255,255,255,0.3)]"
+        SPOTLIGHT BOARD
+      </h2>
+
+      {/* Dark box with border */}
+      <div
+        className="relative overflow-hidden"
+        style={{
+          background: 'rgba(0,8,18,0.85)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 16,
+          padding: '24px 24px 0 24px',
+        }}
+      >
+        {/* Artwork: color gradient bleeding from left edge — decorative */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-0"
           style={{
-            fontFamily: montserrat.style.fontFamily,
-            fontSize: 13,
-            color: 'rgba(255,255,255,0.85)',
+            width: 180,
+            background: `linear-gradient(
+              135deg,
+              rgba(139,92,246,0.35) 0%,
+              rgba(59,130,246,0.25) 40%,
+              rgba(20,184,166,0.15) 70%,
+              transparent 100%
+            )`,
           }}
         />
-      </div>
 
-      {/* Bubble cloud */}
-      <div
-        ref={containerRef}
-        className="relative w-full overflow-hidden transition-all duration-300"
-        style={{
-          height: cloudHeight,
-          background: 'rgba(0,16,26,0.4)',
-          borderRadius: 12,
-        }}
-        aria-label="Word cloud — nhận nhiều kudos"
-      >
-        {layout.length === 0 ? (
-          <div className="flex h-full items-center justify-center">
-            <p
-              className="text-sm"
-              style={{
-                fontFamily: montserrat.style.fontFamily,
-                color: 'rgba(255,255,255,0.3)',
-              }}
-            >
-              {search.trim() ? 'Không tìm thấy.' : 'Chưa có dữ liệu.'}
-            </p>
+        {/* Total kudo count — centered */}
+        <p
+          className="relative z-10 mb-2 text-center"
+          style={{
+            fontFamily: montserrat.style.fontFamily,
+            fontWeight: 700,
+            fontSize: 28,
+            color: '#FFEA9E',
+            lineHeight: '34px',
+            letterSpacing: '1px',
+          }}
+          aria-label={`${totalKudos} kudos tổng`}
+        >
+          {totalKudos.toLocaleString('vi-VN')} KUDOS
+        </p>
+
+        {/* Word-cloud canvas */}
+        <div className="relative z-10">
+          <BoardSpotlightWordCloud
+            layout={layout}
+            height={cloudHeight}
+            search=""
+            onOpenProfile={onOpenProfile}
+          />
+        </div>
+
+        {/* Bottom bar: activity log left + expand icon right */}
+        <div
+          className="relative z-10 flex items-end justify-between gap-4 pb-4 pt-3"
+          style={{ minHeight: 72 }}
+        >
+          <div className="min-w-0 flex-1">
+            <ActivityLog entries={activityLog} />
           </div>
-        ) : (
-          layout.map(({ node, size, top, left, fontSize }) => (
-            <button
-              key={node.receiverId}
-              type="button"
-              onClick={() => onOpenProfile(node.receiverId)}
-              aria-label={`${node.name} — ${node.kudoCount} kudos`}
-              className="absolute flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105"
-              style={{
-                top: `${top}%`,
-                left: `${left}%`,
-                transform: 'translate(-50%, -50%)',
-                width: size,
-                height: size,
-                borderRadius: '50%',
-                background:
-                  'radial-gradient(circle at 40% 40%, rgba(255,234,158,0.14), rgba(255,234,158,0.04))',
-                border: '1px solid rgba(255,234,158,0.2)',
-                padding: 4,
-                cursor: 'pointer',
-              }}
-            >
-              {/* Avatar */}
-              {node.avatar ? (
-                <Image
-                  src={node.avatar}
-                  alt={node.name}
-                  width={Math.round(size * 0.42)}
-                  height={Math.round(size * 0.42)}
-                  className="rounded-full object-cover"
-                  style={{ flexShrink: 0 }}
-                />
-              ) : (
-                <div
-                  className="flex items-center justify-center rounded-full font-bold"
-                  style={{
-                    width: Math.round(size * 0.42),
-                    height: Math.round(size * 0.42),
-                    background: 'rgba(255,234,158,0.2)',
-                    color: '#FFEA9E',
-                    fontSize: Math.max(9, Math.round(size * 0.16)),
-                    fontFamily: montserrat.style.fontFamily,
-                    flexShrink: 0,
-                  }}
-                >
-                  {node.name.charAt(0).toUpperCase()}
-                </div>
-              )}
 
-              {/* Name — truncated */}
-              <span
-                className="w-full truncate text-center"
-                style={{
-                  fontFamily: montserrat.style.fontFamily,
-                  fontWeight: 700,
-                  fontSize,
-                  color: 'rgba(255,255,255,0.9)',
-                  lineHeight: '1.2',
-                  maxWidth: size - 8,
-                }}
-              >
-                {node.name.split(' ').pop()}
-              </span>
-
-              {/* Count */}
-              <span
-                style={{
-                  fontFamily: montserrat.style.fontFamily,
-                  fontWeight: 700,
-                  fontSize: 10,
-                  color: '#FFEA9E',
-                  lineHeight: '1',
-                }}
-              >
-                {node.kudoCount}
-              </span>
-            </button>
-          ))
-        )}
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            aria-pressed={expanded}
+            aria-label={expanded ? 'Thu gọn spotlight' : 'Mở rộng spotlight'}
+            className="flex flex-shrink-0 items-center justify-center rounded-full transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFEA9E]"
+            style={{
+              width: 36,
+              height: 36,
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.12)',
+            }}
+          >
+            <ExpandIcon expanded={expanded} />
+          </button>
+        </div>
       </div>
     </section>
   )

@@ -73,6 +73,18 @@ export interface BoardUserStats {
   kudosSent: number
   heartsReceived: number
   secretBoxCount: number
+  /**
+   * Count of unopened secret boxes.
+   * BE contract: will be split from secretBoxCount in integration phase.
+   */
+  secretBoxUnopened?: number
+}
+
+/** One entry in the spotlight activity log (bottom-left of spotlight box). */
+export interface SpotlightActivityEntry {
+  /** HH:MM format */
+  time: string
+  name: string
 }
 
 /** One entry in a leaderboard ("SUNNER THĂNG HẠNG" / "SUNNER NHẬN QUÀ"). */

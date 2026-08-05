@@ -63,6 +63,8 @@ const listBoardKudosSchema = z.object({
     .nullable()
     .optional(),
   hashtagId: uuidSchema.nullable().optional(),
+  /** Filter feed to kudos whose RECEIVER belongs to this department. */
+  departmentId: uuidSchema.nullable().optional(),
   limit: z.number().int().min(1).max(50).default(20),
 })
 
@@ -197,18 +199,27 @@ export async function listBoardKudos(
     }
   }
 
-  const { cursor, hashtagId, limit } = parsed.data
+  const { cursor, hashtagId, departmentId, limit } = parsed.data
   const uid = await resolveUid()
 
   try {
     const supabase = await createClient()
 
     // Static select strings per branch — the Supabase TypeScript parser
-    // cannot type-check a dynamic ternary string, so we use two explicit
-    // query paths. Both read FROM kudos_public (mask always applied).
+    // cannot type-check a dynamic ternary string, so we use explicit query
+    // paths per filter combination. All paths read FROM kudos_public so the
+    // anonymous-sender mask is always applied.
     //
-    // Hashtag filter: `!inner` on kudo_hashtags acts as INNER JOIN, so only
-    // kudos with the requested hashtag survive.
+    // Department filter strategy (masking-safe):
+    //   We filter on the RECEIVER's department (receiver_id → profiles.department_ref).
+    //   The sender's identity is never involved in the join, so no anon-sender
+    //   leak is possible. The join goes through receiver_id which kudos_public
+    //   always exposes (receivers are never masked).
+    //   Join: kudos_public.receiver_id → profiles.id, filter profiles.department_ref.
+    //   PostgREST join syntax: profiles!receiver_id(department_ref)
+    //
+    // Hashtag filter: `!inner` on kudo_hashtags acts as INNER JOIN — only kudos
+    //   with the requested hashtag survive.
     //
     // Keyset cursor decomposition (tuple comparison not in JS builder):
     //   (created_at < cursor.createdAt)
@@ -227,10 +238,36 @@ export async function listBoardKudos(
       created_at: string
       hearts: HeartRow[]
       kudo_hashtags?: unknown
+      profiles?: unknown
     }
 
     let data: RawRow[] | null = null
     let error: { message: string } | null = null
+
+    // Resolve the receiver IDs for a department filter up front.
+    // This avoids a multi-hop PostgREST join that isn't supported across views.
+    // kudos_public is a VIEW — PostgREST cannot traverse a FK from a view column
+    // to a base table using the !fk syntax. Instead we fetch matching receiver
+    // IDs from profiles directly and apply an .in() filter on receiver_id.
+    let receiverIds: string[] | null = null
+    if (departmentId) {
+      const { data: pRows, error: pErr } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('department_ref', departmentId)
+
+      if (pErr) {
+        console.error('[listBoardKudos] profiles dept lookup', pErr.message)
+        return { error: 'Không thể lọc theo phòng ban. Vui lòng thử lại.' }
+      }
+
+      receiverIds = (pRows ?? []).map((r) => (r as { id: string }).id)
+
+      // If no profiles belong to this department, return empty immediately.
+      if (receiverIds.length === 0) {
+        return { data: [], nextCursor: null }
+      }
+    }
 
     if (hashtagId) {
       let q = supabase
@@ -242,6 +279,10 @@ export async function listBoardKudos(
            kudo_hashtags!inner(hashtag_id)`,
         )
         .eq('kudo_hashtags.hashtag_id', hashtagId)
+
+      if (receiverIds !== null) {
+        q = q.in('receiver_id', receiverIds)
+      }
 
       if (cursor) {
         q = q.or(
@@ -264,6 +305,10 @@ export async function listBoardKudos(
            receiver_id, receiver_name, receiver_avatar_url, content_html, created_at,
            hearts(user_id, is_special_day)`,
         )
+
+      if (receiverIds !== null) {
+        q = q.in('receiver_id', receiverIds)
+      }
 
       if (cursor) {
         q = q.or(

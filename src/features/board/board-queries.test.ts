@@ -523,3 +523,130 @@ describe('getSpotlightAggregation', () => {
     expect('error' in result).toBe(true)
   })
 })
+
+// ---------------------------------------------------------------------------
+// listBoardKudos — department filter
+//
+// Department filter flow:
+//   1. supabase.from('profiles').select('id').eq('department_ref', deptId)
+//      → returns matching receiver IDs
+//   2. kudos_public query has .in('receiver_id', receiverIds) applied
+//
+// Masking guarantee: the department join is on the RECEIVER side only.
+// sender_id / sender_name come from kudos_public and are never joined through
+// profiles — so anon-sender masking is fully preserved.
+// ---------------------------------------------------------------------------
+
+describe('listBoardKudos — departmentId filter', () => {
+  // RFC 4122 v4 UUIDs — Zod z.string().uuid() requires version (4) and variant bits.
+  const DEPT_ID = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
+  const RECEIVER_ID = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('filters feed to kudos whose receiver is in the department', async () => {
+    // profiles lookup returns one member
+    const profileRows = [{ id: RECEIVER_ID }]
+    // kudos_public returns one kudo for that receiver (sender anonymous — masking test)
+    const kudosRows = [
+      {
+        id: 'k1',
+        sender_id: null,           // anonymous — kudos_public applied the mask
+        sender_name: 'Ẩn danh',
+        sender_avatar_url: null,
+        receiver_id: RECEIVER_ID,
+        receiver_name: 'Nguyễn Văn An',
+        receiver_avatar_url: null,
+        content_html: '<p>great work</p>',
+        created_at: '2026-08-01T10:00:00Z',
+        hearts: [],
+      },
+    ]
+
+    // makeClient wires auth.getUser + from(table) + rpc.
+    // profiles branch must be awaitable at .eq() — the final call in the chain.
+    // kudos_public branch must be awaitable at .limit().
+    mockCreateClient.mockResolvedValue(
+      makeClient(null, (table) => {
+        if (table === 'profiles') {
+          const m: Record<string, unknown> = {}
+          // .select() returns self; .eq() resolves — matches the actual call pattern.
+          m.select = vi.fn(() => m)
+          m.eq = vi.fn(() => Promise.resolve({ data: profileRows, error: null }))
+          return m
+        }
+        // kudos_public path: .select().in().order().order().limit()
+        const m: Record<string, unknown> = {}
+        m.select = vi.fn(() => m)
+        m.in = vi.fn(() => m)
+        m.order = vi.fn(() => m)
+        m.limit = vi.fn(() => Promise.resolve({ data: kudosRows, error: null }))
+        return m
+      }),
+    )
+
+    const result = await listBoardKudos({ departmentId: DEPT_ID })
+    expect('error' in result).toBe(false)
+    if ('error' in result) return
+
+    expect(result.data).toHaveLength(1)
+    // Receiver identity is exposed (never masked)
+    expect(result.data[0]?.receiverId).toBe(RECEIVER_ID)
+    expect(result.data[0]?.receiverName).toBe('Nguyễn Văn An')
+    // Sender masking preserved — sender_id was null from kudos_public
+    expect(result.data[0]?.senderId).toBeNull()
+    expect(result.data[0]?.senderName).toBe('Ẩn danh')
+  })
+
+  it('returns empty immediately when no profiles match the department', async () => {
+    // profiles returns zero rows — early return, kudos_public never queried.
+    mockCreateClient.mockResolvedValue(
+      makeClient(null, (table) => {
+        if (table === 'profiles') {
+          const m: Record<string, unknown> = {}
+          m.select = vi.fn(() => m)
+          m.eq = vi.fn(() => Promise.resolve({ data: [], error: null }))
+          return m
+        }
+        // kudos_public should NOT be called — early return guard
+        const m: Record<string, unknown> = {}
+        m.select = vi.fn(() => {
+          throw new Error('kudos_public should not be queried when dept has no members')
+        })
+        return m
+      }),
+    )
+
+    const result = await listBoardKudos({ departmentId: DEPT_ID })
+    expect('error' in result).toBe(false)
+    if ('error' in result) return
+    expect(result.data).toEqual([])
+    expect(result.nextCursor).toBeNull()
+  })
+
+  it('returns error when profiles dept lookup fails', async () => {
+    mockCreateClient.mockResolvedValue(
+      makeClient(null, (table) => {
+        if (table === 'profiles') {
+          const m: Record<string, unknown> = {}
+          m.select = vi.fn(() => m)
+          m.eq = vi.fn(() =>
+            Promise.resolve({ data: null, error: { message: 'db error' } }),
+          )
+          return m
+        }
+        return makeQueryMock({ data: null, error: null })
+      }),
+    )
+
+    const result = await listBoardKudos({ departmentId: DEPT_ID })
+    expect('error' in result).toBe(true)
+  })
+
+  it('returns error for invalid departmentId UUID', async () => {
+    const result = await listBoardKudos({ departmentId: 'not-a-uuid' })
+    expect('error' in result).toBe(true)
+  })
+})

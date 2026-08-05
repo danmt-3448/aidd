@@ -12,8 +12,8 @@ import { listBoardKudos, type BoardKudoRow, type BoardCursor } from './board-que
 
 export const boardFeedKeys = {
   all: ['board', 'feed'] as const,
-  list: (hashtagId: string | null) =>
-    [...boardFeedKeys.all, { hashtagId }] as const,
+  list: (hashtagId: string | null, departmentId: string | null) =>
+    [...boardFeedKeys.all, { hashtagId, departmentId }] as const,
 }
 
 // ---------------------------------------------------------------------------
@@ -47,8 +47,9 @@ export function useBoardFeed(): UseBoardFeedReturn {
   const queryClient = useQueryClient()
   const searchParams = useSearchParams()
   const hashtagId = searchParams.get('hashtag') ?? null
+  const departmentId = searchParams.get('department') ?? null
 
-  const queryKey = boardFeedKeys.list(hashtagId)
+  const queryKey = boardFeedKeys.list(hashtagId, departmentId)
 
   const query = useInfiniteQuery<
     { data: BoardKudoRow[]; nextCursor: BoardCursor | null },
@@ -62,6 +63,7 @@ export function useBoardFeed(): UseBoardFeedReturn {
       const result = await listBoardKudos({
         cursor: pageParam ?? undefined,
         hashtagId: hashtagId ?? undefined,
+        departmentId: departmentId ?? undefined,
         limit: 20,
       })
       if ('error' in result) throw new Error(result.error)

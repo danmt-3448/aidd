@@ -12,9 +12,11 @@ interface AvatarCircleProps {
   src: string | null
   name: string
   size?: number
+  /** When true, card bg is cream — fallback avatar uses warm-brown palette */
+  lightMode?: boolean
 }
 
-export function AvatarCircle({ src, name, size = 40 }: AvatarCircleProps) {
+export function AvatarCircle({ src, name, size = 40, lightMode = false }: AvatarCircleProps) {
   const initial = name.charAt(0).toUpperCase()
   if (src) {
     return (
@@ -28,15 +30,20 @@ export function AvatarCircle({ src, name, size = 40 }: AvatarCircleProps) {
       />
     )
   }
+  // Dark-card palette: gold on navy. Light-card palette: amber on cream.
+  const bg = lightMode ? 'rgba(146,64,14,0.12)' : 'rgba(255,234,158,0.15)'
+  const border = lightMode ? '1px solid rgba(146,64,14,0.3)' : '1px solid rgba(255,234,158,0.3)'
+  const color = lightMode ? '#92400E' : '#FFEA9E'
+
   return (
     <div
       className="flex items-center justify-center rounded-full font-bold"
       style={{
         width: size,
         height: size,
-        background: 'rgba(255,234,158,0.15)',
-        border: '1px solid rgba(255,234,158,0.3)',
-        color: '#FFEA9E',
+        background: bg,
+        border,
+        color,
         fontSize: size * 0.4,
         fontFamily: montserrat.style.fontFamily,
         flexShrink: 0,

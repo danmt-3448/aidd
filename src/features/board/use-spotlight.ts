@@ -2,7 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'next/navigation'
-import { getSpotlightAggregation, type SpotlightNode } from './board-queries'
+import { getSpotlightAggregationRpc } from './board-leaderboard-queries'
+import type { SpotlightNode } from './board-queries'
 
 // ---------------------------------------------------------------------------
 // Query key factory
@@ -48,11 +49,18 @@ export function useSpotlight(): UseSpotlightReturn {
   const { data, isLoading, error } = useQuery({
     queryKey: spotlightKeys.list(hashtagId),
     queryFn: async () => {
-      const result = await getSpotlightAggregation({
+      // BOARD-5: replaced client-side GROUP BY with server-side RPC.
+      const result = await getSpotlightAggregationRpc({
         hashtagId: hashtagId ?? undefined,
       })
       if ('error' in result) throw new Error(result.error)
-      return result.data
+      // Map RPC result to SpotlightNode (same shape, explicit cast for type safety).
+      return result.data.map((n): SpotlightNode => ({
+        receiverId: n.receiverId,
+        name: n.name,
+        avatar: n.avatar,
+        kudoCount: n.kudoCount,
+      }))
     },
     staleTime: 60_000,
   })
