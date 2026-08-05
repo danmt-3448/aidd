@@ -29,6 +29,12 @@
     "footer": "Copyright © Sun* 2025",
     "timerAriaLabel": "{days} days {hours} hours {minutes} minutes remaining"
   },
+  "board": {
+    "copyLink": "Copy Link",
+    "viewDetail": "View detail",
+    "like": "Like",
+    "unlike": "Unlike"
+  },
   "kudos": {
     "pageTitle": "",
     "modalTitle": "",

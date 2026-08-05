@@ -29,6 +29,12 @@
     "footer": "Bản quyền thuộc về Sun* © 2025",
     "timerAriaLabel": "{days} ngày {hours} giờ {minutes} phút còn lại"
   },
+  "board": {
+    "copyLink": "Sao chép liên kết",
+    "viewDetail": "Xem chi tiết",
+    "like": "Thích",
+    "unlike": "Bỏ thích"
+  },
   "kudos": {
     "pageTitle": "Viết Kudo",
     "modalTitle": "Gửi lời cám ơn và ghi nhận đến đồng đội",
