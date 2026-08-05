@@ -31,7 +31,8 @@ BEGIN
     p_is_anonymous := false,
     p_anonymous_name := NULL,
     p_hashtag_ids := ARRAY[v_hashtag_id1, v_hashtag_id2],
-    p_image_paths := ARRAY['11111111-0000-0000-0000-000000000001/test-kudo/img1.jpg']
+    p_image_paths := ARRAY['11111111-0000-0000-0000-000000000001/test-kudo/img1.jpg'],
+    p_danh_hieu := 'Người truyền động lực'
   );
 
   SELECT COUNT(*) INTO v_after_kudos_count FROM public.kudos;
@@ -86,7 +87,8 @@ BEGIN
       p_is_anonymous := false,
       p_anonymous_name := NULL,
       p_hashtag_ids := ARRAY[v_hashtag_id1],
-      p_image_paths := ARRAY[]
+      p_image_paths := ARRAY[],
+      p_danh_hieu := 'Test danh hiệu'
     );
   EXCEPTION WHEN OTHERS THEN
     v_error_raised := true;
@@ -122,7 +124,8 @@ BEGIN
       p_is_anonymous := false,
       p_anonymous_name := NULL,
       p_hashtag_ids := ARRAY[]::uuid[],
-      p_image_paths := ARRAY[]
+      p_image_paths := ARRAY[],
+      p_danh_hieu := 'Test danh hiệu'
     );
   EXCEPTION WHEN OTHERS THEN
     v_error_raised := true;
@@ -165,7 +168,8 @@ BEGIN
       p_is_anonymous := false,
       p_anonymous_name := NULL,
       p_hashtag_ids := v_hashtag_ids,
-      p_image_paths := ARRAY[]
+      p_image_paths := ARRAY[],
+      p_danh_hieu := 'Test danh hiệu'
     );
   EXCEPTION WHEN OTHERS THEN
     v_error_raised := true;
@@ -201,7 +205,8 @@ BEGIN
       p_is_anonymous := false,
       p_anonymous_name := NULL,
       p_hashtag_ids := ARRAY[v_fake_hashtag_id],
-      p_image_paths := ARRAY[]
+      p_image_paths := ARRAY[],
+      p_danh_hieu := 'Test danh hiệu'
     );
   EXCEPTION WHEN OTHERS THEN
     v_error_raised := true;
@@ -240,7 +245,8 @@ BEGIN
       p_is_anonymous := false,
       p_anonymous_name := NULL,
       p_hashtag_ids := ARRAY[v_hashtag_id1],
-      p_image_paths := v_image_paths
+      p_image_paths := v_image_paths,
+      p_danh_hieu := 'Test danh hiệu'
     );
   EXCEPTION WHEN OTHERS THEN
     v_error_raised := true;
@@ -274,7 +280,8 @@ BEGIN
     p_is_anonymous := true,
     p_anonymous_name := 'Người bí ẩn',
     p_hashtag_ids := ARRAY[v_hashtag_id1],
-    p_image_paths := ARRAY[]
+    p_image_paths := ARRAY[],
+    p_danh_hieu := 'Người truyền cảm hứng'
   );
 
   ASSERT EXISTS(
@@ -282,7 +289,8 @@ BEGIN
     WHERE k.id = v_kudo_id
     AND k.is_anonymous = true
     AND k.anonymous_name = 'Người bí ẩn'
-  ), 'Anonymous kudo not stored correctly';
+    AND k.danh_hieu = 'Người truyền cảm hứng'
+  ), 'Anonymous kudo not stored correctly (with danh_hieu)';
 
   RAISE NOTICE 'TEST 7 PASSED';
 
@@ -314,7 +322,8 @@ BEGIN
     p_is_anonymous := false,
     p_anonymous_name := NULL,
     p_hashtag_ids := ARRAY[v_hashtag_id1],
-    p_image_paths := ARRAY['path.jpg']
+    p_image_paths := ARRAY['path.jpg'],
+    p_danh_hieu := 'Người đồng hành tin cậy'
   );
 
   SELECT COUNT(*) INTO v_related_count FROM public.kudo_hashtags WHERE kudo_id = v_kudo_id;

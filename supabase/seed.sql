@@ -29,3 +29,17 @@ values
   ('aaaaaaaa-0000-0000-0000-000000000011', 'Collaboration'),
   ('aaaaaaaa-0000-0000-0000-000000000012', 'WellDone')
 on conflict (id) do nothing;
+
+-- ============================================================
+-- Secret Box grants for demo users
+-- ============================================================
+-- profiles rows are created by the handle_new_user trigger when seed:auth runs.
+-- Supabase db reset runs seed.sql AFTER migrations but BEFORE seed:auth, so
+-- profiles rows do NOT yet exist at this point. The secret_box rows therefore
+-- cannot be inserted here (FK → profiles.id would fail).
+--
+-- Resolution: secret_box grants are inserted by seed-auth-users.mjs AFTER the
+-- admin API creates each user (and the trigger creates their profiles row).
+-- See the NOTE in seed-auth-users.mjs — grants are applied there, not here.
+--
+-- This comment is left as the authoritative record of WHY this section is empty.
