@@ -67,7 +67,7 @@ lands a report in `plans/reports/`.
 1. **BE static:** `grep -i` migrations for indexes/FK/RLS; read view + RPC definitions.
 2. **BE live:** local Supabase up (`supabase status`) → `psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres"` → `EXPLAIN (ANALYZE, BUFFERS)` on the queries the app's actions/hooks actually run.
 3. **FE bundle:** `npm run build` → read the route/First-Load-JS table. Optionally add `@next/bundle-analyzer` for a treemap.
-4. **FE runtime:** `npm run build && npm start` → Lighthouse via `automate-browser` (Puppeteer) or Playwright against `localhost:3000` for CWV.
+4. **FE runtime:** `npm run build && npm start` → Lighthouse via `automate-browser` (Puppeteer) or Playwright against `localhost:3001` for CWV.
 
 ### Production (after deploy)
 5. **Real CWV:** Lighthouse against the `*.vercel.app` URL (throttled) — the honest numbers (free-tier TTFB, cold starts).
