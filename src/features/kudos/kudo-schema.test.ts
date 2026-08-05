@@ -4,6 +4,7 @@ import {
   contentHtmlSchema,
   hashtagIdsSchema,
   imagePathsSchema,
+  danhHieuSchema,
   countContentChars,
 } from './kudo-schema'
 
@@ -21,6 +22,7 @@ const VALID_INPUT = {
   imagePaths: [],
   isAnonymous: false,
   anonymousName: undefined,
+  danhHieu: 'Người truyền động lực cho tôi',
 }
 
 // ---------------------------------------------------------------------------
@@ -136,6 +138,56 @@ describe('createKudoSchema — invalid input', () => {
 })
 
 // ---------------------------------------------------------------------------
+// danhHieuSchema — required field (phase-08)
+// ---------------------------------------------------------------------------
+
+describe('danhHieuSchema', () => {
+  it('accepts a non-empty title', () => {
+    expect(danhHieuSchema.safeParse('Người truyền động lực cho tôi').success).toBe(true)
+  })
+
+  it('rejects empty string', () => {
+    const result = danhHieuSchema.safeParse('')
+    expect(result.success).toBe(false)
+    if (!result.success)
+      expect(result.error.issues[0].message).toBe('Danh hiệu không được để trống')
+  })
+
+  it('rejects string exceeding 200 characters', () => {
+    expect(danhHieuSchema.safeParse('a'.repeat(201)).success).toBe(false)
+  })
+
+  it('accepts exactly 200 characters', () => {
+    expect(danhHieuSchema.safeParse('a'.repeat(200)).success).toBe(true)
+  })
+})
+
+describe('createKudoSchema — danhHieu required', () => {
+  it('rejects input when danhHieu is missing', () => {
+    const { danhHieu: _, ...withoutDanhHieu } = VALID_INPUT
+    const result = createKudoSchema.safeParse(withoutDanhHieu)
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const fields = result.error.flatten().fieldErrors
+      expect(fields.danhHieu).toBeDefined()
+    }
+  })
+
+  it('rejects input when danhHieu is empty string', () => {
+    const result = createKudoSchema.safeParse({ ...VALID_INPUT, danhHieu: '' })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const fields = result.error.flatten().fieldErrors
+      expect(fields.danhHieu).toBeDefined()
+    }
+  })
+
+  it('accepts valid input with danhHieu present', () => {
+    expect(createKudoSchema.safeParse(VALID_INPUT).success).toBe(true)
+  })
+})
+
+// ---------------------------------------------------------------------------
 // contentHtmlSchema — edge cases
 // ---------------------------------------------------------------------------
 
@@ -190,6 +242,7 @@ describe('hashtagIdsSchema', () => {
       hashtagIds: ['aaaaaaaa-0000-0000-0000-000000000001'],
       imagePaths: [],
       isAnonymous: false,
+      danhHieu: 'Người truyền động lực cho tôi',
     })
     expect(result.success).toBe(true)
   })

@@ -40,7 +40,7 @@ interface RichTextToolbarProps {
 
 export function RichTextToolbar({ activeFormats = {}, onAction }: RichTextToolbarProps) {
   return (
-    <div className="flex w-full flex-row items-center overflow-x-auto" role="toolbar" aria-label="Định dạng văn bản">
+    <div className="flex w-full flex-wrap items-center" role="toolbar" aria-label="Định dạng văn bản">
       {/* Bold — mms_C.1 */}
       <ToolbarButton
         label="In đậm"

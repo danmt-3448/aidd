@@ -32,6 +32,7 @@ const TiptapEditor = dynamic(
     ),
   },
 )
+import { DanhHieuInput } from './danh-hieu-input'
 import { ImageUploader, type UploadedImage } from './image-uploader'
 import { AnonymousToggle } from './anonymous-toggle'
 import { SubmitBar } from './submit-bar'
@@ -70,6 +71,8 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
 
   const [images, setImages] = useState<UploadedImage[]>([])
 
+  const [danhHieu, setDanhHieu] = useState('')
+
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [anonymousAlias, setAnonymousAlias] = useState('')
 
@@ -102,7 +105,8 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
 
   // ── Submit disabled until required fields valid ───────────────────────────
   const hasContent = contentCharCount > 0
-  const isSubmitDisabled = !recipient || !hasContent || selectedHashtags.length === 0
+  const isSubmitDisabled =
+    !recipient || !hasContent || selectedHashtags.length === 0 || danhHieu.trim().length === 0
 
   // ── Success effect: toast + close + reset ────────────────────────────────
   useEffect(() => {
@@ -175,6 +179,7 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
       imagePaths: images.map((i) => i.storagePath),
       isAnonymous,
       anonymousName: isAnonymous && anonymousAlias.trim() ? anonymousAlias.trim() : undefined,
+      danhHieu: danhHieu.trim(),
     })
   }, [
     kudoId,
@@ -186,6 +191,7 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
     images,
     isAnonymous,
     anonymousAlias,
+    danhHieu,
   ])
 
   if (!isOpen) return null
@@ -234,7 +240,14 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
           error={fieldErrors['receiverId']?.[0]}
         />
 
-        {/* C+D — Tiptap rich-text editor */}
+        {/* C — Danh hiệu (required honour-title, Figma ihQ26W78P2) */}
+        <DanhHieuInput
+          value={danhHieu}
+          onChange={setDanhHieu}
+          error={fieldErrors['danhHieu']?.[0]}
+        />
+
+        {/* D+E — Tiptap rich-text editor */}
         <TiptapEditor
           onChange={handleContentChange}
           maxLength={2000}
@@ -246,7 +259,7 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
           </span>
         )}
 
-        {/* E — Hashtag picker */}
+        {/* F — Hashtag picker */}
         <HashtagPicker
           selected={selectedHashtags}
           catalog={hashtagCatalogItems}
@@ -257,7 +270,7 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
           limitError={hashtagLimitError ?? fieldErrors['hashtagIds']?.[0]}
         />
 
-        {/* F — Image uploader; disabled until auth resolves to prevent empty-uid storage paths */}
+        {/* G — Image uploader; disabled until auth resolves to prevent empty-uid storage paths */}
         <ImageUploader
           images={images}
           kudoId={kudoId}

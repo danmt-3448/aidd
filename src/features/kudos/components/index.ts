@@ -19,3 +19,4 @@ export type { UploadedImage } from './image-uploader'
 
 export { AnonymousToggle } from './anonymous-toggle'
 export { SubmitBar } from './submit-bar'
+export { DanhHieuInput } from './danh-hieu-input'

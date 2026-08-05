@@ -98,6 +98,7 @@ export async function createKudo(input: CreateKudoInput): Promise<CreateKudoResu
     imagePaths,
     isAnonymous,
     anonymousName,
+    danhHieu,
   } = parsed.data
 
   // 3. Receiver must differ from sender (belt-and-suspenders; RPC also checks)
@@ -120,6 +121,7 @@ export async function createKudo(input: CreateKudoInput): Promise<CreateKudoResu
     p_anonymous_name: anonymousName ?? null,
     p_hashtag_ids: hashtagIds,
     p_image_paths: imagePaths,
+    p_danh_hieu: danhHieu ?? null,
   })
 
   if (error) {

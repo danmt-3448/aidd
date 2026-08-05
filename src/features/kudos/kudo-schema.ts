@@ -58,6 +58,15 @@ export const isAnonymousSchema = z.boolean().default(false)
 
 export const anonymousNameSchema = z.string().max(100).optional()
 
+// "Danh hiệu" — a title/honour the sender bestows on the receiver.
+// Required by the Viết Kudo modal (MoMorph screen ihQ26W78P2); persisted via
+// the create_kudo RPC p_danh_hieu parameter (migration 20260804010000).
+// Phase-08 adds the UI field; the server action passes p_danh_hieu to the RPC.
+export const danhHieuSchema = z
+  .string()
+  .min(1, 'Danh hiệu không được để trống')
+  .max(200, 'Danh hiệu tối đa 200 ký tự')
+
 // ---------------------------------------------------------------------------
 // Full create-kudo input schema (used by server action + client mutation)
 // ---------------------------------------------------------------------------
@@ -71,6 +80,7 @@ export const createKudoSchema = z
     imagePaths: imagePathsSchema,
     isAnonymous: isAnonymousSchema,
     anonymousName: anonymousNameSchema,
+    danhHieu: danhHieuSchema,
   })
   .refine(
     (data) => !(data.isAnonymous && data.anonymousName !== undefined && data.anonymousName.length === 0),
