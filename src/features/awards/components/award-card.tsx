@@ -8,7 +8,7 @@ import type { AwardCardProps } from '../types'
  *   row gap 40px | image 336×336 | content flex-col gap-32px
  */
 export function AwardCard({ award }: AwardCardProps) {
-  const { title, description, quantity, quantityUnit, prize, imageLeft, hashtagAnchor } = award
+  const { title, description, quantity, quantityUnit, prize, imageLeft, hashtagAnchor, icon } = award
 
   const trophyMedallion = (
     <div
@@ -61,7 +61,7 @@ export function AwardCard({ award }: AwardCardProps) {
         {/* Title row: icon + text */}
         <div className="flex items-center" style={{ gap: '16px' }}>
           <div className="relative shrink-0" style={{ width: '24px', height: '24px' }}>
-            <Image src="/awards/icon-target.svg" alt="" fill className="object-contain" />
+            <Image src={icon} alt="" fill className="object-contain" />
           </div>
           <h2
             className="font-montserrat font-bold"
