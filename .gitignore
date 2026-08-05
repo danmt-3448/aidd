@@ -72,3 +72,4 @@ supabase/.temp
 playwright-report/
 test-results/
 .playwright-mcp/
+e2e/.auth/
