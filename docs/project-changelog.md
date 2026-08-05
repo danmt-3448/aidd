@@ -9,6 +9,29 @@ Dates and descriptions derived from `git log` (branch `develop`). Commits listed
 
 _(Nothing merged to main yet — all work is on `develop`.)_
 
+### Changed — Live Board (rework pass 2, 2026-08-05)
+- **Card backgrounds (D1):** All feed and highlight cards now use `#FFF8E1` (warm cream) per Figma.
+  Highlight cards get a `4px solid #FFEA9E` gold border + `16px` radius; feed cards use `24px` radius,
+  no extra border, `40px` padding.
+- **Tier badge (D2):** Replaced 3-star SVG system with colored text pill badges. Tier names sourced
+  from Figma MM_MEDIA nodes: `1=New Hero` (coral), `2=Rising Hero` (amber), `3=Legend Hero` (gold),
+  `4=Super Hero` (violet). `board-types.ts`, `feed-card-tier-badge.tsx`, and `board-card-person-block.tsx`
+  updated; all three type-checked to `1 | 2 | 3 | 4`.
+- **Action row (D4):** `BoardWriteKudoTrigger` now renders two pill fields side by side — compose
+  trigger (flex-1) and "Tìm kiếm profile Sunner" search (fixed ~246px). `onProfileSearch` prop wired
+  through `BoardScreen`; integration with router deferred to integration phase.
+- **Section eyebrow (D5):** `SectionEyebrow` component ("Sun* Annual Awards 2025", Montserrat 700 24px
+  white) added above each of: Highlight Kudos, Spotlight Board, All Kudos section titles.
+- **Sidebar (D7):** `rankingLeaderboard` prop removed from `BoardSidebar`, `BoardScreen`,
+  `BoardConnected`, `board-connected-helpers` (`ResolvedBoardData` + all `resolveOverrideData` branches),
+  and `board-mock`. Figma shows only the gift ("Nhận Quà") leaderboard in the sidebar.
+- **Mock data (D6):** `board-mock.ts` expanded from 7 to 12 feed cards with richer Vietnamese content,
+  `imageUrls` populated with `/images/board/sample-0{1,2,3}.png` placeholders, diverse tier levels
+  including Tier 4, and 18 spotlight nodes. Old `board-figma-spec-brief.md` values superseded by
+  MoMorph MCP node data — do not reference the old brief.
+- **Tests:** `board-sidebar.test`, `feed-card-tier-badge.test`, `board-feed-card.test` updated to
+  match new pill badge API and removed `rankingLeaderboard` prop. 113 board unit tests passing.
+
 ### Performance
 - **BE indexes + RLS hoisting:** new migration `20260804000000_perf_indexes_and_rpc.sql` — added
   indexes on `kudos.sender_id`, `secret_box_badges(user_id, opened_at)`, `profiles.full_name` (trigram),
