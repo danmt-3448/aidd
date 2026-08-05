@@ -23,22 +23,22 @@ fully parallel to Track B (backend/logic). Integration is the ONLY cross-track m
 |---|-------|-------|--------|-----------|
 | 01 | [DB foundation migrations](phase-01-db-foundation.md) | B·DB | completed | — |
 | 02 | [Event config + countdown source](phase-02-event-config.md) | B·logic | completed | 01 |
-| 03 | [Notification service + Realtime](phase-03-notification-service.md) | B·logic | planned | 01 |
-| 04 | [Hearts + board queries + Realtime](phase-04-hearts-board-queries.md) | B·logic | planned | 01 |
-| 05 | [Profile stats + direction queries](phase-05-profile-queries.md) | B·logic | planned | 01 |
+| 03 | [Notification service + Realtime](phase-03-notification-service.md) | B·logic | completed | 01 |
+| 04 | [Hearts + board queries + Realtime](phase-04-hearts-board-queries.md) | B·logic | completed | 01 |
+| 05 | [Profile stats + direction queries](phase-05-profile-queries.md) | B·logic | completed | 01 |
 | 06 | [Secret-box open logic](phase-06-secret-box-logic.md) | B·logic | completed | 01 |
 | 07 | [Prize + Rules static content](phase-07-static-content.md) | B·logic | completed | — |
 | 07b | [Seed demo data (Nhóm B lively)](phase-07b-seed-demo-data.md) | B·tooling | planned | 01,06 |
 | 08 | [UI · Countdown](phase-08-ui-countdown.md) | A·UI | completed | — |
 | 09 | [UI · Prize](phase-09-ui-prize.md) | A·UI | completed | — |
 | 10 | [UI · Rules](phase-10-ui-rules.md) | A·UI | completed | — |
-| 11 | [UI · Homepage](phase-11-ui-homepage.md) | A·UI | planned | — |
-| 12 | [UI · Live board](phase-12-ui-live-board.md) | A·UI | planned | — |
-| 13 | [UI · Profile](phase-13-ui-profile.md) | A·UI | planned | — |
+| 11 | [UI · Homepage](phase-11-ui-homepage.md) | A·UI | completed | — |
+| 12 | [UI · Live board](phase-12-ui-live-board.md) | A·UI | completed | — |
+| 13 | [UI · Profile](phase-13-ui-profile.md) | A·UI | completed | — |
 | 14 | [UI · Secret box](phase-14-ui-secret-box.md) | A·UI | completed | — |
-| 15 | [Integration (UI ↔ backend)](phase-15-integration.md) | A+B | partial (awards·rules·secret-box done + QA-verified; other 4 screens pending) | 01,02,03,04,05,06,07,08,09,10,11,12,13,14 |
-| 16 | [Tests (Vitest + Playwright)](phase-16-tests.md) | test | partial (awards·rules·secret-box: 157 unit + 6 E2E + RPC DB-layer verified) | 15 |
-| 17 | [Review + security audit + docs](phase-17-review-docs.md) | review | partial (3 screens reviewed: reviewer-260804-0840; docs pending) | 16 |
+| 15 | [Integration (UI ↔ backend)](phase-15-integration.md) | A+B | completed (all 7 screens wired: Homepage bell/admin/countdown+root`/`public · Live board feed/heart/spotlight/realtime · Profile self/other+404 guard. Board sidebar userStats/leaderboards deferred-honest→p05 follow-up) | 01–14 |
+| 16 | [Tests (Vitest + Playwright)](phase-16-tests.md) | test | mostly done (336 unit pass·tsc clean; E2E harness fixed=scoped public/authed/admin; board 14/14·profile core+404·countdown/login/awards/rules/secretbox green. Remaining: homepage.spec selector rewrite + re-enable profile skips post bug1/2 fix) | 15 |
+| 17 | [Review + security audit + docs](phase-17-review-docs.md) | review | completed (Homepage·Live board·Profile all reviewed + findings fixed: C-1 board refuted[Next16 proxy], H1 profile cursor-injection, dicebear cfg, profile?id 404[zod .uuid→.guid]. Docs pending) | 16 |
 
 ## Key dependencies
 

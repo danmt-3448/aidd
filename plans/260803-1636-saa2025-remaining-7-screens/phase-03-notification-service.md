@@ -2,7 +2,7 @@
 title: Notification service + Realtime
 work_type: feature
 track: B
-status: planned
+status: completed
 blockedBy: [01]
 blocks: [15]
 spec_source: momorph:i87tDx10uM

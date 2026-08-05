@@ -2,7 +2,7 @@
 title: UI · Profile
 work_type: feature
 track: A
-status: planned
+status: completed
 blockedBy: []
 blocks: [15]
 spec_source: momorph:3FoIx6ALVb

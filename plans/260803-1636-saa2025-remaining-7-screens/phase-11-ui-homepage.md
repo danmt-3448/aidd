@@ -2,7 +2,7 @@
 title: UI · Homepage
 work_type: feature
 track: A
-status: planned
+status: completed
 blockedBy: []
 blocks: [15]
 spec_source: momorph:i87tDx10uM

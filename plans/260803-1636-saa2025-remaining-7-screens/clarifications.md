@@ -9,3 +9,10 @@
 - Q: Secret Box unopened_box_count được cấp thế nào → A: Consume-only round này (mở + decrement + weighted-random badge server-side); cơ chế grant box (admin/event) ngoài scope, seed thủ công để test
 - Q: Anonymous kudos có tính vào "sent" count không → A: Có (theo test case), nhưng sender identity masked ở received feed của người khác
 - Q: Secret box badges hiển thị trên Profile → A: 6 slot greyed (badge unlock logic deferred), chỉ hiện counter opened/unopened
+
+## Session 2026-08-04
+
+- Q: Homepage SAA mount ở route nào → A: Root `/` (sửa src/app/page.tsx bỏ redirect→/todo, render Homepage); khớp test ID-0/2/18; `/todo` giữ lại truy cập trực tiếp
+- Q: Nav "About SAA 2025" là route hay anchor → A: Anchor cùng trang Homepage (không tạo route /about); test ID-3/20 xác nhận scroll-to-section
+- Q: getIsAdmin() đặt ở đâu để Homepage integration không phụ thuộc phase-05 (Profile, build cuối) → A: Tách sang src/features/auth (đọc profiles.is_admin cho auth.uid()); phase-15 gate admin-menu dùng bản này
+- Q: Homepage có guard auth không → A: Public view cho unauthenticated (test ID-0); phần cá nhân (bell + account menu) chỉ render khi đã đăng nhập

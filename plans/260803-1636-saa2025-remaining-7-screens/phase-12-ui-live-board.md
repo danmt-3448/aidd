@@ -2,7 +2,7 @@
 title: UI · Live board
 work_type: feature
 track: A
-status: planned
+status: completed
 blockedBy: []
 blocks: [15]
 spec_source: momorph:MaZUn5xHXZ

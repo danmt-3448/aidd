@@ -2,7 +2,7 @@
 title: Hearts + board queries + Realtime
 work_type: feature
 track: B
-status: planned
+status: completed
 blockedBy: [01]
 blocks: [15]
 spec_source: momorph:MaZUn5xHXZ
