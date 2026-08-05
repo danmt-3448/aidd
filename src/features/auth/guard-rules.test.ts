@@ -66,36 +66,36 @@ describe('guard-rules', () => {
       expect(sanitizeNext('/x')).toBe('/x')
     })
 
-    it('should return /todo if next is null or undefined', () => {
-      expect(sanitizeNext(null)).toBe('/todo')
-      expect(sanitizeNext(undefined)).toBe('/todo')
+    it('should return / if next is null or undefined', () => {
+      expect(sanitizeNext(null)).toBe('/')
+      expect(sanitizeNext(undefined)).toBe('/')
     })
 
-    it('should return /todo if next is empty string', () => {
-      expect(sanitizeNext('')).toBe('/todo')
+    it('should return / if next is empty string', () => {
+      expect(sanitizeNext('')).toBe('/')
     })
 
-    it('should return /todo if next starts with //', () => {
-      expect(sanitizeNext('//evil.com')).toBe('/todo')
-      expect(sanitizeNext('//foo.bar/path')).toBe('/todo')
+    it('should return / if next starts with //', () => {
+      expect(sanitizeNext('//evil.com')).toBe('/')
+      expect(sanitizeNext('//foo.bar/path')).toBe('/')
     })
 
-    it('should return /todo if next is an absolute URL', () => {
-      expect(sanitizeNext('https://evil.com')).toBe('/todo')
-      expect(sanitizeNext('http://example.com')).toBe('/todo')
-      expect(sanitizeNext('https://evil.com/path')).toBe('/todo')
+    it('should return / if next is an absolute URL', () => {
+      expect(sanitizeNext('https://evil.com')).toBe('/')
+      expect(sanitizeNext('http://example.com')).toBe('/')
+      expect(sanitizeNext('https://evil.com/path')).toBe('/')
     })
 
-    it('should return /todo if next does not start with /', () => {
-      expect(sanitizeNext('todo')).toBe('/todo')
-      expect(sanitizeNext('dashboard')).toBe('/todo')
-      expect(sanitizeNext('relative/path')).toBe('/todo')
+    it('should return / if next does not start with /', () => {
+      expect(sanitizeNext('todo')).toBe('/')
+      expect(sanitizeNext('dashboard')).toBe('/')
+      expect(sanitizeNext('relative/path')).toBe('/')
     })
 
     it('should handle edge cases', () => {
       expect(sanitizeNext('/ ')).toBe('/ ')
-      expect(sanitizeNext('//')).toBe('/todo')
-      expect(sanitizeNext('///')).toBe('/todo')
+      expect(sanitizeNext('//')).toBe('/')
+      expect(sanitizeNext('///')).toBe('/')
     })
   })
 })

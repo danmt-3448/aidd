@@ -1,10 +1,10 @@
 'use client'
 
-import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { LoginHeader } from './login-header'
 import { GoogleLoginButton } from './google-login-button'
 import { montserrat, montserratAlternates } from '../fonts'
+import { PageContainer } from '@/components/page-container'
 
 /** Gradient overlay từ Figma (Rectangle 57 = tối bên trái, Cover = tối dưới đáy). */
 const LEFT_DARK = 'linear-gradient(90deg,#00101A 0%,#00101A 25.41%,rgba(0,16,26,0) 100%)'
@@ -32,34 +32,47 @@ export function LoginScreen({ error = false }: { error?: boolean }) {
 
       <LoginHeader logoAlt={t('logoAlt')} />
 
-      <main className="relative z-10 flex flex-1 flex-col justify-center gap-20 px-6 py-16 md:px-12 lg:px-36">
-        {/* Frame 487: ROOT FURTHER logo + khối nội dung (gap 80) */}
-        <div className="flex flex-col gap-6">
-          <Image
-            src="/images/login/root-further.png"
-            alt={t('headingAlt')}
-            width={451}
-            height={200}
-            priority
-            className="h-auto w-[451px] max-w-[80vw]"
-          />
+      <main className="relative z-10 flex flex-1 flex-col justify-center py-16">
+        <PageContainer>
+          {/* Frame 487: ROOT FURTHER heading + body (gap 80) */}
+          <div className="flex flex-col gap-6 lg:px-28">
 
-          {/* Frame 550: body text + login button (gap 24, pl 16) */}
-          <div className={`${montserrat.className} flex flex-col gap-6 pl-4`}>
-            <p className="max-w-lg whitespace-pre-line text-xl font-bold leading-10 tracking-[0.5px]">
-              {`${t('intro1')}\n${t('intro2')}`}
-            </p>
+            {/*
+              ROOT FURTHER heading — 1 line at all viewports.
+              Figma: Montserrat 700, ~120px desktop (full artboard width).
+              clamp() scales from 48px (mobile) to 120px (desktop) so it
+              never wraps. white-space:nowrap enforces single-line.
+              color: #E8DFD0 matches the faded-cream tone in the Figma frame.
+            */}
+            <h1
+              className={`${montserrat.className} whitespace-nowrap font-bold leading-none tracking-tight`}
+              style={{
+                fontSize: 'clamp(2.5rem, 8.5vw, 7.5rem)',
+                color: '#E8DFD0',
+                letterSpacing: '-0.02em',
+              }}
+              aria-label={t('headingAlt')}
+            >
+              ROOT FURTHER
+            </h1>
 
-            <div className="flex flex-col gap-2">
-              <GoogleLoginButton label={t('googleButton')} loadingLabel={t('signingIn')} />
-              {error && (
-                <p role="alert" className="text-sm font-semibold text-red-300">
-                  {t('error')}
-                </p>
-              )}
+            {/* Frame 550: body text + login button (gap 24, pl 16) */}
+            <div className={`${montserrat.className} flex flex-col gap-6 pl-4`}>
+              <p className="max-w-lg whitespace-pre-line text-xl font-bold leading-10 tracking-[0.5px]">
+                {`${t('intro1')}\n${t('intro2')}`}
+              </p>
+
+              <div className="flex flex-col gap-2">
+                <GoogleLoginButton label={t('googleButton')} loadingLabel={t('signingIn')} />
+                {error && (
+                  <p role="alert" className="text-sm font-semibold text-red-300">
+                    {t('error')}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </PageContainer>
       </main>
 
       <footer className="relative z-10 w-full border-t border-[#2E3940] px-6 py-10 md:px-[90px]">

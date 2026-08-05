@@ -64,4 +64,13 @@ describe('LoginScreen', () => {
     expect(mainDiv).toHaveClass('text-white')
     expect(mainDiv).toHaveClass('min-h-screen')
   })
+
+  it('should render ROOT FURTHER heading as a single-line h1 element', () => {
+    render(<LoginScreen />)
+    const heading = screen.getByRole('heading', { level: 1 })
+    expect(heading).toBeInTheDocument()
+    expect(heading).toHaveTextContent('ROOT FURTHER')
+    // white-space:nowrap prevents 2-line wrap (set via style prop)
+    expect(heading).toHaveClass('whitespace-nowrap')
+  })
 })
