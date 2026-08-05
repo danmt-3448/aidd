@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 
 async function callbackUrl() {
   const h = await headers()
-  const origin = h.get('origin') ?? `http://${h.get('host') ?? '127.0.0.1:3000'}`
+  const origin = h.get('origin') ?? `http://${h.get('host') ?? '127.0.0.1:3001'}`
   return `${origin}/auth/callback`
 }
 

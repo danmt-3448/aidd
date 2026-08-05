@@ -70,6 +70,12 @@ vi.mock('next-intl', () => {
           footer: 'Bản quyền thuộc về Sun* © 2025',
           error: 'Đăng nhập không thành công. Vui lòng thử lại.',
         },
+        board: {
+          copyLink: 'Sao chép liên kết',
+          viewDetail: 'Xem chi tiết',
+          like: 'Thích',
+          unlike: 'Bỏ thích',
+        },
       }
       const ns = messages[namespace] || {}
       return (key: string) => ns[key] || key

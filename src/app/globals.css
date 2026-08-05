@@ -89,3 +89,19 @@ body {
 .tiptap-wrapper .ProseMirror p:last-child {
   margin-bottom: 0;
 }
+
+.swiper-box-shadow {
+  position: absolute;
+  height: 100%;
+  width: 80px;
+  top: 0;
+  z-index: 10;
+}
+
+.swiper-box-shadow-left {
+  left: 0;
+}
+
+.swiper-box-shadow-right {
+  right: 0;
+}

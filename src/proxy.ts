@@ -16,6 +16,20 @@ import { isPreLaunch, isBypassPath } from '@/features/event/launch-gate'
  *   3. Auth guard — logged-in on /login → /; unauthenticated on protected path → /login.
  */
 export async function proxy(request: NextRequest) {
+  // ------------------------------------------------------------------
+  // Dev-only UI-gate bypass
+  // ------------------------------------------------------------------
+  // `?ui_state=full|empty|error|loading` makes board-connected render from
+  // board-mock.ts without Supabase (see board-connected). Let those requests
+  // through before session/gate/auth so /aidd-ui-gate can render mock screens
+  // with no local Supabase running. Query-param + dev-gated → never in prod.
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    request.nextUrl.searchParams.has('ui_state')
+  ) {
+    return NextResponse.next()
+  }
+
   const { response, user } = await updateSession(request)
   const { pathname } = request.nextUrl
 
