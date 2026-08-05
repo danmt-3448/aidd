@@ -62,14 +62,19 @@ export interface ProfileCursor {
 // Input schemas
 // ---------------------------------------------------------------------------
 
-const uuidSchema = z.string().uuid({ message: 'id phải là UUID hợp lệ' })
+// .guid() (lenient 8-4-4-4-12 hex), NOT .uuid(): Zod v4's .uuid() enforces RFC
+// version/variant bits and rejects DB-valid ids (e.g. seeded/non-v4 uuids) that
+// Postgres accepts. Shape-check still blocks injection / 22P02.
+const uuidSchema = z.string().guid({ message: 'id phải là UUID hợp lệ' })
 
 const listProfileKudosSchema = z.object({
   profileId: uuidSchema,
   direction: z.enum(['received', 'sent']),
   cursor: z
     .object({
-      createdAt: z.string(),
+      // Strict ISO8601 — the value is interpolated into a PostgREST .or()
+      // filter, so a loose z.string() would allow filter-injection metachars.
+      createdAt: z.string().datetime({ offset: true }),
       id: uuidSchema,
     })
     .nullable()
@@ -173,8 +178,8 @@ export async function getProfileStats(
 
     const stats: ProfileStats = {
       received,
-      // Preserve null for non-owners (security_invoker guard in view).
-      sent: row.sent !== undefined ? row.sent : null,
+      // null for non-owners: the view's CASE returns NULL when p.id ≠ auth.uid().
+      sent: row.sent,
       hearts: row.hearts_received ?? 0,
       boxesOpened: row.boxes_opened ?? 0,
       // boxesRemaining: view coalesces to 0; default here as safety net.

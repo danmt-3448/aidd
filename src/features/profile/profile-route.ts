@@ -26,7 +26,9 @@ export type ProfileRouteResult =
 // Schema — strict UUID validation, no coercion.
 // ---------------------------------------------------------------------------
 
-const uuidSchema = z.string().uuid()
+// .guid() (lenient hex shape), NOT .uuid(): Zod v4 .uuid() enforces RFC
+// version/variant and would 404 DB-valid non-v4 ids that Postgres accepts.
+const uuidSchema = z.string().guid()
 
 // ---------------------------------------------------------------------------
 // parseProfileId

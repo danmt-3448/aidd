@@ -24,7 +24,7 @@
  * Must be rendered inside <QueryProvider> and beside a <Toaster> for toasts.
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { ProfileScreen } from './profile-screen'
@@ -116,26 +116,8 @@ export function ProfileConnected({ profileId, isSelf }: ProfileConnectedProps) {
 
   const { toggle, error: toggleError, clearError } = useToggleHeart()
 
-  // ── Sentinel ref for infinite scroll ─────────────────────────────────────
-  const sentinelRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    const el = sentinelRef.current
-    if (!el) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0]
-        if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage()
-        }
-      },
-      { rootMargin: '200px' },
-    )
-
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+  // Infinite scroll is driven by ProfileKudosSection's own observer (guarded on
+  // hasNextPage) via onLoadMore — no second sentinel here (avoids double fetch).
 
   // ── Surface errors as toasts ──────────────────────────────────────────────
   useEffect(() => {
@@ -285,11 +267,6 @@ export function ProfileConnected({ profileId, isSelf }: ProfileConnectedProps) {
         onOpenProfile={handleOpenProfile}
         onLoadMore={handleLoadMore}
       />
-
-      {/* Infinite-scroll sentinel — sits below ProfileScreen in page flow.
-          IntersectionObserver fires fetchNextPage when this div enters the
-          viewport (rootMargin: 200px pre-fires). Invisible; no layout impact. */}
-      <div ref={sentinelRef} aria-hidden style={{ height: 1 }} />
     </>
   )
 }

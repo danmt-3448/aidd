@@ -1,6 +1,6 @@
 'use client'
 
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import { listProfileKudos } from './profile-queries'
 import type { ProfileKudoRow, ProfileCursor } from './profile-queries'
 // Reuse the board's heart toggle — no re-implementation.
@@ -50,7 +50,6 @@ export function useProfileFeed(
   profileId: string,
   direction: 'received' | 'sent',
 ): UseProfileFeedReturn {
-  const queryClient = useQueryClient()
   const queryKey = profileFeedKeys.list(profileId, direction)
 
   const query = useInfiniteQuery<
@@ -76,10 +75,6 @@ export function useProfileFeed(
     enabled: Boolean(profileId),
     staleTime: 30_000,
   })
-
-  // Expose queryClient for consumers that need manual invalidation
-  // (e.g. after posting a new kudo from this profile's write-bar).
-  void queryClient
 
   const pages = query.data?.pages.map((p) => p.data) ?? []
   const allRows = pages.flat()
