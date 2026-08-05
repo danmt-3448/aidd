@@ -4,7 +4,7 @@
  * Coverage:
  *   - ID-17: renders footer with copyright text "Bản quyền thuộc về Sun* © 2025"
  *   - Footer nav links: About SAA 2025 (#about), Award Information (/awards),
- *     Sun* Kudos (/kudos), Rules (/rules)
+ *     Sun* Kudos (/board), Thể lệ (/rules)
  */
 
 import { render, screen } from '@testing-library/react'
@@ -43,17 +43,17 @@ describe('HomepageFooter', () => {
       expect(awardsLink).toHaveAttribute('href', '/awards')
     })
 
-    it('renders "Sun* Kudos" link to /kudos', () => {
+    it('renders "Sun* Kudos" link to /board', () => {
       render(<HomepageFooter />)
 
       const kudosLink = screen.getByRole('link', { name: /sun\* kudos/i })
-      expect(kudosLink).toHaveAttribute('href', '/kudos')
+      expect(kudosLink).toHaveAttribute('href', '/board')
     })
 
-    it('renders "Rules" link to /rules', () => {
+    it('renders "Thể lệ" link to /rules', () => {
       render(<HomepageFooter />)
 
-      const rulesLink = screen.getByRole('link', { name: /rules/i })
+      const rulesLink = screen.getByRole('link', { name: /thể lệ/i })
       expect(rulesLink).toHaveAttribute('href', '/rules')
     })
 
@@ -153,7 +153,7 @@ describe('HomepageFooter', () => {
         /about saa 2025/i,
         /award information/i,
         /sun\* kudos/i,
-        /rules/i,
+        /thể lệ/i,
       ]
 
       expectedLinks.forEach((label) => {

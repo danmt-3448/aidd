@@ -11,7 +11,7 @@
  *
  * Footer nav links from Figma text nodes (Frame 476, 4 children):
  *   About SAA 2025 (anchor), Award Information (/awards),
- *   Sun* Kudos (/kudos), [4th link — same pattern]
+ *   Sun* Kudos (/board), Thể lệ (/rules)
  */
 
 import Image from 'next/image'
@@ -21,8 +21,8 @@ import { montserratAlternates, montserrat } from '@/features/auth/fonts'
 const NAV_LINKS = [
   { label: 'About SAA 2025', href: '#about' },
   { label: 'Award Information', href: '/awards' },
-  { label: 'Sun* Kudos', href: '/kudos' },
-  { label: 'Rules', href: '/rules' },
+  { label: 'Sun* Kudos', href: '/board' },
+  { label: 'Thể lệ', href: '/rules' },
 ] as const
 
 export function HomepageFooter() {

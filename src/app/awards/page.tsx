@@ -1,16 +1,58 @@
+import { createClient } from '@/lib/supabase/server'
+import { getIsAdmin } from '@/features/auth/get-is-admin'
+import { SiteHeader } from '@/components/site-header'
 import { AwardsShowcase } from '@/features/awards/components'
 import { AWARDS } from '@/features/awards/award-config'
 
 /**
  * /awards — Hệ thống giải thưởng SAA 2025 page.
- * Renders the awards showcase from the canonical AWARDS config (single source,
- * shared with the Homepage 6-card grid). Static content — no data fetching.
  *
- * force-static: no headers/cookies/searchParams/per-request data.
- * Pre-built at deploy time → eliminates cold-start TTFB on Vercel free tier.
+ * Server Component: resolves session server-side to populate SiteHeader.
+ * AWARDS content is static (imported from award-config.ts) — no DB query for awards data.
+ *
+ * force-static removed: the page needs request-time session resolution to show
+ * the authenticated header state (bell, account menu). AWARDS data itself is still
+ * compile-time static via the import; only the header auth state is dynamic.
+ *
+ * Pattern mirrors /app/board/page.tsx — session read once, plain props to header.
+ * /awards is auth-guarded via middleware (not in PUBLIC_PATHS).
  */
-export const dynamic = 'force-static'
+export default async function AwardsPage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-export default function AwardsPage() {
-  return <AwardsShowcase awards={AWARDS} />
+  const isAdmin = user ? await getIsAdmin() : false
+
+  // Header identity from OAuth session metadata — no extra profile query.
+  const headerUser = user
+    ? {
+        name:
+          (user.user_metadata?.full_name as string | undefined) ??
+          (user.user_metadata?.name as string | undefined) ??
+          'Sunner',
+        avatarUrl:
+          (user.user_metadata?.avatar_url as string | undefined) ??
+          (user.user_metadata?.picture as string | undefined),
+      }
+    : null
+
+  return (
+    <div style={{ background: 'rgba(0,16,26,1)', minHeight: '100vh' }}>
+      {/*
+       * Site navigation — Figma zFYDgyj_pD shows the header above the awards content.
+       * activeNav="awards" highlights the "Award Information" nav link.
+       * unreadCount=0: notification polling is a client concern; awards does not fetch
+       * it server-side to avoid the extra round-trip. The bell still renders.
+       */}
+      <SiteHeader
+        user={headerUser}
+        unreadCount={0}
+        isAdmin={isAdmin}
+        activeNav="awards"
+      />
+      <AwardsShowcase awards={AWARDS} />
+    </div>
+  )
 }

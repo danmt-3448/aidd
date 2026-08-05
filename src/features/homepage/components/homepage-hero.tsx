@@ -37,10 +37,11 @@ export interface HomepageCountdownProps {
 
 interface HomepageHeroProps {
   countdown: HomepageCountdownProps
-  onQuickAction?: () => void
+  /** Opens KudoComposeModal. Omit for anonymous visitors (no FAB rendered). */
+  onWriteKudo?: () => void
 }
 
-export function HomepageHero({ countdown, onQuickAction }: HomepageHeroProps) {
+export function HomepageHero({ countdown, onWriteKudo }: HomepageHeroProps) {
   return (
     <section
       id="about"
@@ -65,8 +66,10 @@ export function HomepageHero({ countdown, onQuickAction }: HomepageHeroProps) {
         />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 mx-auto flex w-full max-w-[1512px] flex-col items-center gap-16 px-4 py-16 md:px-16 md:py-24 xl:gap-[120px] xl:px-36 xl:py-24">
+      {/* Content
+          pb-28 on mobile gives the fixed FAB (bottom: calc(50vh - 32px)) enough
+          clearance so it does not overlap the countdown clock row at 375px. */}
+      <div className="relative z-10 mx-auto flex w-full max-w-[1512px] flex-col items-center gap-16 px-4 pb-28 pt-16 md:px-16 md:pb-24 md:pt-24 xl:gap-[120px] xl:px-36 xl:py-24">
 
         {/* Top block: left-aligned info column */}
         <div className="flex w-full flex-col items-start" style={{ gap: 40, maxWidth: 1224 }}>
@@ -87,18 +90,21 @@ export function HomepageHero({ countdown, onQuickAction }: HomepageHeroProps) {
 
           {/* Countdown + event info */}
           <div className="flex flex-col" style={{ gap: 16 }}>
-            {/* "Comming soon" label — verbatim from Figma */}
+            {/* "Coming soon" label (MoMorph spec B1.2 — correct spelling) */}
             <p
               className={montserrat.className}
               style={{ fontSize: 24, fontWeight: 700, lineHeight: '32px', color: '#FFFFFF' }}
             >
-              Comming soon
+              Coming soon
             </p>
 
-            {/* 3-unit LED countdown row */}
+            {/* 3-unit LED countdown row
+                flex-wrap: at 375px the 3 blocks wrap to 2 rows so nothing
+                clips off the right edge. gap scales with clamp so blocks
+                stay tight on small viewports. */}
             <div
-              className="flex flex-row items-start"
-              style={{ gap: 40 }}
+              className="flex flex-row flex-wrap items-start"
+              style={{ gap: 'clamp(12px, 2.6vw, 40px)' }}
               role="timer"
               aria-live="polite"
               aria-label={`${countdown.days} ngày ${countdown.hours} giờ ${countdown.minutes} phút`}
@@ -184,9 +190,9 @@ export function HomepageHero({ countdown, onQuickAction }: HomepageHeroProps) {
         <HomepageRootFurtherCard />
       </div>
 
-      {/* Fixed Widget FAB — auth-gated (H-3): only rendered when onQuickAction provided. */}
-      {onQuickAction !== undefined && (
-        <HomepageWidgetFab onQuickAction={onQuickAction} />
+      {/* Fixed Widget FAB — auth-gated (H-3): only rendered when onWriteKudo provided. */}
+      {onWriteKudo !== undefined && (
+        <HomepageWidgetFab onWriteKudo={onWriteKudo} />
       )}
     </section>
   )

@@ -9,7 +9,7 @@
  *   - ID-45: "ABOUT KUDOS" CTA links to /kudos
  *
  * Note: CountdownLedBlock handles the 2-digit formatting (tested separately).
- *       onQuickAction callback is optional and tested via fireEvent in integration.
+ *       onWriteKudo callback is optional and tested via fireEvent in integration.
  */
 
 import { render, screen } from '@testing-library/react'
@@ -54,15 +54,14 @@ describe('HomepageHero', () => {
       expect(screen.getByTestId('led-block-phút')).toHaveTextContent('05 PHÚT')
     })
 
-    it('ID-12: displays "Comming soon" label (verbatim spelling from Figma)', () => {
+    it('ID-12: displays "Coming soon" label (MoMorph spec B1.2 spelling)', () => {
       render(
         <HomepageHero
           countdown={{ days: 0, hours: 0, minutes: 0 }}
         />
       )
 
-      // Text is verbatim "Comming soon" (not "Coming soon")
-      const label = screen.getByText('Comming soon')
+      const label = screen.getByText('Coming soon')
       expect(label).toBeInTheDocument()
     })
 
@@ -189,51 +188,88 @@ describe('HomepageHero', () => {
   })
 
   describe('FAB (Fixed Action Button)', () => {
-    // H-3: FAB is auth-gated — only rendered when onQuickAction is provided.
+    // H-3: FAB is auth-gated — only rendered when onWriteKudo is provided.
     // Anonymous visitors (no handler) must NOT see the FAB.
 
-    it('does NOT render FAB when onQuickAction is not provided (anonymous visitor)', () => {
+    it('does NOT render FAB when onWriteKudo is not provided (anonymous visitor)', () => {
       render(
         <HomepageHero
           countdown={{ days: 0, hours: 0, minutes: 0 }}
         />
       )
 
-      const fab = screen.queryByRole('button', { name: /viết kudo|quick action/i })
+      const fab = screen.queryByRole('button', { name: /viết kudo nhanh/i })
       expect(fab).not.toBeInTheDocument()
     })
 
-    it('renders Viết Kudo FAB button when onQuickAction is provided (authenticated)', () => {
-      const onQuickAction = vi.fn()
+    it('renders Viết Kudo FAB trigger when onWriteKudo is provided (authenticated)', () => {
+      const onWriteKudo = vi.fn()
 
       render(
         <HomepageHero
           countdown={{ days: 0, hours: 0, minutes: 0 }}
-          onQuickAction={onQuickAction}
+          onWriteKudo={onWriteKudo}
         />
       )
 
-      const fab = screen.getByRole('button', { name: /viết kudo|quick action/i })
+      const fab = screen.getByRole('button', { name: /viết kudo nhanh/i })
       expect(fab).toBeInTheDocument()
+      // FAB pill is the menu trigger — check aria-haspopup
+      expect(fab).toHaveAttribute('aria-haspopup', 'menu')
     })
 
-    it('calls onQuickAction when FAB is clicked', async () => {
-      const onQuickAction = vi.fn()
+    it('opens quick-action menu when FAB is clicked', async () => {
+      const onWriteKudo = vi.fn()
 
       render(
         <HomepageHero
           countdown={{ days: 0, hours: 0, minutes: 0 }}
-          onQuickAction={onQuickAction}
+          onWriteKudo={onWriteKudo}
         />
       )
 
-      const fab = screen.getByRole('button', { name: /viết kudo|quick action/i })
+      const fab = screen.getByRole('button', { name: /viết kudo nhanh/i })
       await userEvent.click(fab)
 
-      expect(onQuickAction).toHaveBeenCalledTimes(1)
+      expect(screen.getByRole('menu')).toBeInTheDocument()
+      expect(screen.getByRole('menuitem', { name: /viết kudo/i })).toBeInTheDocument()
+      expect(screen.getByRole('menuitem', { name: /thể lệ/i })).toBeInTheDocument()
     })
 
-    it('does not throw when onQuickAction is not provided', () => {
+    it('calls onWriteKudo when "Viết Kudo" menu item is clicked', async () => {
+      const onWriteKudo = vi.fn()
+
+      render(
+        <HomepageHero
+          countdown={{ days: 0, hours: 0, minutes: 0 }}
+          onWriteKudo={onWriteKudo}
+        />
+      )
+
+      await userEvent.click(screen.getByRole('button', { name: /viết kudo nhanh/i }))
+      await userEvent.click(screen.getByRole('menuitem', { name: /viết kudo/i }))
+
+      expect(onWriteKudo).toHaveBeenCalledTimes(1)
+    })
+
+    it('closes menu on Escape key', async () => {
+      const onWriteKudo = vi.fn()
+
+      render(
+        <HomepageHero
+          countdown={{ days: 0, hours: 0, minutes: 0 }}
+          onWriteKudo={onWriteKudo}
+        />
+      )
+
+      await userEvent.click(screen.getByRole('button', { name: /viết kudo nhanh/i }))
+      expect(screen.getByRole('menu')).toBeInTheDocument()
+
+      await userEvent.keyboard('{Escape}')
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    })
+
+    it('does not throw when onWriteKudo is not provided', () => {
       expect(() => {
         render(
           <HomepageHero
