@@ -66,9 +66,8 @@ export function HomepageAccountMenu({ user, isAdmin }: HomepageAccountMenuProps)
           role="menu"
           className="absolute right-0 top-12 z-50 min-w-[180px] rounded-lg py-2 shadow-lg"
           style={{
-            background: 'rgba(16,20,23,0.96)',
+            background: 'rgba(16,20,23,0.8)',
             border: '1px solid rgba(153,140,95,0.35)',
-            backdropFilter: 'blur(12px)',
           }}
         >
           <Link

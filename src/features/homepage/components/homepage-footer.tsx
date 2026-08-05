@@ -22,7 +22,7 @@ const NAV_LINKS = [
   { label: 'About SAA 2025', href: '#about' },
   { label: 'Award Information', href: '/awards' },
   { label: 'Sun* Kudos', href: '/board' },
-  { label: 'Thể lệ', href: '/rules' },
+  { label: 'Tiêu chuẩn chung', href: '/rules' },
 ] as const
 
 export function HomepageFooter() {

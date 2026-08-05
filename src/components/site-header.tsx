@@ -47,6 +47,13 @@ export interface SiteHeaderProps {
    * null = no item is active (neutral state, e.g. detail pages).
    */
   activeNav: ActiveNav
+  /**
+   * Overlay mode: header floats over the page (absolute, transparent gradient)
+   * instead of taking 80px of flow. Used on pages with a full-bleed hero/banner
+   * at the top (e.g. Board) so the banner shows through under the header.
+   * Default false = sticky solid header (pushes content down).
+   */
+  overlay?: boolean
 }
 
 interface NavItemDef {
@@ -61,7 +68,7 @@ const NAV_ITEMS: NavItemDef[] = [
   { id: 'kudos',  label: 'Sun* Kudos',        href: '/board'  },
 ]
 
-export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav }: SiteHeaderProps) {
+export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav, overlay = false }: SiteHeaderProps) {
   const bellRef = useRef<HTMLButtonElement | null>(null)
   const [panelOpen, setPanelOpen] = useState(false)
 
@@ -74,12 +81,15 @@ export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav }: SiteH
 
   return (
     <header
-      className="sticky top-0 z-50 flex w-full items-center justify-between px-4 py-3 md:px-16 xl:px-36"
+      className={`${overlay ? 'absolute inset-x-0 top-0' : 'sticky top-0'} z-50 flex w-full items-center justify-between px-4 py-3 md:px-16 xl:px-36`}
       style={{
         minHeight: 80,
-        background: 'rgba(16,20,23,0.8)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        // Overlay: transparent gradient so the banner shows through while the
+        // nav stays legible up top. Sticky: solid translucent bar.
+        background: overlay
+          ? 'linear-gradient(180deg, rgba(0,16,26,0.85) 0%, rgba(0,16,26,0.45) 55%, rgba(0,16,26,0) 100%)'
+          : 'rgba(16,20,23,0.8)',
+        backdropFilter: overlay ? undefined : 'blur(12px)',
       }}
       aria-label="Site header"
     >
@@ -156,9 +166,14 @@ export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav }: SiteH
               />
             </div>
           ) : (
-            /* No flag-en asset — use a globe emoji glyph as placeholder.
-               Flagged for visual-verify pass to add a proper EN flag asset. */
-            <span style={{ fontSize: 16, lineHeight: 1 }} aria-hidden="true">🌐</span>
+            <div className="relative" style={{ width: 20, height: 15 }}>
+              <Image
+                src="/homepage/flag-en.svg"
+                alt="EN"
+                fill
+                className="object-contain"
+              />
+            </div>
           )}
           <span
             className={montserrat.className}
