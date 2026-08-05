@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useSecretBox } from '../use-secret-box'
 import { SecretBoxModal } from './secret-box-modal'
 import { SecretBoxSpinner } from './secret-box-spinner'
@@ -7,9 +8,10 @@ import { SecretBoxSpinner } from './secret-box-spinner'
 /**
  * Connects the SecretBoxModal to live server state via useSecretBox().
  * Must be rendered inside a QueryProvider (see the /secret-box route).
- * Replaces the mock page shell as the production entry point.
+ * onClose navigates back to /board per the clarified spec (J3-4YFIpMM).
  */
 export function SecretBoxConnected() {
+  const router = useRouter()
   const {
     unopened,
     currentBadge,
@@ -20,6 +22,10 @@ export function SecretBoxConnected() {
     open,
     clearError,
   } = useSecretBox()
+
+  function handleClose() {
+    router.push('/board')
+  }
 
   if (isLoading) {
     return <SecretBoxSpinner />
@@ -40,6 +46,7 @@ export function SecretBoxConnected() {
         currentBadge={currentBadge}
         isOpening={isOpening}
         onOpen={open}
+        onClose={handleClose}
       />
       {openError && (
         <p

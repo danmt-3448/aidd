@@ -30,21 +30,26 @@ export function SecretBoxModal({
       style={{
         background: '#00101A',
         borderRadius: '12.73px',
-        padding: '23.87px 12.73px',
+        padding: 'clamp(16px, 3vw, 23.87px) clamp(12px, 3vw, 12.73px)',
         gap: '22.28px',
       }}
     >
       {/* Title row — A_Title + optional close (MM_MEDIA_Close, 19×19) */}
       <div className="flex w-full items-center justify-center">
+        {/* Spacer mirrors close button width so title stays truly centered */}
+        {onClose != null && <div className="w-[19px] flex-shrink-0" aria-hidden />}
+
         <h2
-          className="flex-1 text-center"
+          className="min-w-0 flex-1 px-1 text-center"
           style={{
             fontFamily: 'Montserrat, sans-serif',
             fontWeight: 700,
-            fontSize: '25.46px',
-            lineHeight: '31.82px',
+            fontSize: 'clamp(16px, 4vw, 25.46px)',
+            lineHeight: '1.25',
             color: '#FFEA9E',
             letterSpacing: '0px',
+            wordBreak: 'keep-all',
+            overflowWrap: 'break-word',
           }}
         >
           KHÁM PHÁ SECRET BOX CỦA BẠN
@@ -140,8 +145,21 @@ export function SecretBoxModal({
       {/* Rectangle 18 — bottom separator */}
       <div className="w-full" style={{ height: '1px', background: 'rgba(46,57,64,1)' }} aria-hidden />
 
-      {/* D_Số box chưa mở — counter: golden number + white label */}
+      {/* D_Số box chưa mở — counter: label LEFT (small) · golden number RIGHT (large) */}
+      {/* Figma J3-4YFIpMM: "Secretbox chưa mở  05" — text precedes the large number */}
       <div className="flex items-center" style={{ gap: '6.36px' }}>
+        <span
+          style={{
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 700,
+            fontSize: '12.73px',
+            lineHeight: '19.09px',
+            letterSpacing: '0.398px',
+            color: 'rgba(255,255,255,1)',
+          }}
+        >
+          Secretbox chưa mở
+        </span>
         <span
           style={{
             fontFamily: 'Montserrat, sans-serif',
@@ -154,18 +172,6 @@ export function SecretBoxModal({
           aria-live="polite"
         >
           {counterDisplay}
-        </span>
-        <span
-          style={{
-            fontFamily: 'Montserrat, sans-serif',
-            fontWeight: 700,
-            fontSize: '12.73px',
-            lineHeight: '19.09px',
-            letterSpacing: '0.398px',
-            color: 'rgba(255,255,255,1)',
-          }}
-        >
-          Secretbox chưa mở
         </span>
       </div>
     </div>

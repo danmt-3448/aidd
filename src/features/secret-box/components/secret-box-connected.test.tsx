@@ -2,10 +2,12 @@
  * Unit tests for SecretBoxConnected — wires useSecretBox() to SecretBoxModal.
  *
  * useSecretBox is mocked via vi.mock so no Supabase/TanStack Query setup needed.
+ * next/navigation useRouter is mocked to avoid App Router context requirement.
  *
  * Happy paths:
  *  - isLoading=true → spinner rendered (role="status")
  *  - loaded state → SecretBoxModal renders with correct unopened count
+ *  - close button present and calls router.push('/board')
  *
  * Failure / edge paths:
  *  - openError non-null → role="alert" with error text rendered
@@ -14,6 +16,14 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { SecretBoxConnected } from './secret-box-connected'
+
+// ── Mock next/navigation ─────────────────────────────────────────────────────
+
+const mockPush = vi.fn()
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockPush }),
+}))
 
 // ── Mock useSecretBox ────────────────────────────────────────────────────────
 
@@ -40,6 +50,7 @@ function makeStub(overrides: Partial<ReturnType<typeof mockUseSecretBox>> = {}) 
 
 beforeEach(() => {
   vi.clearAllMocks()
+  mockPush.mockReset()
 })
 
 describe('SecretBoxConnected', () => {
@@ -83,6 +94,17 @@ describe('SecretBoxConnected', () => {
     // SecretBoxSpinner exposes role="status"; SecretBoxModal spinner only
     // appears when isOpening=true — with both false, no status role present.
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
+  })
+
+  it('renders a close button that navigates to /board', () => {
+    mockUseSecretBox.mockReturnValue(makeStub())
+
+    render(<SecretBoxConnected />)
+
+    const closeBtn = screen.getByRole('button', { name: /close/i })
+    expect(closeBtn).toBeInTheDocument()
+    fireEvent.click(closeBtn)
+    expect(mockPush).toHaveBeenCalledWith('/board')
   })
 
   // ── Error state ───────────────────────────────────────────────────────────────

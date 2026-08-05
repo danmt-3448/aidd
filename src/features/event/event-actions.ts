@@ -22,17 +22,11 @@ export type GetEventConfigResult = EventConfig | null
 // ---------------------------------------------------------------------------
 
 export async function getEventConfig(): Promise<GetEventConfigResult> {
+  // PUBLIC: launch time is not secret and /countdown is shown to anonymous
+  // visitors (the pre-launch gate redirects everyone there). event_config is
+  // anon-readable via RLS — no auth check here, or anon would see a broken
+  // "chưa cấu hình" countdown.
   const supabase = await createClient()
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    // Fail closed: unauthenticated requests get nothing
-    return null
-  }
 
   const { data, error } = await supabase
     .from('event_config')

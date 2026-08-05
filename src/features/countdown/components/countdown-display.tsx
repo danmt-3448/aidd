@@ -104,10 +104,12 @@ export function CountdownDisplay({ countdown }: CountdownDisplayProps) {
         {t('title')}
       </h1>
 
-      {/* mm:countdown-led-row — 3 units, gap 60px, no separators */}
+      {/* mm:countdown-led-row — 3 units, gap 60px, no separators.
+          flex-wrap: at 375px the 3 blocks wrap to prevent the 3rd block
+          (minutes) clipping off the right edge. */}
       <div
-        className="flex flex-row items-start"
-        style={{ gap: 'clamp(20px, 3.97vw, 60px)' }}
+        className="flex flex-row flex-wrap items-start justify-center md:justify-start"
+        style={{ gap: 'clamp(16px, 3.97vw, 60px)' }}
         role="timer"
         aria-live="polite"
         aria-label={t('timerAriaLabel', {

@@ -61,7 +61,9 @@ export function CountdownScreen() {
         }}
       />
 
-      {/* mm:countdown-content — vertically centered, left-of-center */}
+      {/* mm:countdown-content — vertically centered, left-of-center.
+          mx-auto max-w-[1280px] caps content at the artboard width so
+          it centers at @1440 instead of drifting left. */}
       <main
         className="relative flex w-full items-center"
         style={{
@@ -71,16 +73,18 @@ export function CountdownScreen() {
         }}
         aria-busy={countdown.isLoading}
       >
-        {/*
-          Content block sits at ~55% from left (matching the artboard where LED row
-          spans x≈434–1077 of 1512). On mobile it centers.
-        */}
-        <div
-          className="flex w-full flex-col items-center md:items-start md:max-w-[60%] lg:max-w-[55%]"
-        >
-          {!countdown.isLoading && (
-            <CountdownDisplay countdown={countdown} />
-          )}
+        <div className="mx-auto w-full max-w-[1280px]">
+          {/*
+            Content block sits at ~55% from left (matching the artboard where LED row
+            spans x≈434–1077 of 1512). On mobile it centers.
+          */}
+          <div
+            className="flex w-full flex-col items-center md:items-start md:max-w-[60%] lg:max-w-[55%]"
+          >
+            {!countdown.isLoading && (
+              <CountdownDisplay countdown={countdown} />
+            )}
+          </div>
         </div>
       </main>
     </div>
