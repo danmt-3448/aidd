@@ -3,7 +3,7 @@ import * as fs from 'fs/promises'
 import { existsSync } from 'fs'
 
 const OUT = '/tmp/ui-audit-fresh'
-const BASE = 'http://localhost:3000'
+const BASE = 'http://localhost:3001'
 const userState = 'e2e/.auth/user.json'
 
 await fs.mkdir(OUT, { recursive: true })

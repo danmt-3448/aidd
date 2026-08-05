@@ -16,7 +16,7 @@ import * as fs from 'fs/promises'
  * httpOnly cookies are included in the saved state.
  */
 async function globalSetup() {
-  const baseURL = 'http://localhost:3000'
+  const baseURL = 'http://localhost:3001'
   const authDir = 'e2e/.auth'
 
   await fs.mkdir(authDir, { recursive: true })

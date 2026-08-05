@@ -1,7 +1,7 @@
 import { chromium } from '@playwright/test'
 import * as fs from 'fs'
 
-const BASE = 'http://localhost:3000'
+const BASE = 'http://localhost:3001'
 const OUT = '/tmp/phase2-audit'
 fs.mkdirSync(OUT, { recursive: true })
 

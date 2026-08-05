@@ -2,7 +2,7 @@ import { chromium } from '@playwright/test'
 import * as fs from 'fs/promises'
 import path from 'path'
 
-const BASE = 'http://localhost:3000'
+const BASE = 'http://localhost:3001'
 const OUT = 'plans/260804-1713-notifications-ui'
 const AUTH = 'e2e/.auth/user.json'
 

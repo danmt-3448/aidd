@@ -2,7 +2,7 @@ import { chromium } from '@playwright/test'
 import * as fs from 'fs'
 
 const OUT = '/tmp/phase2-audit'
-const BASE = 'http://localhost:3000'
+const BASE = 'http://localhost:3001'
 const adminState = './e2e/.auth/admin.json'
 const userState = './e2e/.auth/user.json'
 
@@ -55,7 +55,7 @@ for (const s of SHOTS) {
     
     const finalUrl = page.url()
     await page.screenshot({ path: `${OUT}/${s.name}.png`, fullPage: false })
-    console.log(`OK  ${s.name} (url: ${finalUrl.replace('http://localhost:3000','')})`)
+    console.log(`OK  ${s.name} (url: ${finalUrl.replace('http://localhost:3001','')})`)
   } catch (e) {
     console.log(`ERR ${s.name}: ${e.message.split('\n')[0]}`)
   }

@@ -23,7 +23,7 @@ test.describe('Root path redirect', () => {
   /**
    * TC-REDIRECT-01: Unauthenticated user hitting / stays on / — homepage is public.
    * guard-rules.ts: PUBLIC_PATHS includes '/'.
-   * Evidence: curl http://localhost:3000/ → HTTP 200, no redirect.
+   * Evidence: curl http://localhost:3001/ → HTTP 200, no redirect.
    */
   test('TC-REDIRECT-01: unauthenticated / renders homepage (not redirected)', async ({ page }) => {
     // The authed project runs with user storageState, so we can't test true

@@ -3,7 +3,7 @@ import * as fs from 'fs/promises'
 
 // UI-parity audit — 1440px wide capture for all built screens.
 const OUT = 'plans/reports/ui-audit/shots'
-const BASE = 'http://localhost:3000'
+const BASE = 'http://localhost:3001'
 const W = 1440
 const userState = 'e2e/.auth/user.json'
 

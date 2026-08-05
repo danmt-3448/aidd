@@ -7,7 +7,7 @@
  *   - Admin view: ID-5, 37 (Note: requires admin user seed — currently gaps in test data)
  *   - Responsive: ID-15, 16 (grid 3→2 cols at different breakpoints)
  *
- * Setup: Runs against dev server at localhost:3000 (public route, no auth required).
+ * Setup: Runs against dev server at localhost:3001 (public route, no auth required).
  * Seeded users from supabase/seed-auth-users.mjs (if needed for authed flows).
  */
 
