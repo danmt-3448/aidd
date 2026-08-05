@@ -58,13 +58,14 @@ export function AvatarCircle({ src, name, size = 40, lightMode = false }: Avatar
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
 export function HeartIcon({ filled }: { filled: boolean }) {
+  // unfilled: warm dark stroke rgba(26,18,8,0.4) — matches cream card color family (not Tailwind gray-500 #6B7280)
   return (
     <svg
-      width="18"
-      height="18"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill={filled ? '#EF4444' : 'none'}
-      stroke={filled ? '#EF4444' : '#6B7280'}
+      stroke={filled ? '#EF4444' : 'rgba(26,18,8,0.4)'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -76,10 +77,11 @@ export function HeartIcon({ filled }: { filled: boolean }) {
 }
 
 export function LinkIcon() {
+  // Chain-link icon — inherits color via currentColor; parent button sets color
   return (
     <svg
-      width="16"
-      height="16"
+      width="14"
+      height="14"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -94,36 +96,95 @@ export function LinkIcon() {
   )
 }
 
-export function ArrowRightIcon() {
+/**
+ * ArrowUpRightIcon — diagonal arrow ↗ for "View detail" button on cream cards.
+ * Inherits color via currentColor so parent sets the color.
+ */
+export function ArrowUpRightIcon() {
   return (
     <svg
-      width="16"
-      height="16"
+      width="14"
+      height="14"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="rgba(255,255,255,0.4)"
-      strokeWidth="2"
+      stroke="currentColor"
+      strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden
       className="flex-shrink-0"
     >
-      <path d="M5 12h14M12 5l7 7-7 7" />
+      <path d="M7 17L17 7M17 7H7M17 7v10" />
     </svg>
   )
 }
 
 // ── Date formatter ────────────────────────────────────────────────────────────
 
+/**
+ * Formats an ISO date string as "HH:MM - DD/MM/YYYY" per Figma card design.
+ * User feedback: timestamp shown as "10:00 - 10/30/2025" — time + date, left-aligned.
+ */
 export function formatCardDate(iso: string): string {
   try {
     const d = new Date(iso)
-    return d.toLocaleDateString('vi-VN', {
+    const time = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false })
+    const date = d.toLocaleDateString('vi-VN', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
     })
+    return `${time} - ${date}`
   } catch {
     return iso
   }
+}
+
+// PaperPlaneIcon and PencilIcon live in board-card-send-icons.tsx
+// (extracted to keep this file under 200 lines)
+
+// ── HashtagRow ────────────────────────────────────────────────────────────────
+
+/**
+ * HashtagRow — up to 5 hashtag chips with a "+N" overflow badge.
+ * Extracted from board-feed-card.tsx to keep that file under 200 lines.
+ * Colors from Figma (rework pass 2, confirmed): red bg + #B91C1C text.
+ */
+export function HashtagRow({ tags }: { tags: string[] }) {
+  if (tags.length === 0) return null
+  const visible = tags.slice(0, 5)
+  const overflow = tags.length - 5
+  return (
+    <div className="flex flex-wrap gap-2" role="list" aria-label="Hashtags">
+      {visible.map((tag) => (
+        <span
+          key={tag}
+          role="listitem"
+          className="rounded-full px-3 py-1 text-xs font-bold"
+          style={{
+            background: 'rgba(231,57,40,0.1)',
+            border: '1px solid rgba(231,57,40,0.25)',
+            color: '#B91C1C',
+            fontFamily: montserrat.style.fontFamily,
+          }}
+        >
+          {tag}
+        </span>
+      ))}
+      {overflow > 0 && (
+        <span
+          className="rounded-full px-3 py-1 text-xs font-bold"
+          style={{
+            background: 'rgba(26,18,8,0.06)',
+            border: '1px solid rgba(26,18,8,0.15)',
+            color: 'rgba(26,18,8,0.5)',
+            fontFamily: montserrat.style.fontFamily,
+          }}
+          aria-label={`${overflow} hashtag nữa`}
+        >
+          +{overflow}
+        </span>
+      )}
+    </div>
+  )
 }

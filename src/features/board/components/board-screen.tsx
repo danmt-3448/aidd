@@ -18,7 +18,7 @@
  * Rework pass 2 (D4): profile search wired through BoardWriteKudoTrigger.
  */
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { KudoComposeModal } from '@/features/kudos/components/kudo-compose-modal'
 import { BoardKvBanner } from './board-kv-banner'
@@ -49,6 +49,8 @@ export interface BoardScreenProps {
   onCopyLink: (kudoId: string) => void
   onOpenProfile: (id: string) => void
   onOpenSecretBox: () => void
+  /** Forwarded from resolved.feedLoading — spotlight shows spinner when true */
+  isLoading?: boolean
 }
 
 export function BoardScreen({
@@ -69,8 +71,18 @@ export function BoardScreen({
   onCopyLink,
   onOpenProfile,
   onOpenSecretBox,
+  isLoading = false,
 }: BoardScreenProps) {
   const [composeOpen, setComposeOpen] = useState(false)
+  const [spotlightSearch, setSpotlightSearch] = useState('')
+
+  const handleOpenKudoDetail = useCallback(
+    (receiverId: string) => {
+      // Integration phase: open kudo detail modal or navigate to profile
+      onOpenProfile(receiverId)
+    },
+    [onOpenProfile],
+  )
 
   function handleCopyLink(kudoId: string) {
     const url = `${window.location.origin}/board?kudo=${kudoId}`
@@ -121,6 +133,10 @@ export function BoardScreen({
             totalKudos={totalKudos}
             activityLog={spotlightActivity}
             onOpenProfile={onOpenProfile}
+            onOpenKudoDetail={handleOpenKudoDetail}
+            search={spotlightSearch}
+            onSearchChange={setSpotlightSearch}
+            isLoading={isLoading}
           />
         </div>
 

@@ -3,6 +3,12 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { BoardSpotlight } from './board-spotlight'
 import type { SpotlightNode } from './board-types'
 
+// react-zoom-pan-pinch uses browser APIs; stub lightly so JSDOM doesn't crash
+vi.mock('react-zoom-pan-pinch', () => ({
+  TransformWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  TransformComponent: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}))
+
 const NODES: SpotlightNode[] = [
   { receiverId: 'u1', name: 'Alice Nguyen', avatar: null, kudoCount: 10 },
   { receiverId: 'u2', name: 'Bob Tran', avatar: null, kudoCount: 6 },
@@ -24,22 +30,37 @@ describe('BoardSpotlight', () => {
     ).toBeInTheDocument()
   })
 
-  it('calls onOpenProfile when bubble is clicked', () => {
+  it('calls onOpenProfile when node clicked and onOpenKudoDetail not provided', () => {
     const onOpenProfile = vi.fn()
     render(<BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={onOpenProfile} />)
     fireEvent.click(screen.getByRole('button', { name: /Bob Tran/i }))
     expect(onOpenProfile).toHaveBeenCalledWith('u2')
   })
 
-  it('renders all nodes as word-cloud buttons (no search filter per Figma V3)', () => {
-    // Search bar removed in redesign — spotlight shows all nodes in the cloud.
+  it('calls onOpenKudoDetail when node clicked and callback provided', () => {
+    const onOpenProfile = vi.fn()
+    const onOpenKudoDetail = vi.fn()
+    render(
+      <BoardSpotlight
+        nodes={NODES}
+        totalKudos={20}
+        onOpenProfile={onOpenProfile}
+        onOpenKudoDetail={onOpenKudoDetail}
+      />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: /Bob Tran/i }))
+    expect(onOpenKudoDetail).toHaveBeenCalledWith('u2')
+    expect(onOpenProfile).not.toHaveBeenCalled()
+  })
+
+  it('renders all nodes as word-cloud buttons', () => {
     render(<BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={NOOP} />)
     expect(screen.getByRole('button', { name: /Alice Nguyen/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Bob Tran/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Carol Le/i })).toBeInTheDocument()
   })
 
-  it('renders activity log entries when provided', () => {
+  it('renders activity log entries when provided (up to 6)', () => {
     const activityLog = [
       { time: '09:01', name: 'Alice Nguyen' },
       { time: '09:15', name: 'Bob Tran' },
@@ -51,34 +72,49 @@ describe('BoardSpotlight', () => {
     expect(screen.getByText(/09:15/)).toBeInTheDocument()
   })
 
-  it('expand toggle changes aria-pressed state', () => {
-    render(<BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={NOOP} />)
-    const toggle = screen.getByRole('button', { name: /mở rộng spotlight/i })
-    expect(toggle).toHaveAttribute('aria-pressed', 'false')
-    fireEvent.click(toggle)
-    expect(
-      screen.getByRole('button', { name: /thu gọn spotlight/i }),
-    ).toHaveAttribute('aria-pressed', 'true')
-  })
-
-  it('shows empty state when nodes is empty', () => {
+  it('shows empty state when nodes is empty and not loading', () => {
     render(<BoardSpotlight nodes={[]} totalKudos={0} onOpenProfile={NOOP} />)
     expect(screen.getByText(/chưa có dữ liệu/i)).toBeInTheDocument()
   })
 
-  // ── V4 word-cloud rework ─────────────────────────────────────────────────────
-
-  it('renders node names as text (word-cloud), not as avatar initials only', () => {
-    render(<BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={NOOP} />)
-    // Full name visible as button text (word-cloud style)
-    const btn = screen.getByRole('button', { name: /Alice Nguyen.*10 kudos/i })
-    expect(btn).toHaveTextContent('Alice Nguyen')
+  it('shows loading spinner when isLoading=true', () => {
+    render(<BoardSpotlight nodes={[]} totalKudos={0} onOpenProfile={NOOP} isLoading />)
+    expect(screen.getByRole('status', { name: /đang tải/i })).toBeInTheDocument()
   })
 
-  it('word-cloud buttons have title tooltip with name and kudo count', () => {
+  it('renders search input with placeholder "Tìm kiếm"', () => {
+    render(<BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={NOOP} />)
+    expect(
+      screen.getByRole('searchbox', { name: /tìm kiếm sunner/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('calls onSearchChange when search input changes', () => {
+    const onSearchChange = vi.fn()
+    render(
+      <BoardSpotlight
+        nodes={NODES}
+        totalKudos={20}
+        onOpenProfile={NOOP}
+        search=""
+        onSearchChange={onSearchChange}
+      />,
+    )
+    const input = screen.getByRole('searchbox', { name: /tìm kiếm sunner/i })
+    fireEvent.change(input, { target: { value: 'Alice' } })
+    expect(onSearchChange).toHaveBeenCalledWith('Alice')
+  })
+
+  it('renders pan/zoom reset button', () => {
+    render(<BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={NOOP} />)
+    expect(
+      screen.getByRole('button', { name: /đặt lại pan\/zoom/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('word-cloud buttons have aria-label with name and kudo count', () => {
     render(<BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={NOOP} />)
     const btn = screen.getByRole('button', { name: /Alice Nguyen.*10 kudos/i })
-    expect(btn).toHaveAttribute('title', expect.stringContaining('Alice Nguyen'))
-    expect(btn).toHaveAttribute('title', expect.stringContaining('10'))
+    expect(btn).toHaveTextContent('Alice Nguyen')
   })
 })

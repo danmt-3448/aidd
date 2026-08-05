@@ -3,14 +3,10 @@
 /**
  * BoardSidebar — right-column panel with user stats + gift leaderboard.
  *
- * Rework pass 2 (D7):
- *   D7 — Figma shows ONLY "10 SUNNER NHẬN QUÀ MỚI NHẤT" in the sidebar.
- *        Ranking leaderboard ("THĂNG HẠNG") is NOT present in the design.
- *        rankingLeaderboard prop removed from this component.
- *
- * Design tokens from MoMorph MCP screen MaZUn5xHXZ:
- *   Sidebar bg: rgba(255,255,255,0.02), border 1px solid rgba(255,255,255,0.06)
- *   radius 16px, padding 24px, gap 24px between sections.
+ * Design from MoMorph MCP screen MaZUn5xHXZ node 2940:13488 (D_Thống menu phải):
+ *   The column itself is a bare flex container — NO bg/border/radius.
+ *   D.1 (2940:13489) and D.3 (2940:13510) are separate self-bordered boxes.
+ *   Gap between boxes: 24px (derived from position delta: startY 2959 − endY 2935 = 24).
  */
 
 import { StatsCard } from './board-sidebar-stats'
@@ -19,7 +15,7 @@ import type { BoardUserStats, LeaderboardEntry } from './board-types'
 
 export interface BoardSidebarProps {
   stats: BoardUserStats
-  /** Top-10 gift recipients — only leaderboard shown per Figma D7 */
+  /** Top-10 gift recipients — D.3 leaderboard per Figma */
   giftLeaderboard: LeaderboardEntry[]
   onOpenSecretBox: () => void
 }
@@ -32,25 +28,14 @@ export function BoardSidebar({
   return (
     <aside
       aria-label="Thống kê và danh sách nhận quà"
-      className="flex flex-col gap-6"
-      style={{
-        background: 'rgba(255,255,255,0.02)',
-        border: '1px solid rgba(255,255,255,0.06)',
-        borderRadius: 16,
-        padding: 24,
-      }}
+      className="flex flex-col"
+      style={{ gap: 24 }}
     >
-      {/* User stats + open gift */}
+      {/* D.1 — Thống kê: 5 stat rows + Mở Secret Box button */}
       <StatsCard stats={stats} onOpenSecretBox={onOpenSecretBox} />
 
-      <div aria-hidden style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
-
-      {/* 10 Sunner nhận quà mới nhất — per Figma D7 (only leaderboard) */}
-      <SidebarLeaderboard
-        title="10 Sunner Nhận Quà Mới Nhất"
-        entries={giftLeaderboard}
-        showPrize
-      />
+      {/* D.3 — 10 SUNNER NHẬN QUÀ MỚI NHẤT */}
+      <SidebarLeaderboard entries={giftLeaderboard} />
     </aside>
   )
 }

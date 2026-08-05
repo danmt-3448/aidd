@@ -8,7 +8,7 @@
  *   Both fields: height 52px, bg rgba(255,255,255,0.08), border 1px solid rgba(255,255,255,0.16)
  *   radius 999px (pill), padding 14px 24px, gap 12px (icon + text), icon 20px.
  *   Icon color: rgba(255,255,255,0.5).
- *   Placeholder text: Montserrat 14px 400, rgba(255,255,255,0.45).
+ *   Placeholder text: Montserrat 14px 600 (SemiBold per Figma node 2940:13449/2940:13450), rgba(255,255,255,0.45).
  *   Field 1 (compose): flex-1 (wider), icon = pen/edit.
  *   Field 2 (search): flex-shrink-0 w-[268px] on desktop, icon = magnifier.
  */
@@ -63,7 +63,7 @@ const PILL_BASE: React.CSSProperties = {
 const PLACEHOLDER_STYLE: React.CSSProperties = {
   fontFamily: montserrat.style.fontFamily,
   fontSize: 14,
-  fontWeight: 400,
+  fontWeight: 600, // SemiBold — Figma nodes 2940:13449 (ghi nhận) & 2940:13450 (search)
   lineHeight: '20px',
   color: 'rgba(255,255,255,0.45)',
 }
@@ -93,10 +93,11 @@ export function BoardWriteKudoTrigger({ onOpen, onProfileSearch }: BoardWriteKud
         <SearchIcon />
         <input
           type="search"
-          placeholder="Tìm kiếm profile Sunner"
-          aria-label="Tìm kiếm profile Sunner"
+          placeholder="Tìm kiếm sunner"
+          aria-label="Tìm kiếm sunner"
+          maxLength={100}
           onChange={(e) => onProfileSearch?.(e.target.value)}
-          className="w-full bg-transparent outline-none"
+          className="w-full bg-transparent outline-none placeholder:font-semibold"
           style={{
             ...PLACEHOLDER_STYLE,
             color: 'rgba(255,255,255,0.85)',

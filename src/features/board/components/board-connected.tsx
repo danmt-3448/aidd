@@ -141,16 +141,22 @@ export function BoardConnected({ uid, user, isAdmin }: BoardConnectedProps) {
   }, [isOverride, hasNextPage, isFetchingNextPage, fetchNextPage])
 
   const header = (
-    <SiteHeader user={user} unreadCount={unreadCount} uid={uid} isAdmin={isAdmin} activeNav="kudos" />
+    <SiteHeader user={user} unreadCount={unreadCount} uid={uid} isAdmin={isAdmin} activeNav="kudos" overlay />
   )
 
   // Loading skeleton gate
   if (resolved.feedLoading && resolved.feed.length === 0) {
     return (
-      <div className="min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
+      <div className="relative min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
         {header}
-        <div className="flex flex-1 items-center justify-center" style={{ minHeight: 'calc(100vh - 80px)' }}
-          aria-busy="true" aria-label="Đang tải bảng Kudos…" />
+        <div className="flex flex-1 flex-col items-center justify-center gap-4" style={{ minHeight: 'calc(100vh - 80px)' }}
+          role="status" aria-busy="true" aria-label="Đang tải bảng Kudos…">
+          <div
+            className="h-10 w-10 animate-spin rounded-full"
+            style={{ border: '3px solid rgba(255,234,158,0.25)', borderTopColor: '#FFEA9E' }}
+          />
+          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>Đang tải bảng Kudos…</p>
+        </div>
       </div>
     )
   }
@@ -158,7 +164,7 @@ export function BoardConnected({ uid, user, isAdmin }: BoardConnectedProps) {
   // Error gate
   if (resolved.feedError && resolved.feed.length === 0) {
     return (
-      <div className="min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
+      <div className="relative min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
         {header}
         <div className="flex flex-1 items-center justify-center" style={{ minHeight: 'calc(100vh - 80px)' }}
           role="alert" aria-label="Lỗi tải bảng Kudos">
@@ -171,7 +177,7 @@ export function BoardConnected({ uid, user, isAdmin }: BoardConnectedProps) {
   }
 
   return (
-    <div className="min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
+    <div className="relative min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
       {header}
       <BoardScreen
         highlights={resolved.highlights}
@@ -191,6 +197,7 @@ export function BoardConnected({ uid, user, isAdmin }: BoardConnectedProps) {
         onCopyLink={() => { /* handled inside BoardScreen */ }}
         onOpenProfile={(id) => router.push('/profile?id=' + id)}
         onOpenSecretBox={() => router.push('/secret-box')}
+        isLoading={resolved.feedLoading}
       />
 
       {!isOverride && <div ref={sentinelRef} aria-hidden style={{ height: 1 }} />}

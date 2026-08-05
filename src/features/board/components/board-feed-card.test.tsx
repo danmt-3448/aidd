@@ -152,19 +152,18 @@ describe('BoardFeedCard', () => {
     expect(onCopyLink).toHaveBeenCalledWith('kudo-1')
   })
 
-  it('calls onOpenProfile with receiverId when "Xem chi tiết" is clicked', () => {
-    // H-1: "Xem chi tiết" navigates to the receiver's profile.
-    const onOpenProfile = vi.fn()
+  it('footer has no "Xem chi tiết" button — removed in rework pass 3 per Figma feedback', () => {
+    // Rework pass 3: footer is heart (left) + copy link (right) only.
+    // "Xem chi tiết" was removed to match the user Figma screenshot.
     render(
       <BoardFeedCard
         {...BASE_CARD}
         onToggleHeart={vi.fn()}
         onCopyLink={vi.fn()}
-        onOpenProfile={onOpenProfile}
+        onOpenProfile={vi.fn()}
       />,
     )
-    fireEvent.click(screen.getByRole('button', { name: /xem chi tiết/i }))
-    expect(onOpenProfile).toHaveBeenCalledWith('receiver-uuid-1')
+    expect(screen.queryByRole('button', { name: /xem chi tiết/i })).not.toBeInTheDocument()
   })
 
   it('calls onOpenProfile with senderId when sender name/avatar is clicked', () => {

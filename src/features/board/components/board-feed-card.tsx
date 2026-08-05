@@ -3,12 +3,23 @@
 /**
  * BoardFeedCard — one kudo card in feed and Highlight carousel.
  *
- * Rework pass 2 (D1 + D2) — exact Figma tokens from MoMorph MCP:
- *   D1 — card bg #FFF8E1 (rgba(255,248,225,1)) on both Highlight and All-Kudos cards.
- *        Highlight card: 4px solid #FFEA9E border, radius 16px, padding 24px 24px 16px.
- *        All-Kudos card:  no extra border, radius 24px, padding 40px 40px 16px.
- *   D2 — "Send" circle icon between sender and receiver (MM_MEDIA_Send, 32×32).
- *        Tier badge is pill text ("New Hero" / "Rising Hero" / "Legend Hero").
+ * Rework pass 3 (user Figma feedback — layout corrections):
+ *   Person block layout changed HORIZONTAL → VERTICAL (avatar top / name / dept·badge).
+ *   Two person blocks side-by-side with PaperPlaneIcon between them at top-alignment.
+ *   Kudo title: center-aligned + PencilIcon on the right (visual only, no edit wiring).
+ *   Content body: wrapped in a box with darker cream bg (#FFF4D6) + bold font-weight.
+ *   Timestamp: "HH:MM - DD/MM/YYYY" format, gray, left-aligned.
+ *   Footer: ❤ count (left) + Copy Link (right); "Xem chi tiết" removed (not in Figma feedback).
+ *
+ * Existing Figma-sourced tokens (MoMorph MCP D1/D2, unchanged):
+ *   Card bg #FFF8E1 · highlight border 4px solid #FFEA9E · radius 16/24px
+ *   Name colors #1A1208 / #92400E · avatar 40px · Montserrat font
+ *
+ * ⚠️ NEEDS FIGMA VERIFY (values inferred, not from node 3127:21871 directly):
+ *   - Body box bg: rgba(255,234,158,0.22) on cream — "darker cream" per user feedback
+ *   - Body box radius: 12px — inferred, needs node 3127:21871 verify
+ *   - PaperPlaneIcon SVG path: see board-card-atoms.tsx
+ *   - PencilIcon SVG path: see board-card-atoms.tsx
  *
  * variant="highlight" → 16px radius + gold border (used in carousel).
  * variant="feed"      → 24px radius, no extra border (used in All Kudos).
@@ -17,74 +28,14 @@
  * H-1: sender click disabled when senderId null (anonymous kudo).
  */
 
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
-import { HeartIcon, LinkIcon, formatCardDate } from './board-card-atoms'
+import { HeartIcon, LinkIcon, HashtagRow, formatCardDate } from './board-card-atoms'
+import { PaperPlaneIcon, PencilIcon } from './board-card-send-icons'
 import { PersonBlock } from './board-card-person-block'
 import { FeedCardImageGallery } from './feed-card-image-gallery'
 import type { FeedCardProps } from './board-types'
 
-/** Send/arrow circle icon between sender and receiver per Figma MM_MEDIA_Send */
-function SendIcon() {
-  return (
-    <svg
-      width="32"
-      height="32"
-      viewBox="0 0 32 32"
-      fill="none"
-      aria-hidden
-      className="flex-shrink-0"
-    >
-      <circle cx="16" cy="16" r="16" fill="rgba(255,234,158,0.2)" />
-      <path
-        d="M10 16H22M17 11L22 16L17 21"
-        stroke="#92400E"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-/** Hashtag chip row — max 5 visible, "+N" overflow badge. */
-function HashtagRow({ tags }: { tags: string[] }) {
-  if (tags.length === 0) return null
-  const visible = tags.slice(0, 5)
-  const overflow = tags.length - 5
-  return (
-    <div className="flex flex-wrap gap-2" role="list" aria-label="Hashtags">
-      {visible.map((tag) => (
-        <span
-          key={tag}
-          role="listitem"
-          className="rounded-full px-3 py-1 text-xs font-bold"
-          style={{
-            background: 'rgba(231,57,40,0.1)',
-            border: '1px solid rgba(231,57,40,0.25)',
-            color: '#B91C1C',
-            fontFamily: montserrat.style.fontFamily,
-          }}
-        >
-          {tag}
-        </span>
-      ))}
-      {overflow > 0 && (
-        <span
-          className="rounded-full px-3 py-1 text-xs font-bold"
-          style={{
-            background: 'rgba(26,18,8,0.06)',
-            border: '1px solid rgba(26,18,8,0.15)',
-            color: 'rgba(26,18,8,0.5)',
-            fontFamily: montserrat.style.fontFamily,
-          }}
-          aria-label={`${overflow} hashtag nữa`}
-        >
-          +{overflow}
-        </span>
-      )}
-    </div>
-  )
-}
 
 export interface BoardFeedCardProps extends FeedCardProps {
   onToggleHeart: (kudoId: string) => void
@@ -122,6 +73,7 @@ export function BoardFeedCard({
   variant = 'feed',
 }: BoardFeedCardProps) {
   const isHighlight = variant === 'highlight'
+  const t = useTranslations('board')
 
   return (
     <article
@@ -134,8 +86,9 @@ export function BoardFeedCard({
       }}
       aria-label={`Kudo từ ${senderName} đến ${receiverName}`}
     >
-      {/* Header row: sender → Send icon → receiver + timestamp */}
-      <div className="flex items-center gap-3">
+      {/* Header: sender block + paper-plane icon + receiver block — all top-aligned */}
+      <div className="flex items-start justify-between gap-4">
+        {/* Sender (left) */}
         <PersonBlock
           avatarUrl={senderAvatarUrl}
           name={senderName}
@@ -148,8 +101,12 @@ export function BoardFeedCard({
           lightMode
         />
 
-        <SendIcon />
+        {/* Paper-plane send icon — centered between 2 blocks, top-aligned */}
+        <div className="mt-1 flex-shrink-0">
+          <PaperPlaneIcon />
+        </div>
 
+        {/* Receiver (right) */}
         <PersonBlock
           avatarUrl={receiverAvatarUrl}
           name={receiverName}
@@ -161,35 +118,51 @@ export function BoardFeedCard({
           onClick={() => onOpenProfile(receiverId)}
           lightMode
         />
-
-        <span
-          className="ml-auto flex-shrink-0 text-xs"
-          style={{ fontFamily: montserrat.style.fontFamily, color: 'rgba(26,18,8,0.45)' }}
-        >
-          {formatCardDate(createdAt)}
-        </span>
       </div>
 
-      {/* Kudo title */}
+      {/* Timestamp — left-aligned, gray, "HH:MM - DD/MM/YYYY" per Figma feedback */}
+      <span
+        className="text-xs"
+        style={{ fontFamily: montserrat.style.fontFamily, color: 'rgba(26,18,8,0.45)' }}
+      >
+        {formatCardDate(createdAt)}
+      </span>
+
+      {/* Kudo title — centered + pencil icon on the right (visual only, no edit behavior) */}
       {kudoTitle && (
-        <p
-          className="font-bold"
-          style={{
-            fontFamily: montserrat.style.fontFamily,
-            fontWeight: 700,
-            fontSize: 16,
-            color: '#92400E',
-            lineHeight: '24px',
-          }}
-        >
-          {kudoTitle}
-        </p>
+        <div className="flex items-center">
+          {/* Spacer to keep title visually centered */}
+          <span className="w-4 flex-shrink-0" aria-hidden />
+          <p
+            className="flex-1 text-center font-bold"
+            style={{
+              fontFamily: montserrat.style.fontFamily,
+              fontWeight: 700,
+              fontSize: 16,
+              color: '#92400E',
+              lineHeight: '24px',
+            }}
+          >
+            {kudoTitle}
+          </p>
+          <span className="flex w-4 flex-shrink-0 items-center justify-end">
+            <PencilIcon />
+          </span>
+        </div>
       )}
 
-      {/* Content body — 3 lines in highlight, 5 in feed */}
+      {/* Content body — inside a box with darker cream bg + bold text per Figma feedback.
+          ⚠️ Body box bg rgba(255,234,158,0.22) NEEDS FIGMA VERIFY (node 3127:21871).
+          ⚠️ Body box radius 12px NEEDS FIGMA VERIFY (node 3127:21871). */}
       <div
-        className={`text-sm leading-6 ${isHighlight ? 'line-clamp-3' : 'line-clamp-5'}`}
-        style={{ fontFamily: montserrat.style.fontFamily, color: 'rgba(26,18,8,0.8)' }}
+        className={`rounded-xl px-4 py-3 text-sm font-bold leading-6 ${isHighlight ? 'line-clamp-3' : 'line-clamp-5'}`}
+        style={{
+          fontFamily: montserrat.style.fontFamily,
+          fontWeight: 700,
+          color: 'rgba(26,18,8,0.8)',
+          background: 'rgba(255,234,158,0.22)',
+          borderRadius: 12,
+        }}
         // contentHtml is sanitised before storage (server-side sanitize-html)
         dangerouslySetInnerHTML={{ __html: contentHtml }}
       />
@@ -202,21 +175,22 @@ export function BoardFeedCard({
       {/* Hashtag chips — max 5, overflow badge */}
       <HashtagRow tags={hashtags} />
 
-      {/* Action row */}
+      {/* Action row — heart (left) + copy link (right) per Figma feedback */}
       <div className="flex items-center gap-4 pt-1">
+        {/* Heart + count — number bold black, heart red per Figma feedback */}
         <button
           type="button"
           onClick={() => onToggleHeart(id)}
           aria-pressed={likedByMe}
-          aria-label={likedByMe ? 'Bỏ thích' : 'Thích'}
+          aria-label={likedByMe ? t('unlike') : t('like')}
           className="flex items-center gap-1.5 transition-opacity hover:opacity-70"
         >
           <HeartIcon filled={likedByMe} />
           <span
-            className="text-sm font-bold"
+            className="text-xs font-bold"
             style={{
               fontFamily: montserrat.style.fontFamily,
-              color: likedByMe ? '#EF4444' : 'rgba(26,18,8,0.5)',
+              color: likedByMe ? '#EF4444' : '#1A1208',
               minWidth: 16,
             }}
           >
@@ -224,24 +198,21 @@ export function BoardFeedCard({
           </span>
         </button>
 
+        {/* Copy Link — pushed to the right */}
         <button
           type="button"
           onClick={() => onCopyLink(id)}
-          aria-label="Sao chép liên kết"
-          className="flex items-center gap-1.5 text-sm transition-opacity hover:opacity-70"
-          style={{ color: 'rgba(26,18,8,0.5)', fontFamily: montserrat.style.fontFamily }}
+          aria-label={t('copyLink')}
+          className="ml-auto flex items-center gap-1.5 transition-opacity hover:opacity-70"
+          style={{
+            color: 'rgba(26,18,8,0.5)',
+            fontFamily: montserrat.style.fontFamily,
+            fontSize: 12,
+            fontWeight: 500,
+          }}
         >
           <LinkIcon />
-          <span>Copy Link</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onOpenProfile(receiverId)}
-          className="ml-auto text-sm font-bold transition-opacity hover:opacity-70"
-          style={{ color: '#92400E', fontFamily: montserrat.style.fontFamily }}
-        >
-          Xem chi tiết
+          <span>{t('copyLink')}</span>
         </button>
       </div>
     </article>

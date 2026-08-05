@@ -1,221 +1,285 @@
-'use client'
+"use client";
 
 /**
- * BoardHighlightCarousel — top-5 HIGHLIGHT KUDOS carousel with dropdown filters.
- *
- * Design tokens from MoMorph MCP screen MaZUn5xHXZ (rework pass 2):
- *   D5 — eyebrow "Sun* Annual Awards 2025" Montserrat 700 24px white above section title.
- *   Section title: "HIGHLIGHT KUDOS" Montserrat 700 57px #FFEA9E.
- *   Arrow buttons: 80×80 circle (large) bg rgba(255,255,255,0.08) on desktop.
- *   Pagination: Montserrat 700 14px rgba(255,255,255,0.6).
- *   Cards rendered with variant="highlight" (cream bg + gold border).
- *
- * Hand-rolled carousel, one card visible at a time. Filter change resets to index 0.
+ * BoardHighlightCarousel — HIGHLIGHT KUDOS Swiper carousel.
+ * MoMorph MCP (mms_B.2, 2940:13461): 528px cards, centeredSlides, loop.
+ * Active card: full opacity. Adjacent: opacity 0.5.
+ * Dot active: gold #FFEA9E pill 24×10px. Arrows: 80×80 circle.
  */
 
-import { useState } from 'react'
-import { montserrat } from '@/features/auth/fonts'
-import { BoardFeedCard } from './board-feed-card'
-import { BoardFilterDropdown } from './board-filter-dropdown'
-import { SectionEyebrow } from './board-section-eyebrow'
-import type { FeedCardProps } from './board-types'
+import "swiper/css";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import type { Swiper as SwiperClass } from "swiper/types";
+import { montserrat } from "@/features/auth/fonts";
+import { BoardFeedCard } from "./board-feed-card";
+import { BoardFilterDropdown } from "./board-filter-dropdown";
+import { SectionEyebrow } from "./board-section-eyebrow";
+import {
+  HighlightArrowPrev,
+  HighlightArrowNext,
+} from "./board-highlight-arrow-button";
+import type { FeedCardProps } from "./board-types";
+import Image from "next/image";
 
 export interface BoardHighlightCarouselProps {
-  cards: FeedCardProps[]
-  hashtags: string[]
-  activeHashtag: string | null
-  onHashtagChange: (tag: string | null) => void
-  departments?: string[]
-  activeDepartment?: string | null
-  onDepartmentChange?: (dept: string | null) => void
-  onToggleHeart: (kudoId: string) => void
-  onCopyLink: (kudoId: string) => void
-  onOpenProfile: (id: string) => void
-}
-
-function ChevronLeft() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M15 18l-6-6 6-6" />
-    </svg>
-  )
-}
-
-function ChevronRight() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M9 18l6-6-6-6" />
-    </svg>
-  )
-}
-
-function ArrowButton({ onClick, disabled, label, children }: {
-  onClick: () => void; disabled: boolean; label: string; children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={label}
-      className="flex items-center justify-center transition-opacity"
-      style={{
-        width: 48, height: 48, borderRadius: '50%',
-        background: 'rgba(255,255,255,0.08)',
-        border: '1px solid rgba(255,255,255,0.12)',
-        color: 'rgba(255,255,255,0.8)',
-        opacity: disabled ? 0.3 : 1,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        flexShrink: 0,
-      }}
-    >
-      {children}
-    </button>
-  )
+  cards: FeedCardProps[];
+  hashtags: string[];
+  activeHashtag: string | null;
+  onHashtagChange: (tag: string | null) => void;
+  departments?: string[];
+  activeDepartment?: string | null;
+  onDepartmentChange?: (dept: string | null) => void;
+  onToggleHeart: (kudoId: string) => void;
+  onCopyLink: (kudoId: string) => void;
+  onOpenProfile: (id: string) => void;
 }
 
 export function BoardHighlightCarousel({
-  cards, hashtags, activeHashtag, onHashtagChange,
-  departments = [], activeDepartment = null, onDepartmentChange,
-  onToggleHeart, onCopyLink, onOpenProfile,
+  cards,
+  hashtags,
+  activeHashtag,
+  onHashtagChange,
+  departments = [],
+  activeDepartment = null,
+  onDepartmentChange,
+  onToggleHeart,
+  onCopyLink,
+  onOpenProfile,
 }: BoardHighlightCarouselProps) {
-  const [current, setCurrent] = useState(0)
-
   const filtered = activeHashtag
     ? cards.filter((c) => c.hashtags?.includes(activeHashtag))
-    : cards
+    : cards;
+  const total = filtered.length;
 
-  const filteredTotal = filtered.length
-  const safeIdx = Math.min(current, Math.max(0, filteredTotal - 1))
-  const card = filteredTotal > 0 ? filtered[safeIdx] : null
+  const [activeIndex, setActiveIndex] = useState(0);
+  const swiperRef = useRef<SwiperClass | null>(null);
 
-  function handleHashtagChange(v: string) {
-    onHashtagChange(v === '' ? null : v)
-    setCurrent(0)
+  // Loop mode: track the real (un-cloned) slide index for pagination.
+  const handleSwiper = useCallback((swiper: SwiperClass) => {
+    swiperRef.current = swiper;
+    setActiveIndex(swiper.realIndex);
+  }, []);
+
+  const handleSlideChange = useCallback((swiper: SwiperClass) => {
+    setActiveIndex(swiper.realIndex);
+  }, []);
+
+  // Reset to first slide on filter change
+  useEffect(() => {
+    setActiveIndex(0);
+    if (swiperRef.current && !swiperRef.current.destroyed) {
+      swiperRef.current.slideToLoop(0, 0);
+    }
+  }, [activeHashtag, activeDepartment]);
+
+  // Infinite loop — arrows always active, no start/end.
+  function handlePrev() {
+    swiperRef.current?.slidePrev();
   }
 
-  function handleDepartmentChange(v: string) {
-    onDepartmentChange?.(v === '' ? null : v)
-    setCurrent(0)
+  function handleNext() {
+    swiperRef.current?.slideNext();
   }
 
   return (
     <section aria-label="Highlight Kudos">
-      {/* D5 — eyebrow above the title row */}
       <SectionEyebrow />
 
-      {/* Title LEFT + filters RIGHT — per Figma (title trái, filter phải) */}
+      {/* Title LEFT + filters RIGHT */}
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <h2
           style={{
             fontFamily: montserrat.style.fontFamily,
             fontWeight: 700,
-            fontSize: 'clamp(32px, 4vw, 57px)',
-            color: '#FFEA9E',
+            fontSize: "clamp(32px, 4vw, 57px)",
+            color: "#FFEA9E",
             lineHeight: 1.1,
-            letterSpacing: '-0.25px',
+            letterSpacing: "-0.25px",
           }}
         >
           HIGHLIGHT KUDOS
         </h2>
-
-        {/* Dropdown filters — Hashtag + Phòng ban — top right */}
         {(hashtags.length > 0 || departments.length > 0) && (
-          <div className="flex flex-wrap gap-3" role="group" aria-label="Bộ lọc Highlight">
+          <div
+            className="flex flex-wrap gap-3"
+            role="group"
+            aria-label="Bộ lọc Highlight"
+          >
             {hashtags.length > 0 && (
               <BoardFilterDropdown
                 id="highlight-hashtag-filter"
                 label="Hashtag"
-                value={activeHashtag ?? ''}
+                value={activeHashtag ?? ""}
                 options={hashtags}
-                onChange={handleHashtagChange}
+                onChange={(v) => {
+                  onHashtagChange(v === "" ? null : v);
+                }}
               />
             )}
             {departments.length > 0 && (
               <BoardFilterDropdown
                 id="highlight-department-filter"
                 label="Phòng ban"
-                value={activeDepartment ?? ''}
+                value={activeDepartment ?? ""}
                 options={departments}
-                onChange={handleDepartmentChange}
+                onChange={(v) => {
+                  onDepartmentChange?.(v === "" ? null : v);
+                }}
               />
             )}
           </div>
         )}
       </div>
 
-      {card ? (
+      {total > 0 ? (
         <>
-          <BoardFeedCard
-            {...card}
-            variant="highlight"
-            onToggleHeart={onToggleHeart}
-            onCopyLink={onCopyLink}
-            onOpenProfile={onOpenProfile}
-          />
+          {/* Arrow prev + Swiper viewport + Arrow next */}
+          <div className="flex items-center gap-4">
+            <HighlightArrowPrev onClick={handlePrev} disabled={false} />
 
-          <div className="mt-6 flex items-center justify-between gap-4">
-            <ArrowButton onClick={() => setCurrent((i) => Math.max(0, i - 1))}
-              disabled={safeIdx === 0} label="Kudo trước">
-              <ChevronLeft />
-            </ArrowButton>
+            {/* Swiper — centeredSlides centers active; loop = infinite.
+                Active styling via CSS (not React state) because loop clones
+                slides outside React's tree. */}
+            <div
+              className="hl-carousel min-w-0 flex-1 overflow-hidden relative"
+              aria-live="polite"
+              aria-atomic
+            >
+              <div className="swiper-box-shadow-left swiper-box-shadow" />
+              <Image
+                src="/box-shadow/shadow-left.png"
+                alt=""
+                aria-hidden
+                width={126}
+                height={424}
+                className="swiper-box-shadow-left swiper-box-shadow"
+              />
 
-            {/* Pagination: dot indicators + current/total text */}
-            <div className="flex flex-col items-center gap-2" aria-live="polite" aria-atomic>
-              {/* Dot indicators — active dot is gold and larger */}
-              <div className="flex items-center gap-2" role="tablist" aria-label="Trang Highlight">
-                {filtered.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    role="tab"
-                    aria-selected={i === safeIdx}
-                    aria-label={`Trang ${i + 1}`}
-                    onClick={() => setCurrent(i)}
-                    className="transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFEA9E]"
-                    style={{
-                      width: i === safeIdx ? 20 : 8,
-                      height: 8,
-                      borderRadius: 999,
-                      background: i === safeIdx ? '#FFEA9E' : 'rgba(255,255,255,0.25)',
-                      border: 'none',
-                      cursor: 'pointer',
-                      padding: 0,
-                      flexShrink: 0,
-                    }}
-                  />
-                ))}
-              </div>
-              {/* Numeric page label */}
-              <span
-                style={{
-                  fontFamily: montserrat.style.fontFamily, fontWeight: 700, fontSize: 13,
-                  color: 'rgba(255,255,255,0.5)',
-                }}
+              <Swiper
+                onSwiper={handleSwiper}
+                onSlideChange={handleSlideChange}
+                centeredSlides
+                slidesPerView="auto"
+                spaceBetween={32}
+                loop
+                allowTouchMove
+                style={{ overflow: "visible" }}
+                className="swiper-custom"
               >
-                {safeIdx + 1}/{filteredTotal}
-              </span>
+                {filtered.map((card) => (
+                  <SwiperSlide
+                    key={card.id}
+                    style={{ width: 528, flexShrink: 0 }}
+                  >
+                    <div className="hl-slide relative overflow-hidden rounded-2xl">
+                      <BoardFeedCard
+                        {...card}
+                        variant="highlight"
+                        onToggleHeart={onToggleHeart}
+                        onCopyLink={onCopyLink}
+                        onOpenProfile={onOpenProfile}
+                      />
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              <Image
+                src="/box-shadow/shadow-right.png"
+                alt=""
+                aria-hidden
+                width={126}
+                height={424}
+                className="swiper-box-shadow-right swiper-box-shadow"
+              />
             </div>
 
-            <ArrowButton onClick={() => setCurrent((i) => Math.min(filteredTotal - 1, i + 1))}
-              disabled={safeIdx >= filteredTotal - 1} label="Kudo tiếp theo">
-              <ChevronRight />
-            </ArrowButton>
+            <HighlightArrowNext onClick={handleNext} disabled={false} />
+          </div>
+
+          {/* Pagination: ‹ n/total › (Figma mms_B.5 — chevrons + page number) */}
+          <div
+            className="mt-6 flex items-center justify-center gap-4"
+            aria-live="polite"
+            aria-atomic
+          >
+            <button
+              type="button"
+              onClick={handlePrev}
+              aria-label="Trang trước"
+              className="flex h-8 w-8 items-center justify-center rounded-full transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFEA9E]"
+              style={{ color: "rgba(255,255,255,0.7)" }}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+
+            <span
+              className="tabular-nums"
+              style={{ fontFamily: montserrat.style.fontFamily }}
+            >
+              <b style={{ fontSize: 45, fontWeight: 700, color: "#FFEA9E" }}>
+                {activeIndex + 1}
+              </b>
+              <span
+                style={{
+                  fontSize: 28,
+                  fontWeight: 700,
+                  color: "rgba(255,255,255,0.5)",
+                }}
+              >
+                /{total}
+              </span>
+            </span>
+
+            <button
+              type="button"
+              onClick={handleNext}
+              aria-label="Trang tiếp theo"
+              className="flex h-8 w-8 items-center justify-center rounded-full transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFEA9E]"
+              style={{ color: "rgba(255,255,255,0.7)" }}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
           </div>
         </>
       ) : (
         <p
           className="py-8 text-center text-sm"
-          style={{ fontFamily: montserrat.style.fontFamily, color: 'rgba(255,255,255,0.4)' }}
           aria-live="polite"
+          style={{
+            fontFamily: montserrat.style.fontFamily,
+            color: "rgba(255,255,255,0.4)",
+          }}
         >
           {cards.length === 0
-            ? 'Hiện tại chưa có Kudos nào.'
-            : 'Không có Kudos nào khớp với bộ lọc.'}
+            ? "Hiện tại chưa có Kudos nào."
+            : "Không có Kudos nào khớp với bộ lọc."}
         </p>
       )}
     </section>
-  )
+  );
 }

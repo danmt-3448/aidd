@@ -274,8 +274,13 @@ export const MOCK_FEED_CARDS: FeedCardProps[] = [
   },
 ]
 
-// Top 5 highlights = first 5 cards
-export const MOCK_HIGHLIGHT_CARDS: FeedCardProps[] = MOCK_FEED_CARDS.slice(0, 5)
+// Top 5 highlights = first 5 cards, normalized to Figma highlight content
+// (title "IDOL GIỚI TRẺ" + hashtags "#Dedicated #Inspring …" per frame MaZUn5xHXZ).
+export const MOCK_HIGHLIGHT_CARDS: FeedCardProps[] = MOCK_FEED_CARDS.slice(0, 5).map((c) => ({
+  ...c,
+  kudoTitle: 'IDOL GIỚI TRẺ',
+  hashtags: ['#Dedicated', '#Inspring', '#Dedicated', '#Inspring'],
+}))
 
 // ── Hashtags derived from feed ───────────────────────────────────────────────
 
@@ -338,6 +343,16 @@ export const MOCK_SPOTLIGHT_NODES: SpotlightNode[] = [
 
 export const MOCK_TOTAL_KUDOS = 388
 
+// ── Departments — Figma "Dropdown Phòng ban" (CEVC2/3/4/1/OPD/Infra) ─────────
+export const MOCK_DEPARTMENTS: string[] = [
+  'CEVC2',
+  'CEVC3',
+  'CEVC4',
+  'CEVC1',
+  'OPD',
+  'Infra',
+]
+
 // ── Spotlight activity log — 5 recent activity entries ───────────────────────
 
 export const MOCK_SPOTLIGHT_ACTIVITY: SpotlightActivityEntry[] = [
@@ -350,12 +365,13 @@ export const MOCK_SPOTLIGHT_ACTIVITY: SpotlightActivityEntry[] = [
 
 // ── User stats ───────────────────────────────────────────────────────────────
 
+// Values match Figma stats panel (mms_D.1) — all 25 per frame MaZUn5xHXZ.
 export const MOCK_USER_STATS: BoardUserStats = {
   kudosReceived: 25,
-  kudosSent: 18,
-  heartsReceived: 142,
-  secretBoxCount: 3,
-  secretBoxUnopened: 2,
+  kudosSent: 25,
+  heartsReceived: 25,
+  secretBoxCount: 25,
+  secretBoxUnopened: 25,
 }
 
 // ── Gift leaderboard ─────────────────────────────────────────────────────────

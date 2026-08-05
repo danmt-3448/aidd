@@ -16,6 +16,7 @@ import {
   MOCK_USER_STATS,
   MOCK_GIFT_LEADERBOARD,
   MOCK_SPOTLIGHT_ACTIVITY,
+  MOCK_DEPARTMENTS,
 } from '../board-mock'
 
 /**
@@ -121,7 +122,7 @@ export function resolveOverrideData(
       userStats: MOCK_USER_STATS,
       giftLeaderboard: MOCK_GIFT_LEADERBOARD,
       hashtagNames: MOCK_HASHTAGS,
-      departmentNames: [],
+      departmentNames: MOCK_DEPARTMENTS,
       feedLoading: false,
       feedError: null,
     }

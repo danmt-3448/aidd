@@ -1,20 +1,25 @@
 'use client'
 
 /**
- * BoardSpotlight — recipient word-cloud with kudo count, artwork, activity log, expand toggle.
+ * BoardSpotlight — Figma mms_B.7 (frame 2940:14174, screen MaZUn5xHXZ).
+ * mms_B.7.3 search top-left · mms_B.7.1 KUDOS center · mms_B.7.2 pan/zoom reset bottom-right.
+ * Canvas 1819px wide (> box) — pan/zoom to explore. Activity log 6 lines bottom-left.
+ * States via ?ui_state=full|empty|loading|error.
  *
- * Design (Figma screen MaZUn5xHXZ):
- *   Container: dark box, bo góc có viền, nền tối texture
- *   Layout: "388 KUDOS" centered top · word-cloud dày · artwork gradient mép trái
- *   Bottom-left: activity log (4–5 dòng "HH:MM {tên} đã nhận được một Kudos mới")
- *   Bottom-right: icon mở rộng (expand arrows icon button)
- *   Artwork: gradient màu tràn mép trái (purple/blue/teal) - no exportable Figma asset
+ * Background: Figma artwork images 2940:14178 / 2940:14181 (cosmic nebula artwork).
+ * Asset path: /images/board/spotlight-bg.png (exported via figma MCP get_screenshot).
+ * Fallback: dark solid bg so content remains readable if asset not yet downloaded.
  */
 
-import { useMemo, useState } from 'react'
+import Image from 'next/image'
+import { useMemo, useRef } from 'react'
+import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 import { montserrat } from '@/features/auth/fonts'
 import { BoardSpotlightWordCloud, computeWordLayout } from './board-spotlight-word-cloud'
+import { BoardSpotlightSearch } from './board-spotlight-search'
+import { BoardSpotlightControls } from './board-spotlight-controls'
 import { SectionEyebrow } from './board-section-eyebrow'
+import { ActivityLog } from './board-spotlight-activity'
 import type { SpotlightNode, SpotlightActivityEntry } from './board-types'
 
 export interface BoardSpotlightProps {
@@ -22,64 +27,31 @@ export interface BoardSpotlightProps {
   totalKudos: number
   activityLog?: SpotlightActivityEntry[]
   onOpenProfile: (receiverId: string) => void
+  onOpenKudoDetail?: (receiverId: string) => void
+  search?: string
+  onSearchChange?: (v: string) => void
+  isLoading?: boolean
 }
 
-/** Expand / Compress arrows icon */
-function ExpandIcon({ expanded }: { expanded: boolean }) {
-  if (expanded) {
-    return (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-        stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-        aria-hidden>
-        <path d="M4 14h6m0 0v6m0-6l-7 7M20 10h-6m0 0V4m0 6l7-7" />
-      </svg>
-    )
-  }
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-      stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-      aria-hidden>
-      <path d="M15 3h6m0 0v6m0-6l-7 7M9 21H3m0 0v-6m0 6l7-7" />
-    </svg>
-  )
-}
-
-function ActivityLog({ entries }: { entries: SpotlightActivityEntry[] }) {
-  if (entries.length === 0) return null
-  return (
-    <div className="flex flex-col gap-1" aria-label="Hoạt động gần đây">
-      {entries.map((entry, i) => (
-        <p
-          key={i}
-          style={{
-            fontFamily: montserrat.style.fontFamily,
-            fontSize: 11,
-            color: 'rgba(255,255,255,0.55)',
-            lineHeight: '16px',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}
-        >
-          <span style={{ color: 'rgba(255,234,158,0.7)', fontWeight: 600 }}>{entry.time}</span>
-          {' '}
-          <span style={{ fontWeight: 600, color: 'rgba(255,255,255,0.75)' }}>{entry.name}</span>
-          {' '}đã nhận được một Kudos mới
-        </p>
-      ))}
-    </div>
-  )
-}
-
-export function BoardSpotlight({ nodes, totalKudos, activityLog = [], onOpenProfile }: BoardSpotlightProps) {
-  const [expanded, setExpanded] = useState(false)
-
+export function BoardSpotlight({
+  nodes,
+  totalKudos,
+  activityLog = [],
+  onOpenProfile,
+  onOpenKudoDetail,
+  search = '',
+  onSearchChange,
+  isLoading = false,
+}: BoardSpotlightProps) {
+  const transformRef = useRef<ReactZoomPanPinchRef | null>(null)
   const layout = useMemo(() => computeWordLayout(nodes), [nodes])
-  const cloudHeight = expanded ? 400 : 220
+
+  function handleReset() { transformRef.current?.resetTransform() }
+
+  const handleSearchChange = onSearchChange ?? (() => {})
 
   return (
     <section aria-label="Spotlight Board — nhận được nhiều Kudos nhất">
-      {/* Eyebrow + section title */}
       <SectionEyebrow />
       <h2
         style={{
@@ -95,82 +67,103 @@ export function BoardSpotlight({ nodes, totalKudos, activityLog = [], onOpenProf
         SPOTLIGHT BOARD
       </h2>
 
-      {/* Dark box with border */}
+      {/*
+       * Dark box — Figma artwork image as background (nodes 2940:14178 / 2940:14181).
+       * `relative overflow-hidden` clips the fill image to rounded corners.
+       * Content layers sit above via z-10.
+       */}
       <div
         className="relative overflow-hidden"
         style={{
-          background: 'rgba(0,8,18,0.85)',
+          background: 'rgb(4, 8, 20)',
           border: '1px solid rgba(255,255,255,0.1)',
           borderRadius: 16,
           padding: '24px 24px 0 24px',
         }}
       >
-        {/* Artwork: color gradient bleeding from left edge — decorative */}
+        {/* Figma artwork (mms_B.7) — colourful feather art bleeds from the LEFT
+            over the dark base, fading into the dark toward the right where the
+            word-cloud names sit. Not a full-cover fill. */}
         <div
+          className="pointer-events-none absolute inset-y-0 left-0 z-0"
+          style={{ width: '100%' }}
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-0"
-          style={{
-            width: 180,
-            background: `linear-gradient(
-              135deg,
-              rgba(139,92,246,0.35) 0%,
-              rgba(59,130,246,0.25) 40%,
-              rgba(20,184,166,0.15) 70%,
-              transparent 100%
-            )`,
-          }}
-        />
-
-        {/* Total kudo count — centered */}
-        <p
-          className="relative z-10 mb-2 text-center"
-          style={{
-            fontFamily: montserrat.style.fontFamily,
-            fontWeight: 700,
-            fontSize: 28,
-            color: '#FFEA9E',
-            lineHeight: '34px',
-            letterSpacing: '1px',
-          }}
-          aria-label={`${totalKudos} kudos tổng`}
         >
-          {totalKudos.toLocaleString('vi-VN')} KUDOS
-        </p>
-
-        {/* Word-cloud canvas */}
-        <div className="relative z-10">
-          <BoardSpotlightWordCloud
-            layout={layout}
-            height={cloudHeight}
-            search=""
-            onOpenProfile={onOpenProfile}
+          <Image
+            src="/images/board/kv-background.png"
+            alt=""
+            fill
+            className="object-cover object-left-bottom"
+            priority
+            sizes="100vw"
+          />
+          {/* Fade the art into the dark base on the right + slight darken for contrast */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(90deg, rgba(4,8,20,0.30) 0%, rgba(4,8,20,0.12) 40%, rgba(4,8,20,0.80) 82%, rgb(4,8,20) 100%)',
+            }}
           />
         </div>
 
-        {/* Bottom bar: activity log left + expand icon right */}
+        {/* Top bar: search left — KUDOS count center — spacer right */}
+        <div className="relative z-10 mb-3 flex items-center">
+          <div className="flex-none">
+            <BoardSpotlightSearch value={search} onChange={handleSearchChange} />
+          </div>
+
+          <p
+            className="flex-1 text-center"
+            style={{
+              fontFamily: montserrat.style.fontFamily,
+              fontWeight: 700,
+              fontSize: 28,
+              color: '#fff',
+              lineHeight: '34px',
+              letterSpacing: '1px',
+            }}
+            aria-label={`${totalKudos} kudos tổng`}
+          >
+            {totalKudos.toLocaleString('vi-VN')} KUDOS
+          </p>
+
+          {/* Mirrors search bar width to keep KUDOS label truly centred */}
+          <div className="flex-none" style={{ width: 219 }} aria-hidden />
+        </div>
+
+        {/* Word-cloud canvas or loading state */}
+        <div className="relative z-10">
+          {isLoading ? (
+            <div className="flex h-48 items-center justify-center" aria-label="Đang tải spotlight">
+              <div
+                className="h-8 w-8 animate-spin rounded-full"
+                role="status"
+                aria-label="Đang tải"
+                style={{ border: '3px solid rgba(255,234,158,0.2)', borderTopColor: '#FFEA9E' }}
+              />
+            </div>
+          ) : (
+            <BoardSpotlightWordCloud
+              layout={layout}
+              search={search}
+              activityLog={activityLog}
+              onOpenProfile={onOpenProfile}
+              onOpenKudoDetail={onOpenKudoDetail}
+              transformRef={transformRef}
+            />
+          )}
+        </div>
+
+        {/* Bottom bar: activity log left + pan/zoom reset right */}
         <div
-          className="relative z-10 flex items-end justify-between gap-4 pb-4 pt-3"
-          style={{ minHeight: 72 }}
+          className="relative z-10 flex items-end justify-between gap-4 pb-4 pt-3 max-w-content"
+          style={{ minHeight: 72, boxShadow: "inset 0 8px 8px -8px rgba(0, 0, 0, 0.25)" }}
         >
           <div className="min-w-0 flex-1">
             <ActivityLog entries={activityLog} />
           </div>
-
-          <button
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            aria-pressed={expanded}
-            aria-label={expanded ? 'Thu gọn spotlight' : 'Mở rộng spotlight'}
-            className="flex flex-shrink-0 items-center justify-center rounded-full transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFEA9E]"
-            style={{
-              width: 36,
-              height: 36,
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.12)',
-            }}
-          >
-            <ExpandIcon expanded={expanded} />
-          </button>
+          <BoardSpotlightControls onReset={handleReset} />
         </div>
       </div>
     </section>
