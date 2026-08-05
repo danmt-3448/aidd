@@ -161,6 +161,11 @@
             "type": "command",
             "command": "tkm hook-exec --hook metrics.record --event user-prompt-submit -a claude",
             "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/skills/aidd-ui-gate/scripts/ui-gate-reminder.cjs",
+            "timeout": 5
           }
         ]
       }
@@ -194,6 +199,11 @@
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/skill-extension-loader.cjs"
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/skills/aidd-ui-gate/scripts/ui-gate-mark-run.cjs",
+            "timeout": 5
           }
         ]
       },
@@ -238,6 +248,11 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/skills/aidd-ui-gate/scripts/ui-gate-track.cjs",
+            "timeout": 5
+          },
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/iron-laws-guard.cjs"
@@ -293,6 +308,11 @@
     "Stop": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/skills/aidd-ui-gate/scripts/ui-gate-enforcer.cjs",
+            "timeout": 5
+          },
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session-state.cjs"

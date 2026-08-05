@@ -11,10 +11,11 @@ Thực trạng: UI + behavior FE lỗi nhiều, chưa xét tới BE/API. Nguyên
 
 ## Gate criteria — screen chỉ PASS khi đủ cả 2 nhóm
 
-**A. Visual fidelity (vs Figma) — "đủ giống ~95%", KHÔNG bắt pixel-perfect**
-- [ ] **1440px giống Figma ~95%** — đúng layout/cấu trúc, đúng màu, đúng font, element đủ & đúng vị trí. Lệch nhỏ vài px spacing / sắc độ màu **chấp nhận được**.
+**A. Visual fidelity (vs Figma) — PIXEL-PERFECT ≥ 99% (pixel-diff ≤ 1%)**
+- [ ] **1440px (ưu tiên 1) pixel-diff ≤ 1%** — auto pixel-diff (pixelmatch) screenshot vs ảnh Figma reference; đúng layout/cấu trúc, màu, font, element, vị trí tới từng pixel. Chỉ tha **anti-alias/subpixel** + **vùng mask động** (countdown/avatar/timestamp).
+- [ ] **1280px (ưu tiên 2) pixel-diff ≤ 1%** — không overflow ngang / vỡ layout / đè-cắt chữ.
 - [ ] Không guess visual value — vẫn lấy màu/spacing/size/font từ MoMorph MCP làm mốc (không bịa)
-- [ ] Responsive **768 / 375** render đúng, không overflow/vỡ layout (adapt hợp lý)
+- [ ] **Chỉ chấm 1440 + 1280** — BỎ 768/375.
 
 **B. Behavior / logic với MOCK DATA — BẤT KHẢ NHÂN NHƯỢNG (sai 1 mục = FAIL)**
 - [ ] Validation form (client-side) chạy đúng
@@ -23,7 +24,7 @@ Thực trạng: UI + behavior FE lỗi nhiều, chưa xét tới BE/API. Nguyên
 - [ ] Interactive elements hoạt động (click, hover, keyboard nav)
 - [ ] Không console error/warning
 
-> **A (visual) là ~95% — nhân nhượng lệch nhỏ. B (behavior) là 100% — không nhân nhượng.** Chỉ khi A đạt ~95% VÀ B đúng hết → screen mới "qua gate".
+> **A (visual) là pixel-perfect ≥ 99% (pixel-diff ≤ 1%, chỉ tha AA + mask động). B (behavior) là 100% — không nhân nhượng.** Chỉ khi A ≤ 1% pixel-diff ở cả 1440+1280 VÀ B đúng hết → screen mới "qua gate". Đo bằng `.claude/skills/aidd-ui-gate/scripts/pixel-diff.mjs`.
 
 ### Mock fixtures convention (để gate ép được state — deterministic)
 
@@ -35,6 +36,15 @@ Không dùng skill riêng — chỉ 1 quy ước file + 1 query param:
 ### Mock phải đủ DENSITY như Figma (BẮT BUỘC)
 "Data không đủ sao giống được." `mockFull` phải tái tạo **đúng mật độ/nội dung** design, không chỉ vài item mẫu: list dày như Figma (vd word-cloud ~45–50 tên), card có đủ ảnh gallery, bảng đủ số dòng. Content lấy từ Figma (get_frame_image + node), không bịa. Thưa data → gate FAIL visual (nhìn không giống).
 
+## ⛔ CẤM TỰ CHẾ VISUAL VALUE (BẮT BUỘC — áp cho cả agent lẫn subagent)
+
+**MỌI giá trị visual phải lấy từ Figma/MoMorph MCP — TUYỆT ĐỐI không tự nghĩ/ước lượng.**
+- Áp cho: màu (hex/rgba), spacing/padding/gap, size (w/h/font-size), **font-weight**, radius, **box-shadow / text-shadow**, **gradient**, opacity, border, **icon** (fill/stroke/loại icon), z-index layout.
+- Nguồn hợp lệ: `mcp__figma__get_design_context` / `get_node` / `query_component` / `get_screenshot`, hoặc ảnh Figma user gửi. Icon/asset ảnh → **export file thật** (`get_media_files`), KHÔNG thay bằng icon "tương đương" tự chọn (vd lucide) trừ khi Figma đúng là icon phổ thông đó.
+- **Figma không có giá trị** cho một hiệu ứng (vd shadow) → **HỎI user hoặc lấy từ node/style gần nhất**, KHÔNG bịa con số.
+- Subagent prompt **BẮT BUỘC** nhắc lại điều này. Vi phạm (dùng giá trị không truy được về Figma) = **FAIL gate**, phải sửa lại theo node thật.
+- Khi build xong: mỗi giá trị visual phải trả lời được "lấy từ Figma node nào?". Không trả lời được = tự chế = sai.
+
 ## Nguyên tắc chấm & build UI (đúc kết thực chiến — áp cho `momorph-implement-design` + `aidd-ui-gate`)
 
 1. **Ảnh frame Figma là CHÂN LÝ**, không phải token extract. `list_design_items`/brief có thể SAI (đã sai card bg, tier style) — khi mâu thuẫn ảnh render thì **ảnh thắng**; số chính xác lấy `get_node`/`query_component`. Brief là gợi ý, sai thì **sửa lại brief sau khi hoàn thành**.
@@ -44,14 +54,15 @@ Không dùng skill riêng — chỉ 1 quy ước file + 1 query param:
 4. **Kích thước/tỉ lệ** element theo Figma; **không đè/cắt** chữ; chấm **cả trang tới footer**.
 5. **Verdict bằng screenshot thật** (fullPage), không tin report "DONE" của subagent.
 
-## Breakpoint policy (BẮT BUỘC — thay thế policy cũ 1280)
+## Breakpoint policy (BẮT BUỘC — chỉ chấm desktop 1440 + 1280)
 
-| Viewport | Yêu cầu |
-|---|---|
-| **1440px** | **CHUẨN desktop — giống Figma ~95%** (target visual; lệch nhỏ px/sắc độ OK, KHÔNG bắt pixel-perfect) |
-| ~~1280px~~ | **BỎ** — không còn là checkpoint bắt buộc |
-| 768px | Responsive adapt (tablet) — render đúng, không pixel-perfect |
-| 375px | Responsive adapt (mobile) — render đúng, không pixel-perfect |
+Chỉ chấm 2 viewport desktop, theo thứ tự ưu tiên. **BỎ 768/375** (không còn là checkpoint gate).
+
+| Viewport | Ưu tiên | Yêu cầu |
+|---|---|---|
+| **1440px** | **1 (chính)** | **CHUẨN desktop — pixel-perfect ≥ 99%** (pixel-diff ≤ 1%; chỉ tha AA/subpixel + vùng mask động) |
+| **1280px** | **2 (phụ)** | Desktop hẹp — pixel-diff ≤ 1%, KHÔNG overflow ngang / vỡ layout / đè-cắt chữ. |
+| ~~768 / 375~~ | — | **BỎ** — không chấm ở gate. |
 
 ## Parallel-but-gated (không chặn cứng BE)
 
@@ -84,7 +95,16 @@ Track B: BE + mock contracts        ─┤  ← 2 track CHẠY SONG SONG (không
 
 ## Enforcement
 
-- Skill **`/aidd-ui-gate <screen URL|route>`** chạy gate tự động: Playwright chụp 1440/768/375 → diff vs Figma reference (momorph MCP) + walk checklist behavior mock → xuất report PASS/FAIL vào `plans/reports/`.
+- Skill **`/aidd-ui-gate <screen URL|route>`** chạy gate tự động: Playwright chụp **1440 (ưu tiên 1) + 1280 (ưu tiên 2)** → diff vs Figma reference (momorph MCP) + walk checklist behavior mock → xuất report PASS/FAIL vào `plans/reports/`.
 - Reviewer role dùng để verify gate: `.claude/roles/code-reviewer.md` (không tạo role mới).
 - FE Developer chịu trách nhiệm đưa screen qua gate trước khi handoff (xem `fe-developer.md`).
 - BE Developer KHÔNG integrate screen chưa qua gate (xem `be-developer.md`).
+
+### Auto-enforcement bằng hooks (không phụ thuộc model nhớ)
+
+3 hook (đăng ký ở `.claude/settings.json`, script commit theo skill ở `.claude/skills/aidd-ui-gate/scripts/`):
+- **`ui-gate-track.cjs`** (PostToolUse Edit|Write|MultiEdit): fire khi **file UI thật bị sửa** (`.tsx/.jsx/.css` dưới `src/`, trừ test) — không phụ thuộc từ khoá prompt. Đánh dấu `uiTouchedAt` + nhắc mạnh.
+- **`ui-gate-mark-run.cjs`** (PreToolUse Skill): khi `/aidd-ui-gate` chạy → đánh dấu `gateRunAt`.
+- **`ui-gate-enforcer.cjs`** (Stop): **CHẶN kết thúc turn** nếu `uiTouchedAt > gateRunAt` (đã sửa UI mà chưa chạy gate sau đó). Session không đụng UI → không ảnh hưởng.
+- **Escape hatch** (khi gate thật sự không chạy được): `export TKM_SKIP_UI_GATE=1`, hoặc tạo `.claude/hooks/.logs/ui-gate-skip` (bỏ qua 1 lần). State per-session ở `.claude/hooks/.logs/ui-gate-<session>.json`.
+- Giới hạn: hook **không tự gọi được skill** (skill do model gọi) — nó chỉ ép bằng cách chặn Stop tới khi model chạy gate. Subagent tự sửa UI (Track A) dùng session riêng → orchestrator vẫn phải chủ động chạy gate.
