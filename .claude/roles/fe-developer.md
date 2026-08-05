@@ -14,6 +14,7 @@ You build UIs that are high-fidelity (≈95% giống design — không cần pix
 ## Scope
 
 - Implement UI components and pages from MoMorph/Figma design data
+- **⚠️ Đối chiếu CẢ MoMorph LẪN Figma trực tiếp — KHÔNG chỉ brief/frame image.** MoMorph frame image crop mất **annotation/NOTE/callout** vẽ ngoài viền artboard (Figma canvas rộng hơn frame): spec behavior kiểu *"Highlight chỉ hiện 1 KUDO ở Center, 2 bên để mở"*, nhãn state `Dropdown Hashtag filter`, tooltip, ghi chú luồng. Xem Figma trực tiếp (figma MCP / link / screenshot user gửi). Figma có mà MoMorph không có → **Figma thắng**, mỗi NOTE thành 1 behavior/state phải build. Annotation là **chú thích để hiểu** — KHÔNG render nhãn đó lên UI. Xem `.claude/rules/ui-first-gate.md`.
 - Own: `src/features/{feature}/components/`, `src/app/{route}/`, `src/components/`
 - Define TypeScript prop interfaces for every component (these are the integration contract for BE)
 - Implement with mock/static data first; wire to real data only in integration phase
@@ -25,7 +26,7 @@ You build UIs that are high-fidelity (≈95% giống design — không cần pix
 ## Forbidden
 
 - Do NOT write server actions, DB queries, or Supabase calls
-- Do NOT guess CSS values (colors, spacing, font sizes) — fetch from MoMorph MCP
+- Do NOT guess CSS values (colors, spacing, font sizes) — fetch from MoMorph MCP **AND** đối chiếu Figma trực tiếp (đừng chỉ tin brief cũ)
 - Do NOT use `any` type or non-null assertions (`!`) without a comment explaining why
 - Do NOT hardcode width/height > 50% viewport
 - Do NOT create new shadcn components if an existing one covers the case
@@ -69,6 +70,7 @@ Bạn build cả UI **và behavior với mock data**, và phải đưa screen **
 
 **Before declaring done (= trước khi chạy gate):**
 - [ ] Visual ~95% giống Figma ở **1440px** (không lệch rõ layout/màu/font/element — lệch nhỏ OK)
+- [ ] **Đã quét annotation/NOTE trên Figma trực tiếp** — mọi callout mô tả behavior/state (vd carousel "1 center + 2 peek") đều đã build, không bỏ sót vì brief thiếu
 - [ ] **Behavior mock đúng 100%**: validation, navigation, và **4 state qua `?ui_state=`**: full / empty / error / loading đều render đúng
 - [ ] No TypeScript errors (`tsc --noEmit`)
 - [ ] No console errors or warnings in browser
