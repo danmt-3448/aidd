@@ -1,18 +1,79 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 import { isPublic } from '@/features/auth/guard-rules'
+import { isPreLaunch, isBypassPath } from '@/features/event/launch-gate'
 
 /**
- * Proxy (Next.js 16 — kế nhiệm middleware): refresh session Supabase + route guard.
- * - Đã đăng nhập mà vào /login → /todo.
- * - Chưa đăng nhập mà vào route protected → /login.
+ * Proxy (Next.js 16 — kế nhiệm middleware): refresh session + pre-launch gate + route guard.
+ *
+ * Execution order:
+ *   1. updateSession — refresh Supabase cookie-based session.
+ *   2. Pre-launch gate — if now < event_start_at AND user is not admin → /countdown.
+ *      - Bypass paths (/countdown, /login, /auth, /dev-login) are never gated.
+ *      - Unauthenticated users: cannot read event_config (RLS authenticated-only),
+ *        so gate is skipped; the auth guard below then redirects them to /login.
+ *      - Missing / invalid config: fail-open (no gate) to avoid total lockout.
+ *   3. Auth guard — logged-in on /login → /; unauthenticated on protected path → /login.
  */
 export async function proxy(request: NextRequest) {
   const { response, user } = await updateSession(request)
   const { pathname } = request.nextUrl
 
+  // ------------------------------------------------------------------
+  // Pre-launch gate
+  // ------------------------------------------------------------------
+  // Pre-launch gate applies to EVERYONE (authenticated + anonymous) so that,
+  // before launch, every visitor lands on /countdown. `event_config` is
+  // anon-readable (see migration); `is_admin` is only looked up when a session
+  // exists. Admins bypass; bypass paths (/countdown, /login, /auth, /dev-login)
+  // are never gated so people can still reach the countdown + log in.
+  if (!isBypassPath(pathname)) {
+    const { createServerClient } = await import('@supabase/ssr')
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll: () => request.cookies.getAll(),
+          setAll: () => {},
+        },
+      },
+    )
+
+    const eventResult = await supabase
+      .from('event_config')
+      .select('event_start_at')
+      .eq('id', 1)
+      .maybeSingle()
+    // Fail-open: a missing/unreadable config never locks everyone out.
+    if (eventResult.error) {
+      console.error('[proxy:event_config]', eventResult.error.message)
+    }
+    const eventStartAt = eventResult.data?.event_start_at ?? null
+
+    let isAdmin = false
+    if (user) {
+      const profileResult = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .maybeSingle()
+      if (profileResult.error) {
+        console.error('[proxy:profiles]', profileResult.error.message)
+      }
+      isAdmin = profileResult.data?.is_admin === true
+    }
+
+    if (isPreLaunch(eventStartAt) && !isAdmin) {
+      return NextResponse.redirect(new URL('/countdown', request.url))
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Auth guard (existing logic — unchanged)
+  // ------------------------------------------------------------------
   if (user && pathname === '/login') {
-    return NextResponse.redirect(new URL('/todo', request.url))
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
   if (!user && !isPublic(pathname)) {

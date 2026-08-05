@@ -16,6 +16,11 @@ const eslintConfig = defineConfig([
     ".claude/**",
     // Supabase CLI generated cache (minified edge-runtime bundle) — not source.
     "supabase/.temp/**",
+    // Playwright generated artifacts (HTML report bundles, traces, auth state) — not source.
+    "playwright-report/**",
+    "test-results/**",
+    ".playwright-mcp/**",
+    "e2e/.auth/**",
   ]),
   {
     // Vitest setup legitimately uses require() inside vi.mock() factories,
