@@ -1,0 +1,55 @@
+{
+  "score": 8,
+  "criticalCount": 0,
+  "decision": "SEALED",
+  "acceptanceCovered": [
+    "RLS parity confirmed for all 9 policies — USING/WITH CHECK logic byte-for-byte equivalent, only auth.uid() wrapped in (select auth.uid())",
+    "All 9 policy names match shipped originals exactly — no ghost policy left alive, no wrong policy dropped",
+    "SECURITY DEFINER RPC set search_path = public present — search_path hijack prevented",
+    "Anonymous sender masking (sender_id/avatar null, name fallback to anonymous_name??'Ẩn danh') mirrors kudos_public view exactly",
+    "liked_by_me via bool_or + coalesce(..., false) correctly returns false for unauthenticated callers (auth.uid()=null)",
+    "Dead 2000-row JS path fully removed — no leftover .limit(2000) or client-side sort",
+    "getHighlightKudos caller maps RPC rows to BoardKudoRow with correct field order and shape",
+    "special_day_config multiplier still fetched and passed as p_multiplier — behavior unchanged",
+    "greatest(p_multiplier - 1, 0) guard prevents negative weighted scores",
+    "All 5 indexes use CREATE INDEX IF NOT EXISTS — migration is idempotent",
+    "Migration is a new file — no shipped migration edited",
+    "Error boundaries intact — both special_day_config fetch and RPC call have separate error checks with typed error strings"
+  ],
+  "regressionChecked": [
+    "kudos_select_own: old kudos_select_authenticated was already dropped by 20260731090000; new migration drops kudos_select_own (correct name) — no ghost policy",
+    "hearts_insert_own subquery: both auth.uid() occurrences (outer check + NOT EXISTS subquery) wrapped — self-heart block logic preserved",
+    "notifications_update_own: both USING and WITH CHECK clauses present in rewrite — update-own guard intact",
+    "Migration transaction atomicity: drop-then-create within same transaction; no window where table is unprotected",
+    "liked_by_me with zero hearts: bool_or returns null over empty set; coalesce to false is correct",
+    "p_multiplier=0 edge: greatest(-1,0)=0 zeroes the bonus term — no negative score inflation",
+    "receiver_id ?? '' fallback: receiver_id is NOT NULL in schema; fallback is unreachable dead code, not a masking hole"
+  ],
+  "contractStatus": "OK",
+  "refuted": [],
+  "unproven": [],
+  "reachableRegressions": [],
+  "findings": [
+    {
+      "severity": "Warning",
+      "category": "Authorization",
+      "location": "supabase/migrations/20260804000000_perf_indexes_and_rpc.sql:209",
+      "summary": "EXECUTE grant is authenticated-only; anon role gets a 403 if the board highlight route is ever accessed without a session. Add 'grant execute ... to anon' or document that the route enforces auth.",
+      "disposition": "Defer"
+    },
+    {
+      "severity": "Low",
+      "category": "Craft",
+      "location": "supabase/migrations/20260804000000_perf_indexes_and_rpc.sql:148",
+      "summary": "p_today parameter accepted in signature but never referenced in the SQL body — dead parameter misleads future readers.",
+      "disposition": "Defer"
+    },
+    {
+      "severity": "Low",
+      "category": "Craft",
+      "location": "src/features/board/board-queries.ts:136",
+      "summary": "weighted_score declared in RpcRow type but never mapped into BoardKudoRow — dead type field.",
+      "disposition": "Defer"
+    }
+  ]
+}
