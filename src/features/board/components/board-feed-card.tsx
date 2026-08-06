@@ -77,6 +77,7 @@ export function BoardFeedCard({
 
   return (
     <article
+      data-fig="3127:21871"
       className="flex flex-col gap-4"
       style={{
         background: '#FFF8E1',
@@ -151,17 +152,19 @@ export function BoardFeedCard({
         </div>
       )}
 
-      {/* Content body — inside a box with darker cream bg + bold text per Figma feedback.
-          ⚠️ Body box bg rgba(255,234,158,0.22) NEEDS FIGMA VERIFY (node 3127:21871).
-          ⚠️ Body box radius 12px NEEDS FIGMA VERIFY (node 3127:21871). */}
+      {/* Content body — inside a box per Figma node I3127:21871;662:11382.
+          bg: rgba(255,234,158,0.40), padding: 16px 24px, border: 1px solid #FFEA9E, radius: 12px. */}
       <div
-        className={`rounded-xl px-4 py-3 text-sm font-bold leading-6 ${isHighlight ? 'line-clamp-3' : 'line-clamp-5'}`}
+        data-fig="I3127:21871;662:11382"
+        className={`text-sm font-bold leading-6 ${isHighlight ? 'line-clamp-3' : 'line-clamp-5'}`}
         style={{
           fontFamily: montserrat.style.fontFamily,
           fontWeight: 700,
           color: 'rgba(26,18,8,0.8)',
-          background: 'rgba(255,234,158,0.22)',
+          background: 'rgba(255,234,158,0.40)',
           borderRadius: 12,
+          border: '1px solid #FFEA9E',
+          padding: '16px 24px',
         }}
         // contentHtml is sanitised before storage (server-side sanitize-html)
         dangerouslySetInnerHTML={{ __html: contentHtml }}

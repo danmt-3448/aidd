@@ -85,9 +85,10 @@ export function HomepageHero({
           className="flex w-full flex-col items-start"
           style={{ gap: 40, maxWidth: 1224 }}
         >
-          {/* Root Further logo */}
+          {/* Root Further logo — gate: asset must be <img>, not text/CSS reconstruction */}
           <div
             className="relative w-full"
+            data-fig-asset="homepage-root-further-logo"
             style={{ maxWidth: 451, height: "clamp(100px, 13.23vw, 200px)" }}
           >
             <Image
@@ -101,9 +102,11 @@ export function HomepageHero({
 
           {/* Countdown + event info */}
           <div className="flex flex-col" style={{ gap: 16 }}>
-            {/* "Coming soon" label (MoMorph spec B1.2 — correct spelling) */}
+            {/* "Coming soon" label (MoMorph spec B1.2 — correct spelling)
+                Figma: Frame 523, Montserrat 700 24px white rgba(255,255,255,1), line-height 32px */}
             <p
               className={montserrat.className}
+              data-fig="homepage-coming-soon"
               style={{
                 fontSize: 24,
                 fontWeight: 700,
@@ -188,8 +191,10 @@ export function HomepageHero({
             className="flex flex-row flex-wrap items-center"
             style={{ gap: 40 }}
           >
+            {/* CTA1 — Figma mms_B3_Call-To-Action, bg #FFEA9E rgba(255,234,158,1), color #00101A, radius 8px */}
             <Link
               href="/awards"
+              data-fig="homepage-cta-awards"
               className={`${montserrat.className} inline-flex items-center rounded-lg font-bold transition-opacity hover:opacity-90`}
               style={{
                 gap: 8,

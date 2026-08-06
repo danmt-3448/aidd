@@ -28,6 +28,7 @@ const NAV_LINKS = [
 export function HomepageFooter() {
   return (
     <footer
+      data-fig="5001:14800"
       className="flex w-full flex-col items-center justify-between gap-6 px-4 py-8 md:flex-row md:px-16 xl:px-[90px]"
       style={{
         borderTop: '1px solid #2E3940',
@@ -39,7 +40,7 @@ export function HomepageFooter() {
       <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:gap-16 xl:gap-20">
         {/* Logo */}
         <Link href="/" aria-label="Sun* Homepage">
-          <div className="relative" style={{ width: 69, height: 64 }}>
+          <div data-fig-asset="footer-logo" className="relative" style={{ width: 69, height: 64 }}>
             <Image
               src="/homepage/logo.png"
               alt="Sun* Annual Awards 2025"
@@ -51,7 +52,9 @@ export function HomepageFooter() {
 
         {/* Nav links */}
         <nav
-          className="flex flex-wrap items-center gap-4 md:flex-nowrap md:gap-8 xl:gap-12"
+          data-fig="I5001:14800;342:1409"
+          className="flex flex-wrap items-center gap-4 md:flex-nowrap xl:gap-12"
+          style={{ gap: 48 }}
           aria-label="Footer navigation"
         >
           {NAV_LINKS.map(({ label, href }) => (
@@ -59,8 +62,9 @@ export function HomepageFooter() {
               <a
                 key={label}
                 href={href}
-                className={`${montserrat.className} text-sm font-bold text-white transition-opacity hover:opacity-70`}
-                style={{ lineHeight: '20px', letterSpacing: '0.1px' }}
+                data-fig="I5001:14800;342:1410;186:1439"
+                className={`${montserrat.className} font-bold text-white transition-opacity hover:opacity-70`}
+                style={{ fontSize: 16, lineHeight: '24px', letterSpacing: '0.15px' }}
               >
                 {label}
               </a>
@@ -68,8 +72,9 @@ export function HomepageFooter() {
               <Link
                 key={label}
                 href={href}
-                className={`${montserrat.className} text-sm font-bold text-white transition-opacity hover:opacity-70`}
-                style={{ lineHeight: '20px', letterSpacing: '0.1px' }}
+                data-fig="I5001:14800;342:1410;186:1439"
+                className={`${montserrat.className} font-bold text-white transition-opacity hover:opacity-70`}
+                style={{ fontSize: 16, lineHeight: '24px', letterSpacing: '0.15px' }}
               >
                 {label}
               </Link>
@@ -80,6 +85,7 @@ export function HomepageFooter() {
 
       {/* Copyright */}
       <p
+        data-fig="I5001:14800;342:1413"
         className={`${montserratAlternates.className} text-center text-base font-bold leading-6`}
         style={{ color: 'rgba(255,255,255,0.8)' }}
       >

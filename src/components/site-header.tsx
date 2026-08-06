@@ -83,6 +83,7 @@ export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav }: SiteH
 
   return (
     <header
+      data-fig="313:8440"
       className="fixed inset-x-0 top-0 z-50 flex w-full items-center justify-between px-4 py-3 md:px-16 xl:px-36"
       style={{
         minHeight: 80,
@@ -94,7 +95,7 @@ export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav }: SiteH
       <div className="flex items-center gap-6 md:gap-16">
         {/* Logo */}
         <Link href="/" aria-label="Sun* Homepage">
-          <div style={{ width: 52, height: 48, position: 'relative' }}>
+          <div data-fig-asset="logo" style={{ width: 52, height: 48, position: 'relative' }}>
             <Image
               src="/homepage/logo.png"
               alt="Sun* Annual Awards 2025"
@@ -107,6 +108,7 @@ export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav }: SiteH
 
         {/* Nav links */}
         <nav
+          data-fig="I313:8440;178:653"
           className="hidden items-center md:flex"
           style={{ gap: 24 }}
           aria-label="Main navigation"
@@ -117,13 +119,15 @@ export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav }: SiteH
               <a
                 key={id}
                 href={href}
-                className={`${montserrat.className} flex items-center px-4 py-4 text-sm font-bold transition-colors`}
+                data-fig="I313:8440;186:1587;186:1502"
+                className={`${montserrat.className} flex items-center px-4 py-4 font-bold transition-colors`}
                 style={{
+                  fontSize: 16,
                   color: '#FFEA9E',
                   borderBottom: '1px solid #FFEA9E',
                   textShadow: '0 4px 4px rgba(0,0,0,0.25), 0 0 6px #FAE287',
-                  lineHeight: '20px',
-                  letterSpacing: '0.1px',
+                  lineHeight: '24px',
+                  letterSpacing: '0.15px',
                 }}
                 aria-current="page"
               >
@@ -133,8 +137,9 @@ export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav }: SiteH
               <Link
                 key={id}
                 href={href}
-                className={`${montserrat.className} flex items-center rounded px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10`}
-                style={{ lineHeight: '20px', letterSpacing: '0.1px' }}
+                data-fig="I313:8440;186:1579;186:1439"
+                className={`${montserrat.className} flex items-center rounded px-4 py-3 font-bold text-white transition-colors hover:bg-white/10`}
+                style={{ fontSize: 16, lineHeight: '24px', letterSpacing: '0.15px' }}
               >
                 {label}
               </Link>
