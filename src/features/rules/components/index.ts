@@ -1,4 +1,5 @@
 export { RulesPanel } from './rules-panel'
+export { RulesModal } from './rules-modal'
 export { RulesPanelHeader } from './rules-panel-header'
 export { HeroBadgeRow } from './hero-badge-row'
 export { SecretBadgeGrid } from './secret-badge-grid'

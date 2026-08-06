@@ -49,7 +49,7 @@ export default function SecretBoxPage() {
     /* Dim full-screen backdrop */
     <div
       ref={backdropRef}
-      className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto px-4 py-8"
+      className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto px-4 py-8"
       style={{ background: 'rgba(0, 0, 0, 0.60)' }}
       onPointerDown={handleBackdropPointerDown}
       data-testid="secret-box-backdrop"
