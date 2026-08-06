@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # AIDD — SAA 2025 Internal
 
 Next.js app generated from Figma design + MoMorph screen specs, using the Takumi Agent Kit.
@@ -73,18 +77,20 @@ Quy tắc: **skill trước, code sau** — không code ad-hoc. Takumi điều p
 
 | Concern | Choice |
 |---|---|
-| Framework | Next.js (App Router) + React + TypeScript |
-| Styling | Tailwind CSS |
+| Framework | Next.js 16 (App Router) + React 19 + TypeScript 5 |
+| Styling | Tailwind CSS v4 |
 | UI components | shadcn/ui (Radix-based, copy-in) |
-| i18n | next-intl (VN/EN, cookie `NEXT_LOCALE`) |
-| Rich-text editor | Tiptap (Viết Kudo: bold/italic/link/quote + @mention → HTML) |
-| Data fetching | TanStack Query (server state) |
-| Client state | Zustand |
-| Backend / Auth | Supabase (local project) |
-| Unit tests | Vitest |
-| E2E tests | Playwright |
+| i18n | next-intl v4 (VN/EN, cookie `NEXT_LOCALE`, no URL prefix) |
+| Rich-text editor | Tiptap v3 (Viết Kudo: bold/italic/link/quote + @mention → HTML) |
+| Data fetching | TanStack Query v5 (server state) |
+| Validation | Zod v4 |
+| HTML sanitize | sanitize-html (applied server-side on kudo write) |
+| Toast | Sonner |
+| Backend / Auth | Supabase (Postgres + Auth + Storage, local dev) |
+| Unit tests | Vitest v4 |
+| E2E tests | Playwright v1.62 |
 
-> Only `next`, `react`, `react-dom` are installed today. Add the packages above **when a screen first needs them** — do not pre-install everything. Keep `package.json` honest.
+> Add packages only when a screen first needs them. Keep `package.json` honest.
 
 ## Directory Conventions
 
@@ -92,10 +98,37 @@ Quy tắc: **skill trước, code sau** — không code ad-hoc. Takumi điều p
 - `src/app/**` — routes (App Router). One folder per route segment.
 - `src/components/ui/**` — shadcn/ui primitives.
 - `src/components/**` — shared app components.
-- `src/features/{feature}/**` — feature-scoped components, hooks, stores.
-- `src/lib/**` — utilities, Supabase client, query client setup.
-- `src/stores/**` — Zustand stores (or colocate under `features/`).
+- `src/features/{feature}/**` — feature-scoped components, hooks, server actions, schemas.
+- `src/lib/**` — utilities, Supabase client factories, TanStack Query setup.
+- `src/i18n/` — next-intl config + request handler.
 - Tests live next to source (`*.test.ts(x)`) for unit; `e2e/**` for Playwright.
+
+## Route Map (current)
+
+```
+/               src/app/page.tsx              — root redirect → /board (authed) / /login (unauth)
+/login          src/app/login/page.tsx        — Google OAuth login
+/auth/callback  src/app/auth/callback/route.ts — OAuth code exchange
+/dev-login      src/app/dev-login/page.tsx    — email+password (NEXT_PUBLIC_ENABLE_DEV_LOGIN)
+/board          src/app/board/page.tsx        — Live Kudos Board (main screen)
+/kudos          src/app/kudos/page.tsx        — Viết Kudo compose modal
+/profile        src/app/profile/page.tsx      — own profile
+/awards         src/app/awards/page.tsx       — award categories (static)
+/rules          src/app/rules/page.tsx        — thể lệ (rules)
+/secret-box     src/app/secret-box/page.tsx   — secret box open flow
+/countdown      src/app/countdown/page.tsx    — pre-launch countdown gate
+/notifications  src/app/notifications/page.tsx — notification panel
+```
+
+Route guard lives in `src/proxy.ts` (Next.js 16 — NOT `middleware.ts`). It runs session refresh → pre-launch gate → auth guard in that order. The `?ui_state=` query param bypasses auth entirely in dev (for UI-First Gate runs against mock data).
+
+## Mock / UI-State System
+
+Every feature screen that has been gated supports `?ui_state=full|empty|error|loading`. In dev (`NODE_ENV !== 'production'`):
+- `proxy.ts` fast-paths requests carrying `?ui_state=` past auth, so the gate runner needs no live Supabase.
+- Each feature exposes `mocks/{screen}.mock.ts` exporting `mockFull`, `mockEmpty`, `mockError`.
+- The `useUiStateOverride()` hook (`src/lib/ui-state-override.ts`) reads the param client-side; `board-connected.tsx` uses it to swap in board mock data.
+- Mock data density must match Figma (e.g., board word-cloud ~45–50 names, full card list).
 
 ## Code Conventions
 
@@ -115,6 +148,33 @@ Quy tắc: **skill trước, code sau** — không code ad-hoc. Takumi điều p
 - **Responsive default-on** — màn nhỏ hơn chỉ cần adapt đúng (768/375 KHÔNG chấm ở gate). Chuẩn property-diff chỉ áp cho **1440 + 1280**. Mobile-first, breakpoint Tailwind mặc định `sm 640 · md 768 · lg 1024 · xl 1280`.
 - Design là artboard **desktop 1440** → property-diff số khớp ở 1440 + 1280; size khác adapt hợp lý (`clamp()` cho font lớn, stack cột, `width:100%` cho media). Màn nào có artboard mobile riêng → khớp luôn.
 - Không hardcode `width/height` cố định cho element rộng > 50% viewport.
+
+## Key Architecture Patterns
+
+### Route Guard (`src/proxy.ts`)
+Next.js 16 uses `proxy.ts` (not `middleware.ts`). Execution order per request:
+1. `updateSession()` — refresh Supabase cookie session.
+2. Auth fast-path — logged-in on `/login` → `/`; unauthenticated on protected path → `/login` (no DB query on this branch).
+3. Pre-launch gate — reads `event_config.event_start_at` + `profiles.is_admin` in parallel; if pre-launch and not admin → `/countdown`. Fail-open (missing config never locks out).
+4. `?ui_state=` present in dev → bypass all of the above.
+
+### Server Actions
+All server actions are `'use server'` files colocated with their feature (`*-actions.ts`). Pattern: `getUser()` auth guard → `safeParse()` Zod validation → DB call → return typed discriminated union `{ ok: true, ... } | { ok: false, errors: ... }`. Never throw. Never expose raw Postgres errors.
+
+### Connected Component Pattern
+Each screen with real data has a `{screen}-connected.tsx` that owns data fetching. The inner presentational component takes typed props and works with mock data too. Example: `board-connected.tsx` → checks `useUiStateOverride()` → returns mock from `mocks/board.mock.ts` when `?ui_state=` is set, otherwise calls TanStack Query hooks.
+
+### TanStack Query Hook Convention
+One file per query/mutation under `features/{feature}/use-*.ts`. `queryKey` shape: `[resource, ...params]`. Mount `<QueryProvider>` at page level (not root layout) — only pay for it where needed. `staleTime` set explicitly per query (60 s general, 5 m catalogs, 30 s autocomplete).
+
+### Supabase Clients
+Three distinct clients, never interchangeable:
+- `src/lib/supabase/client.ts` — browser client (`createBrowserClient`)
+- `src/lib/supabase/server.ts` — async server client (`createServerClient` + `cookies()`)
+- `src/lib/supabase/middleware.ts` — proxy-only (`updateSession`)
+
+### Database Writes
+Multi-table writes always go through a Postgres RPC (`create_kudo()` is the established pattern) — one transaction, no partial states from the server action.
 
 ## Gen-Code Workflow (MoMorph → code)
 
@@ -146,17 +206,35 @@ Rules: **never guess visual values** — MCP design data is authoritative. Fetch
 ## Commands
 
 ```bash
-npm run dev        # dev server (http://localhost:3001)
-npm run build      # production build
-npm run lint       # eslint
-npm run test       # unit (vitest)
-npm run test:e2e   # e2e (playwright) — cần dev server + Supabase local
-npm run seed:auth  # seed users qua GoTrue admin API (auth.admin.createUser)
-npm run db:reset   # supabase db reset + seed:auth (schema + hashtags + users)
+npm run dev            # dev server (http://localhost:3001)
+npm run build          # production build
+npm run lint           # eslint
+npm run test           # unit tests, single run (vitest)
+npm run test:watch     # unit tests, watch mode
+npm run test:coverage  # unit tests with coverage report
+npm run test:e2e       # e2e (playwright) — requires dev server + Supabase local running
+npm run seed:auth      # seed users via GoTrue admin API (auth.admin.createUser)
+npm run db:reset       # supabase db reset + seed:auth (schema + hashtags + users)
+npm run analyze        # bundle analyzer (ANALYZE=true next build)
+npx tsc --noEmit       # typecheck only — run after every file edit
 ```
 
-> Seed users KHÔNG tạo bằng SQL thô (INSERT auth.users để NULL token → vỡ login).
-> Dùng `supabase/seed-auth-users.mjs` qua admin API → native GoTrue accounts.
+> Seed users via `supabase/seed-auth-users.mjs` (admin API) — NOT raw SQL INSERT into `auth.users` (that leaves NULL tokens and breaks login).
+
+### Running a single unit test file
+
+```bash
+npx vitest run src/features/board/board-queries.test.ts
+```
+
+### Playwright test projects
+
+E2E specs are split across three projects in `playwright.config.ts`:
+- `public` — unauthenticated specs (`countdown.spec.ts`, `login.spec.ts`)
+- `authed` — regular user session specs (board, profile, homepage, viet-kudo, etc.)
+- `admin` — admin session specs (`admin-*.spec.ts`)
+
+Run a single spec: `npx playwright test e2e/board.spec.ts --project=authed`
 
 ## Local setup (teammate onboarding)
 
