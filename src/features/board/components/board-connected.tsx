@@ -141,7 +141,7 @@ export function BoardConnected({ uid, user, isAdmin }: BoardConnectedProps) {
   }, [isOverride, hasNextPage, isFetchingNextPage, fetchNextPage])
 
   const header = (
-    <SiteHeader user={user} unreadCount={unreadCount} uid={uid} isAdmin={isAdmin} activeNav="kudos" overlay />
+    <SiteHeader user={user} unreadCount={unreadCount} uid={uid} isAdmin={isAdmin} activeNav="kudos" />
   )
 
   // Loading skeleton gate

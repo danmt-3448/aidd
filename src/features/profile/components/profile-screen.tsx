@@ -71,10 +71,11 @@ export function ProfileScreen({
       className={`${montserrat.className} min-h-screen w-full`}
       style={{ background: '#00101A' }}
     >
-      {/* Content column — narrow-focus profile layout */}
+      {/* Content column — narrow-focus profile layout.
+          pt-24 (96px) clears the fixed 80px header (no full-bleed banner here). */}
       {/* mm:profile-content-col */}
       <div
-        className="mx-auto w-full"
+        className="mx-auto w-full pt-24"
         style={{ maxWidth: 680 }}
       >
         {/* Hero — avatar / name / dept / tier / stars */}

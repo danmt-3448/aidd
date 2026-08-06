@@ -1,17 +1,26 @@
 'use client'
 
 /**
- * SiteHeader — shared sticky header for all authenticated screens (Homepage,
+ * SiteHeader — shared FIXED header for all authenticated screens (Homepage,
  * Board, Profile, Awards). Generalised from HomepageHeader.
  *
  * Figma: mms_A1_Header (node 2167:9091, screen i87tDx10uM)
- * Design values preserved from HomepageHeader — do NOT restyle here.
- *   - bg: rgba(16,20,23,0.8), backdrop-blur 12px
+ * The Figma header is `position: absolute` at y=0 with a translucent frosted
+ * background — it OVERLAYS the page content (content bleeds to the very top and
+ * shows through behind the bar). We use `fixed` so it also stays pinned while
+ * the page scrolls. Design values preserved — do NOT restyle here.
+ *   - bg: rgba(16,20,23,0.8), backdrop-blur 12px  (frosted, see-through)
+ *   - position: fixed top-0, z-50 — overlays content, out of layout flow
  *   - height: 80px, padding: 12px 144px (→ xl:px-36)
  *   - logo: 52×48px
  *   - nav gap: 24px, font 14px Montserrat 700
  *   - active link: #FFEA9E + bottom border 1px solid #FFEA9E + text-shadow glow
  *   - right cluster gap: 16px
+ *
+ * NOTE: because the header is out of flow, pages WITHOUT a full-bleed hero at
+ * the top (e.g. Profile, Notifications) must add ~80px top padding so their
+ * content clears the bar. Hero pages (Homepage/Board/Awards) intentionally let
+ * their banner bleed up under the header.
  *
  * Props:
  *   user        — null = public header (no bell/account). Authenticated = bell + menu.
@@ -47,13 +56,6 @@ export interface SiteHeaderProps {
    * null = no item is active (neutral state, e.g. detail pages).
    */
   activeNav: ActiveNav
-  /**
-   * Overlay mode: header floats over the page (absolute, transparent gradient)
-   * instead of taking 80px of flow. Used on pages with a full-bleed hero/banner
-   * at the top (e.g. Board) so the banner shows through under the header.
-   * Default false = sticky solid header (pushes content down).
-   */
-  overlay?: boolean
 }
 
 interface NavItemDef {
@@ -68,7 +70,7 @@ const NAV_ITEMS: NavItemDef[] = [
   { id: 'kudos',  label: 'Sun* Kudos',        href: '/board'  },
 ]
 
-export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav, overlay = false }: SiteHeaderProps) {
+export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav }: SiteHeaderProps) {
   const bellRef = useRef<HTMLButtonElement | null>(null)
   const [panelOpen, setPanelOpen] = useState(false)
 
@@ -81,15 +83,10 @@ export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav, overlay
 
   return (
     <header
-      className={`${overlay ? 'absolute inset-x-0 top-0' : 'sticky top-0'} z-50 flex w-full items-center justify-between px-4 py-3 md:px-16 xl:px-36`}
+      className="fixed inset-x-0 top-0 z-50 flex w-full items-center justify-between px-4 py-3 md:px-16 xl:px-36"
       style={{
         minHeight: 80,
-        // Overlay: transparent gradient so the banner shows through while the
-        // nav stays legible up top. Sticky: solid translucent bar.
-        background: overlay
-          ? 'linear-gradient(180deg, rgba(0,16,26,0.85) 0%, rgba(0,16,26,0.45) 55%, rgba(0,16,26,0) 100%)'
-          : 'rgba(16,20,23,0.8)',
-        backdropFilter: overlay ? undefined : 'blur(12px)',
+        background: 'rgba(16,20,23,0.8)',
       }}
       aria-label="Site header"
     >

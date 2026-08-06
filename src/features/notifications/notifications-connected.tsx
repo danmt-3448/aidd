@@ -74,7 +74,8 @@ export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConn
     <div className="min-h-screen" style={{ backgroundColor: '#00101A' }}>
       <SiteHeader user={user} unreadCount={unreadCount} uid={uid} isAdmin={isAdmin} activeNav={null} />
 
-      <main className="mx-auto w-full max-w-2xl px-4 py-8 md:px-0">
+      {/* pt-24 (96px) clears the fixed 80px header — no top banner on this screen. */}
+      <main className="mx-auto w-full max-w-2xl px-4 pb-8 pt-24 md:px-0">
         {/* Page heading */}
         <div className="mb-6 flex items-center justify-between">
           <h1 className={`${montserrat.className} text-2xl font-bold`} style={{ color: '#FFFFFF' }}>

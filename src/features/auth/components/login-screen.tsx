@@ -47,8 +47,8 @@ export function LoginScreen({ error = false }: { error?: boolean }) {
 
       {/* Figma: mms_B_Bìa startY=88, padding-top=96px → Frame 487 at y=184.
           Frame 487 height=653px with justifyContent:center → Key Visual (200px) + gap(80) + Frame550(164px) centered.
-          Key Visual starts at y=288 (absolute). Header h=80px → pt = 288-80 = 208px. */}
-      <main className="relative z-10 flex flex-1 flex-col pt-[208px] pb-16">
+          Key Visual starts at y=288 (absolute). Header is fixed (out of flow) → pt = 288px. */}
+      <main className="relative z-10 flex flex-1 flex-col pb-16 pt-[288px]">
         <PageContainer>
           {/* Frame 487 (662:14394): gap=80px between Key Visual and Frame 550.
               Figma: title starts at x=144. PageContainer left = 80px auto + md:px-8=32px → 80+32+32=144. */}
