@@ -51,6 +51,13 @@ export interface BoardScreenProps {
   onOpenSecretBox: () => void
   /** Forwarded from resolved.feedLoading — spotlight shows spinner when true */
   isLoading?: boolean
+  /**
+   * Dev/test harness only — pre-open the KudoComposeModal on mount.
+   * Passed as a prop so the query-param logic lives in the calling wrapper
+   * (e.g. /kudos dev route) and NOT embedded in this production component.
+   * Defaults to false; ignored in production builds.
+   */
+  initialComposeOpen?: boolean
 }
 
 export function BoardScreen({
@@ -72,8 +79,9 @@ export function BoardScreen({
   onOpenProfile,
   onOpenSecretBox,
   isLoading = false,
+  initialComposeOpen = false,
 }: BoardScreenProps) {
-  const [composeOpen, setComposeOpen] = useState(false)
+  const [composeOpen, setComposeOpen] = useState(initialComposeOpen)
   const [spotlightSearch, setSpotlightSearch] = useState('')
 
   const handleOpenKudoDetail = useCallback(

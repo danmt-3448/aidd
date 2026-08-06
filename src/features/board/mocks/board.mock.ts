@@ -15,7 +15,7 @@ import type {
   BoardUserStats,
   LeaderboardEntry,
   SpotlightActivityEntry,
-} from './components/board-types'
+} from '../components/board-types'
 
 // Assets that exist in public/images/board/
 const KUDO_IMG = '/images/board/sample-kudo-image.png'

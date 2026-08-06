@@ -13,6 +13,10 @@
  *   - Wires onLoadMore to fetchNextPage.
  *   - Surfaces stats/feed errors via sonner toast.
  *
+ * Dev-only: ?ui_state=full|empty|error|loading bypasses Track B hooks and renders
+ * from profile.mock.ts. No Supabase requests fire in override mode.
+ * Mirror of board-connected.tsx pattern (phase-02 infra).
+ *
  * Note on receiverId in sent-direction cards:
  *   ProfileKudoRow (Track B contract) does not include receiver_id. For
  *   direction='received', receiverId is derived from profileId (the viewed
@@ -27,6 +31,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { useUiStateOverride } from '@/lib/ui-state-override'
+import { mockFull, mockEmpty, mockError } from '../mocks/profile.mock'
 import { ProfileScreen } from './profile-screen'
 import { useProfileStats, useProfileHeader } from '../use-profile-stats'
 import { useProfileFeed, useToggleHeart } from '../use-profile-feed'
@@ -36,12 +42,6 @@ import type { KudosDirection, ProfileFeedItem } from './profile-types'
 
 // ---------------------------------------------------------------------------
 // Mapper — ProfileKudoRow (Track B) → FeedCardProps (Track A)
-//
-// ProfileKudoRow has senderId but no receiverId. For direction='received', we
-// know receiverId = profileId (the viewed user is the receiver by the query
-// filter). For direction='sent', receiverId is unknown from the current Track B
-// contract; we pass '' — cards will render correctly but "Xem chi tiết" /
-// receiver nav will not navigate to the recipient. Tracked for Track B follow-up.
 // ---------------------------------------------------------------------------
 
 function mapProfileRowToFeedCard(
@@ -54,8 +54,6 @@ function mapProfileRowToFeedCard(
     senderId: row.senderId,
     senderName: row.senderName,
     senderAvatarUrl: row.senderAvatarUrl,
-    // For 'received': the viewed profile IS the receiver — derive from context.
-    // For 'sent': receiver_id not in ProfileKudoRow; use '' as non-navigable fallback.
     receiverId: direction === 'received' ? profileId : '',
     receiverName: row.receiverName,
     receiverAvatarUrl: row.receiverAvatarUrl,
@@ -63,12 +61,11 @@ function mapProfileRowToFeedCard(
     heartCount: row.heartCount,
     likedByMe: row.likedByMe,
     createdAt: row.createdAt,
-    // hashtags: not present in ProfileKudoRow — omitted; cards render without chips.
   }
 }
 
 // ---------------------------------------------------------------------------
-// Sentinel-based infinite scroll — same approach as board-connected.tsx
+// Constants
 // ---------------------------------------------------------------------------
 
 const NULL_BADGES = [null, null, null, null, null, null] as const
@@ -88,22 +85,25 @@ export interface ProfileConnectedProps {
 
 export function ProfileConnected({ profileId, isSelf }: ProfileConnectedProps) {
   const router = useRouter()
+  const uiOverride = useUiStateOverride()
+  const isOverride = uiOverride !== null
 
   // ── Direction state ────────────────────────────────────────────────────────
-  // OTHER mode is always 'received'. SELF mode defaults to 'received'.
   const [activeDirection, setActiveDirection] =
     useState<KudosDirection>('received')
 
-  // Enforce: non-self profiles can never request the sent direction.
-  const safeDirection: KudosDirection =
-    !isSelf ? 'received' : activeDirection
+  const safeDirection: KudosDirection = !isSelf ? 'received' : activeDirection
 
-  // ── Track B hooks ─────────────────────────────────────────────────────────
+  // ── Track B hooks (always called — Rules of Hooks) ────────────────────────
+  // Pass a sentinel profileId in override mode so queries are still called
+  // (rules of hooks) but won't hit Supabase with real data.
+  const hookProfileId = isOverride ? 'mock-profile-self-001' : profileId
+
   const { header, isLoading: headerLoading, error: headerError } =
-    useProfileHeader(profileId)
+    useProfileHeader(hookProfileId)
 
   const { stats, isLoading: statsLoading, error: statsError } =
-    useProfileStats(profileId)
+    useProfileStats(hookProfileId)
 
   const {
     allRows: feedRows,
@@ -112,32 +112,50 @@ export function ProfileConnected({ profileId, isSelf }: ProfileConnectedProps) {
     hasNextPage,
     error: feedError,
     fetchNextPage,
-  } = useProfileFeed(profileId, safeDirection)
+  } = useProfileFeed(hookProfileId, safeDirection)
 
   const { toggle, error: toggleError, clearError } = useToggleHeart()
 
-  // Infinite scroll is driven by ProfileKudosSection's own observer (guarded on
-  // hasNextPage) via onLoadMore — no second sentinel here (avoids double fetch).
-
-  // ── Surface errors as toasts ──────────────────────────────────────────────
+  // ── Error toasts (suppressed in override mode) ────────────────────────────
+  useEffect(() => { if (!isOverride && headerError) toast.error(headerError) }, [isOverride, headerError])
+  useEffect(() => { if (!isOverride && statsError) toast.error(statsError) }, [isOverride, statsError])
+  useEffect(() => { if (!isOverride && feedError) toast.error(feedError) }, [isOverride, feedError])
   useEffect(() => {
-    if (headerError) toast.error(headerError)
-  }, [headerError])
-
-  useEffect(() => {
-    if (statsError) toast.error(statsError)
-  }, [statsError])
-
-  useEffect(() => {
-    if (feedError) toast.error(feedError)
-  }, [feedError])
-
-  useEffect(() => {
-    if (toggleError) {
-      toast.error(toggleError)
-      clearError()
-    }
+    if (toggleError) { toast.error(toggleError); clearError() }
   }, [toggleError, clearError])
+
+  // ── Dev override: render from fixture ────────────────────────────────────
+  if (isOverride) {
+    const isLoadingOverride = uiOverride === 'loading'
+    const fixture =
+      uiOverride === 'empty'
+        ? mockEmpty
+        : uiOverride === 'error'
+          ? mockError
+          : mockFull   // covers 'full' and 'loading' (loading uses full data, just isFeedLoading=true)
+
+    return (
+      <ProfileScreen
+        isSelf={fixture.isSelf}
+        header={fixture.header}
+        stats={fixture.stats}
+        badges={NULL_BADGES}
+        activeDirection={fixture.activeDirection}
+        feedItems={isLoadingOverride ? [] : fixture.feedItems}
+        isFeedLoading={isLoadingOverride}
+        isFetchingNextPage={false}
+        hasNextPage={fixture.hasNextPage}
+        receivedCount={fixture.receivedCount}
+        sentCount={fixture.sentCount}
+        onDirectionChange={() => {}}
+        onWriteKudo={() => {}}
+        onToggleHeart={() => {}}
+        onCopyLink={() => {}}
+        onOpenProfile={() => {}}
+        onLoadMore={() => {}}
+      />
+    )
+  }
 
   // ── Map feed rows → FeedCardProps ─────────────────────────────────────────
   const feedItems: ProfileFeedItem[] = feedRows.map((row: ProfileKudoRow) =>
@@ -145,33 +163,22 @@ export function ProfileConnected({ profileId, isSelf }: ProfileConnectedProps) {
   )
 
   // ── Callbacks ─────────────────────────────────────────────────────────────
-
   const handleDirectionChange = useCallback(
     (direction: KudosDirection) => {
-      // Guard: only allow direction changes in SELF mode.
       if (!isSelf) return
       setActiveDirection(direction)
     },
     [isSelf],
   )
 
-  const handleWriteKudo = useCallback(() => {
-    // No-op in SELF mode — ProfileScreen only shows the write bar in OTHER mode.
-    // ProfileScreen opens KudoComposeModal internally via its own local state.
-    // This callback exists for analytics / future extensibility.
-  }, [])
+  const handleWriteKudo = useCallback(() => {}, [])
 
   const handleToggleHeart = useCallback(
-    (kudoId: string) => {
-      toggle(kudoId)
-    },
+    (kudoId: string) => { toggle(kudoId) },
     [toggle],
   )
 
-  const handleCopyLink = useCallback((_kudoId: string) => {
-    // Copy-link logic is owned by the card component itself (clipboard + toast).
-    // This prop exists for analytics integration in future phases.
-  }, [])
+  const handleCopyLink = useCallback((_kudoId: string) => {}, [])
 
   const handleOpenProfile = useCallback(
     (userId: string) => {
@@ -181,14 +188,9 @@ export function ProfileConnected({ profileId, isSelf }: ProfileConnectedProps) {
     [router],
   )
 
-  const handleLoadMore = useCallback(() => {
-    fetchNextPage()
-  }, [fetchNextPage])
+  const handleLoadMore = useCallback(() => { fetchNextPage() }, [fetchNextPage])
 
-  // ── Stats for the stats card ───────────────────────────────────────────────
-  // ProfileStats (Track B) has `tier` and `stars` at the top level.
-  // ProfileStatsProps (Track A) does NOT — tier/stars live on ProfileHeaderProps.
-  // Map only the four numeric stats. Tier/stars are carried by the header prop.
+  // ── Stats mapping ─────────────────────────────────────────────────────────
   const statsProps = stats
     ? {
         received: stats.received,
@@ -199,13 +201,8 @@ export function ProfileConnected({ profileId, isSelf }: ProfileConnectedProps) {
       }
     : null
 
-  // Stats card is only shown in SELF mode. For OTHER, pass null → write-bar renders.
   const statsForScreen = isSelf ? statsProps : null
 
-  // ── Header prop — merge ProfileHeader + tier/stars from stats ────────────
-  // ProfileHeaderProps expects `tier` and `stars` (from spec/Track A).
-  // ProfileHeader (Track B) does not include them — they're derived in stats.
-  // Stats query runs for all profiles; tier/stars from stats are the source.
   const headerForScreen = header
     ? {
         id: header.id,
@@ -217,7 +214,6 @@ export function ProfileConnected({ profileId, isSelf }: ProfileConnectedProps) {
         stars: stats?.stars ?? null,
       }
     : {
-        // Fallback while loading — minimal valid shape.
         id: profileId,
         full_name: null,
         avatar_url: null,
@@ -227,14 +223,10 @@ export function ProfileConnected({ profileId, isSelf }: ProfileConnectedProps) {
         stars: null,
       }
 
-  // ── Counts for direction dropdown labels ──────────────────────────────────
   const receivedCount = stats?.received ?? 0
-  // sentCount: null for OTHER profiles (Track B view guards this — sent = null
-  // when profileId ≠ caller). Null triggers hidden 'Đã gửi' option in Track A.
   const sentCount = isSelf ? (stats?.sent ?? 0) : null
 
-  // ── Loading guard — blank until initial data arrives ─────────────────────
-  // Prevents a flash of the fallback header before the real data resolves.
+  // ── Loading guard ─────────────────────────────────────────────────────────
   if ((headerLoading || statsLoading) && !header) {
     return (
       <div

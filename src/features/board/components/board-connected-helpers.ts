@@ -5,7 +5,7 @@
  */
 
 import type { BoardKudoRow } from '../board-queries'
-import type { UiStateOverride } from '../use-ui-state-override'
+import type { UiStateOverride } from '@/lib/ui-state-override'
 import type { FeedCardProps, SpotlightNode, BoardUserStats, LeaderboardEntry, SpotlightActivityEntry } from './board-types'
 import {
   MOCK_FEED_CARDS,
@@ -17,7 +17,7 @@ import {
   MOCK_GIFT_LEADERBOARD,
   MOCK_SPOTLIGHT_ACTIVITY,
   MOCK_DEPARTMENTS,
-} from '../board-mock'
+} from '../mocks/board.mock'
 
 /**
  * Maps a Track B BoardKudoRow to a Track A FeedCardProps.

@@ -24,16 +24,22 @@ import { useBoardUserStats } from '../use-board-user-stats'
 import { useGiftLeaderboard } from '../use-board-leaderboards'
 import { useHashtagList } from '../use-hashtag-list'
 import { useDepartmentList } from '../use-department-list'
-import { useUiStateOverride } from '../use-ui-state-override'
+import { useUiStateOverride } from '@/lib/ui-state-override'
 import { resolveOverrideData } from './board-connected-helpers'
 
 export interface BoardConnectedProps {
   uid: string | null
   user: { name: string; avatarUrl?: string } | null
   isAdmin: boolean
+  /**
+   * Dev/test harness only — pre-open the KudoComposeModal on mount.
+   * Injected by KudosDevWrapper (/kudos route) via ?modal=compose.
+   * Passed straight through to BoardScreen as initialComposeOpen.
+   */
+  initialComposeOpen?: boolean
 }
 
-export function BoardConnected({ uid, user, isAdmin }: BoardConnectedProps) {
+export function BoardConnected({ uid, user, isAdmin, initialComposeOpen = false }: BoardConnectedProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const sentinelRef = useRef<HTMLDivElement | null>(null)
@@ -198,6 +204,7 @@ export function BoardConnected({ uid, user, isAdmin }: BoardConnectedProps) {
         onOpenProfile={(id) => router.push('/profile?id=' + id)}
         onOpenSecretBox={() => router.push('/secret-box')}
         isLoading={resolved.feedLoading}
+        initialComposeOpen={initialComposeOpen}
       />
 
       {!isOverride && <div ref={sentinelRef} aria-hidden style={{ height: 1 }} />}

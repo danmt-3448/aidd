@@ -7,6 +7,10 @@
  * Brand tokens (MoMorph MCP unavailable — flagged for verify pass):
  *   - page bg: #00101A · card bg: rgba(255,255,255,0.03)
  *   - border: rgba(255,255,255,0.08) · unread dot: #FFEA9E
+ *
+ * Dev-only: ?ui_state=full|empty|error|loading bypasses Supabase and renders
+ * from notifications.mock.ts. No network requests fire in override mode.
+ * Mirror of board-connected.tsx pattern (phase-02 infra).
  */
 
 import { useEffect, useRef, useCallback } from 'react'
@@ -15,6 +19,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { SiteHeader } from '@/components/site-header'
 import { montserrat } from '@/features/auth/fonts'
+import { useUiStateOverride } from '@/lib/ui-state-override'
+import { mockFull, mockEmpty, mockError, mockLoading } from './mocks/notifications.mock'
 import { markRead, markAllRead } from './notification-actions'
 import { notificationKeys, useUnreadCount, useNotificationInfiniteList } from './use-notifications'
 import { NotificationRow } from './notification-row'
@@ -30,15 +36,20 @@ export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConn
   const router = useRouter()
   const queryClient = useQueryClient()
   const sentinelRef = useRef<HTMLDivElement | null>(null)
+  const uiOverride = useUiStateOverride()
+  const isOverride = uiOverride !== null
 
-  const { count: unreadCount } = useUnreadCount(uid)
+  // ── Track B hooks (always called — Rules of Hooks) ────────────────────────
+  // Pass null uid in override mode to suppress Supabase subscriptions.
+  const { count: unreadCount } = useUnreadCount(isOverride ? null : uid)
   const { notifications, isLoading, isFetchingNextPage, hasNextPage, error, fetchNextPage } =
-    useNotificationInfiniteList(uid, 20)
+    useNotificationInfiniteList(isOverride ? null : uid, 20)
 
-  useEffect(() => { if (error) toast.error(error) }, [error])
+  useEffect(() => { if (!isOverride && error) toast.error(error) }, [isOverride, error])
 
-  // Infinite-scroll via IntersectionObserver.
+  // Infinite-scroll via IntersectionObserver (disabled in override mode).
   useEffect(() => {
+    if (isOverride) return
     const el = sentinelRef.current
     if (!el) return
     const observer = new IntersectionObserver(
@@ -47,18 +58,20 @@ export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConn
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+  }, [isOverride, hasNextPage, isFetchingNextPage, fetchNextPage])
 
   const handleRowClick = useCallback(async (n: Notification) => {
+    if (isOverride) return  // no-op in gate mode
     if (!n.is_read) {
       const res = await markRead(n.id)
       if ('ok' in res) void queryClient.invalidateQueries({ queryKey: notificationKeys.all })
       else toast.error(res.error)
     }
     if (n.link) router.push(n.link)
-  }, [queryClient, router])
+  }, [isOverride, queryClient, router])
 
   const handleMarkAllRead = useCallback(async () => {
+    if (isOverride) return  // no-op in gate mode
     const res = await markAllRead()
     if ('ok' in res) {
       void queryClient.invalidateQueries({ queryKey: notificationKeys.all })
@@ -66,13 +79,40 @@ export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConn
     } else {
       toast.error(res.error)
     }
-  }, [queryClient])
+  }, [isOverride, queryClient])
 
-  const hasUnread = notifications.some((n) => !n.is_read)
+  // ── Resolve data source ───────────────────────────────────────────────────
+  const fixture =
+    !isOverride
+      ? null
+      : uiOverride === 'empty'
+        ? mockEmpty
+        : uiOverride === 'error'
+          ? mockError
+          : uiOverride === 'loading'
+            ? mockLoading
+            : mockFull
+
+  const resolvedNotifications = fixture ? fixture.notifications : notifications
+  const resolvedLoading = fixture ? fixture.isLoading : isLoading
+  const resolvedError = fixture ? fixture.error : error
+
+  // Show error toast for error fixture (once on mount when override=error)
+  useEffect(() => {
+    if (isOverride && resolvedError) toast.error(resolvedError)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])  // intentionally empty — fire once on mount only
+
+  const hasUnread = resolvedNotifications.some((n) => !n.is_read)
+
+  // ── Unread count for header ───────────────────────────────────────────────
+  const resolvedUnreadCount = fixture
+    ? resolvedNotifications.filter((n) => !n.is_read).length
+    : unreadCount
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#00101A' }}>
-      <SiteHeader user={user} unreadCount={unreadCount} uid={uid} isAdmin={isAdmin} activeNav={null} />
+      <SiteHeader user={user} unreadCount={resolvedUnreadCount} uid={uid} isAdmin={isAdmin} activeNav={null} />
 
       {/* pt-24 (96px) clears the fixed 80px header — no top banner on this screen. */}
       <main className="mx-auto w-full max-w-2xl px-4 pb-8 pt-24 md:px-0">
@@ -99,10 +139,10 @@ export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConn
           style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
           role="list"
           aria-label="Danh sách thông báo"
-          aria-busy={isLoading}
+          aria-busy={resolvedLoading}
         >
           {/* Loading skeleton */}
-          {isLoading && notifications.length === 0 && (
+          {resolvedLoading && resolvedNotifications.length === 0 && (
             <div className="flex flex-col" aria-hidden="true">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div
@@ -124,7 +164,7 @@ export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConn
           )}
 
           {/* Empty state */}
-          {!isLoading && notifications.length === 0 && (
+          {!resolvedLoading && resolvedNotifications.length === 0 && (
             <div className="flex flex-col items-center justify-center gap-3 py-20" aria-live="polite">
               <span style={{ fontSize: 40 }} aria-hidden="true">🔔</span>
               <p className={`${montserrat.className} text-base`} style={{ color: 'rgba(255,255,255,0.4)' }}>
@@ -134,14 +174,14 @@ export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConn
           )}
 
           {/* Rows */}
-          {notifications.map((n) => (
+          {resolvedNotifications.map((n) => (
             <div key={n.id} role="listitem">
               <NotificationRow notification={n} onClick={handleRowClick} />
             </div>
           ))}
 
-          {/* Fetch-next spinner */}
-          {isFetchingNextPage && (
+          {/* Fetch-next spinner — only in live mode */}
+          {!isOverride && isFetchingNextPage && (
             <div className="flex justify-center py-4" aria-live="polite" aria-label="Đang tải thêm…">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-transparent"
                 style={{ borderTopColor: 'rgba(255,255,255,0.4)' }} />
@@ -149,8 +189,8 @@ export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConn
           )}
         </div>
 
-        {/* Infinite-scroll sentinel */}
-        <div ref={sentinelRef} aria-hidden style={{ height: 1 }} />
+        {/* Infinite-scroll sentinel — only in live mode */}
+        {!isOverride && <div ref={sentinelRef} aria-hidden style={{ height: 1 }} />}
       </main>
     </div>
   )
