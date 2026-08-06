@@ -13,9 +13,10 @@ export function KudosPromo() {
       style={{
         backgroundColor: '#0F0F0F',
         borderRadius: '16px',
-        minHeight: '500px',
+        height: '500px',
       }}
       aria-label="Sun* Kudos — phong trào ghi nhận"
+      data-fig="335:12023"
     >
       {/* Background image (Figma: MM_MEDIA_Kudos Background) */}
       <div className="pointer-events-none absolute inset-0">
@@ -44,7 +45,8 @@ export function KudosPromo() {
             >
               Phong trào ghi nhận
             </p>
-            {/* "Sun* Kudos" headline */}
+            {/* "Sun* Kudos" headline — Figma node I335:12023;313:8422
+                fontSize:57px, lineHeight:64px, fontWeight:700, color:rgba(255,234,158,1) */}
             <h2
               className="font-montserrat font-bold"
               style={{
@@ -53,6 +55,7 @@ export function KudosPromo() {
                 letterSpacing: '-0.25px',
                 color: '#FFEA9E',
               }}
+              data-fig="I335:12023;313:8422"
             >
               Sun* Kudos
             </h2>

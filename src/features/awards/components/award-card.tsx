@@ -28,9 +28,12 @@ export function AwardCard({ award }: AwardCardProps) {
           <div className="relative shrink-0" style={{ width: '24px', height: '24px' }}>
             <Image src={icon} alt="" fill className="object-contain" />
           </div>
+          {/* Figma node I313:8467;214:2530 (Top Talent card H2 text)
+              fontSize:24px, lineHeight:32px, fontWeight:700, color:rgba(255,234,158,1) */}
           <h2
             className="font-montserrat font-bold"
             style={{ fontSize: '24px', lineHeight: '32px', color: '#FFEA9E' }}
+            {...(hashtagAnchor === 'top-talent' ? { 'data-fig': 'I313:8467;214:2530' } : {})}
           >
             {title}
           </h2>

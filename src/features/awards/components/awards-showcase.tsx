@@ -18,6 +18,7 @@ export function AwardsShowcase({ awards }: AwardsShowcaseProps) {
     <div
       className="min-h-screen w-full"
       style={{ backgroundColor: "rgba(0,16,26,1)" }}
+      data-fig="313:8436"
     >
       {/* Hero artwork — top-right abstract art (Figma: colorful abstract corner art) */}
       <div
@@ -50,7 +51,8 @@ export function AwardsShowcase({ awards }: AwardsShowcaseProps) {
       >
         {/* Top section: Further logo (left) + hero artwork (right) */}
         <div className="relative mb-20 flex items-start justify-between">
-          {/* KV: "Further" event logo — max 338px, scales down on small screens */}
+          {/* KV: "Further" event logo — max 338px, scales down on small screens
+              Figma node 2789:12915 (MM_MEDIA_Root Further Logo, 338×150 RECTANGLE/image) */}
           <div
             className="relative shrink-0"
             style={{
@@ -58,6 +60,7 @@ export function AwardsShowcase({ awards }: AwardsShowcaseProps) {
               height: "auto",
               aspectRatio: "338/150",
             }}
+            data-fig-asset="MM_MEDIA_Root Further Logo"
           >
             <Image
               src="/awards/further-logo.png"
@@ -87,14 +90,20 @@ export function AwardsShowcase({ awards }: AwardsShowcaseProps) {
           />
           {/* Main page heading */}
           <div className="flex items-center justify-center gap-8">
+            {/*
+             * Figma node 313:8457 — TEXT "Hệ thống giải thưởng SAA 2025"
+             * fontSize:57px, lineHeight:64px (NOT 1.2 which gives 68.4px), fontWeight:700,
+             * color:rgba(255,234,158,1), letterSpacing:-0.25px
+             */}
             <h1
               className="text-center font-montserrat font-bold"
               style={{
                 fontSize: "clamp(28px, 4vw, 57px)",
-                lineHeight: "1.2",
+                lineHeight: "64px",
                 letterSpacing: "-0.25px",
                 color: "#FFEA9E",
               }}
+              data-fig="313:8457"
             >
               Hệ thống giải thưởng SAA 2025
             </h1>
@@ -104,13 +113,15 @@ export function AwardsShowcase({ awards }: AwardsShowcaseProps) {
         {/* Main layout: left sticky nav + right award cards (80px gap per Figma) */}
         <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-20">
           {/* Left navigation — hidden below lg, STICKY on desktop (Figma NOTE:
-              "Scroll thì phần này sẽ đi theo"). top-24 clears the 80px fixed header. */}
-          <div className="hidden self-start lg:sticky lg:top-24 lg:block">
+              "Scroll thì phần này sẽ đi theo"). top-24 clears the 80px fixed header.
+              Figma node 313:8459 (mms_C_Menu list) width:178px, gap:16px, height:448px. */}
+          <div className="hidden self-start lg:sticky lg:top-24 lg:block" data-fig="313:8459">
             <AwardsNav awards={awards} />
           </div>
 
-          {/* Award cards list — 80px gap between cards per Figma */}
-          <div className="flex flex-1 flex-col gap-10 lg:gap-20">
+          {/* Award cards list — 80px gap between cards per Figma.
+              Figma node 313:8466 (D.Danh sách giải thưởng) gap:80px, height:4833px. */}
+          <div className="flex flex-1 flex-col gap-10 lg:gap-20" data-fig="313:8466">
             {awards.map((award) => (
               <AwardCard key={award.slug} award={award} />
             ))}
