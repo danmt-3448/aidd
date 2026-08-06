@@ -108,7 +108,7 @@ export function CountdownDisplay({ countdown }: CountdownDisplayProps) {
           flex-wrap: at 375px the 3 blocks wrap to prevent the 3rd block
           (minutes) clipping off the right edge. */}
       <div
-        className="flex flex-row flex-wrap items-start justify-center md:justify-start"
+        className="flex flex-row flex-wrap items-start justify-center"
         style={{ gap: 'clamp(16px, 3.97vw, 60px)' }}
         role="timer"
         aria-live="polite"

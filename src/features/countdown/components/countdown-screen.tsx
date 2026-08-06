@@ -1,7 +1,17 @@
 'use client'
 
+import { useSearchParams } from 'next/navigation'
 import { useCountdown } from '@/features/event/use-countdown'
+import type { UseCountdownReturn } from '@/features/event/use-countdown'
 import { CountdownDisplay } from './countdown-display'
+import { mockFull, mockDone, mockLoading } from '../mocks/countdown.mock'
+
+/** Maps ?ui_state= values to mock fixtures (dev only). */
+const UI_STATE_MOCKS: Record<string, UseCountdownReturn> = {
+  full: mockFull,
+  done: mockDone,
+  loading: mockLoading,
+}
 
 /**
  * Full-screen prelaunch Countdown page — SAA 2025 dark brand.
@@ -11,8 +21,9 @@ import { CountdownDisplay } from './countdown-display'
  *   - Background art: /images/countdown/prelaunch-bg.png as full-bleed cover,
  *     object-position right-center so the organic illustration shows on the right.
  *   - Overlay: linear-gradient(18deg, ...) darkens the left where content sits.
- *   - Content block: vertically centered, positioned left-of-center (~55% from left).
- *     Title + LED row are rendered by CountdownDisplay.
+ *   - Content block: vertically and horizontally centered (LED row center at ~50% of
+ *     viewport width, matching Figma artboard measurement). Title + LED row rendered
+ *     by CountdownDisplay.
  *
  * States:
  *   - isLoading: renders the background shell without the counter (avoids
@@ -21,14 +32,29 @@ import { CountdownDisplay } from './countdown-display'
  *   - done: delegated to CountdownDisplay (event has started).
  *   - counting: delegated to CountdownDisplay (normal path).
  *
+ * Dev: ?ui_state=full|done|loading overrides live data for UI-First Gate.
+ *
  * Note: no header or footer in this screen per Figma artboard.
  *
  * Follow-up (out of scope here): app-wide nav-lock until event starts.
  * The `done` flag from useCountdown() is available here for that future
  * redirect/unlock logic — tracked in: TODO-NAV-LOCK.
  */
+
 export function CountdownScreen() {
-  const countdown = useCountdown()
+  const searchParams = useSearchParams()
+  const realCountdown = useCountdown()
+
+  // In non-production, ?ui_state=full|done|loading overrides live data so
+  // the UI-First Gate can deterministically verify each render state.
+  const uiState =
+    process.env.NODE_ENV !== 'production'
+      ? (searchParams.get('ui_state') ?? null)
+      : null
+  const countdown: UseCountdownReturn =
+    uiState && uiState in UI_STATE_MOCKS
+      ? UI_STATE_MOCKS[uiState]
+      : realCountdown
 
   return (
     // mm:countdown-root
@@ -61,9 +87,11 @@ export function CountdownScreen() {
         }}
       />
 
-      {/* mm:countdown-content — vertically centered, left-of-center.
-          mx-auto max-w-[1280px] caps content at the artboard width so
-          it centers at @1440 instead of drifting left. */}
+      {/* mm:countdown-content — horizontally centered; biased above vertical
+          center to match Figma. The "Countdown time" frame (node 2268:35136)
+          sits y=314–577 of the 1077 artboard → block center at 41.4% of height,
+          not 50%. translateY(-8.6vh) shifts the flex-centered block up by that
+          delta while staying proportional across viewport heights. */}
       <main
         className="relative flex w-full items-center"
         style={{
@@ -73,14 +101,16 @@ export function CountdownScreen() {
         }}
         aria-busy={countdown.isLoading}
       >
-        <div className="mx-auto w-full max-w-[1280px]">
+        <div
+          className="mx-auto w-full max-w-[1280px]"
+          style={{ transform: 'translateY(-8.6vh)' }}
+        >
           {/*
-            Content block sits at ~55% from left (matching the artboard where LED row
-            spans x≈434–1077 of 1512). On mobile it centers.
+            Content block centered horizontally — Figma "Time" row (node 2268:35138)
+            center at x=755.5/1512 (50%); title textAlign center full-width.
+            items-center aligns title + LED row to center on all viewports.
           */}
-          <div
-            className="flex w-full flex-col items-center md:items-start md:max-w-[60%] lg:max-w-[55%]"
-          >
+          <div className="flex w-full flex-col items-center">
             {!countdown.isLoading && (
               <CountdownDisplay countdown={countdown} />
             )}
