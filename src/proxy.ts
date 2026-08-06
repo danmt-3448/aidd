@@ -34,13 +34,28 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // ------------------------------------------------------------------
-  // Pre-launch gate
+  // Auth fast-path (cheap — decided from the session alone, NO DB query)
   // ------------------------------------------------------------------
-  // Pre-launch gate applies to EVERYONE (authenticated + anonymous) so that,
-  // before launch, every visitor lands on /countdown. `event_config` is
-  // anon-readable (see migration); `is_admin` is only looked up when a session
-  // exists. Admins bypass; bypass paths (/countdown, /login, /auth, /dev-login)
-  // are never gated so people can still reach the countdown + log in.
+  // "Chưa login → /login luôn, khỏi check gì thêm. Login rồi mới check."
+  //   - logged in on /login  → send home.
+  //   - NOT logged in + protected route → straight to /login WITHOUT touching
+  //     the DB (event_config / profiles). This is the hot path for header link
+  //     clicks, so it must not pay for the pre-launch queries.
+  //   - NOT logged in + public route → fall through to the pre-launch gate so
+  //     anonymous visitors on the landing page ('/') still get sent to
+  //     /countdown before launch.
+  if (user && pathname === '/login') {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
+  if (!user && !isPublic(pathname)) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  // ------------------------------------------------------------------
+  // Pre-launch gate — only reached when logged in, or anonymous on a public
+  // path. event_config + is_admin run IN PARALLEL (was 2 sequential queries).
+  // Bypass paths (/countdown, /login, /auth, /dev-login) are never gated.
+  // ------------------------------------------------------------------
   if (!isBypassPath(pathname)) {
     const { createServerClient } = await import('@supabase/ssr')
     const supabase = createServerClient(
@@ -54,44 +69,25 @@ export async function proxy(request: NextRequest) {
       },
     )
 
-    const eventResult = await supabase
-      .from('event_config')
-      .select('event_start_at')
-      .eq('id', 1)
-      .maybeSingle()
-    // Fail-open: a missing/unreadable config never locks everyone out.
-    if (eventResult.error) {
-      console.error('[proxy:event_config]', eventResult.error.message)
-    }
-    const eventStartAt = eventResult.data?.event_start_at ?? null
+    // Parallelise: pre-launch date + admin flag are independent lookups.
+    // is_admin only matters when a session exists (admins bypass the gate).
+    const [eventResult, profileResult] = await Promise.all([
+      supabase.from('event_config').select('event_start_at').eq('id', 1).maybeSingle(),
+      user
+        ? supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle()
+        : Promise.resolve({ data: null, error: null }),
+    ])
 
-    let isAdmin = false
-    if (user) {
-      const profileResult = await supabase
-        .from('profiles')
-        .select('is_admin')
-        .eq('id', user.id)
-        .maybeSingle()
-      if (profileResult.error) {
-        console.error('[proxy:profiles]', profileResult.error.message)
-      }
-      isAdmin = profileResult.data?.is_admin === true
-    }
+    // Fail-open: a missing/unreadable config never locks everyone out.
+    if (eventResult.error) console.error('[proxy:event_config]', eventResult.error.message)
+    if (profileResult.error) console.error('[proxy:profiles]', profileResult.error.message)
+
+    const eventStartAt = eventResult.data?.event_start_at ?? null
+    const isAdmin = profileResult.data?.is_admin === true
 
     if (isPreLaunch(eventStartAt) && !isAdmin) {
       return NextResponse.redirect(new URL('/countdown', request.url))
     }
-  }
-
-  // ------------------------------------------------------------------
-  // Auth guard (existing logic — unchanged)
-  // ------------------------------------------------------------------
-  if (user && pathname === '/login') {
-    return NextResponse.redirect(new URL('/', request.url))
-  }
-
-  if (!user && !isPublic(pathname)) {
-    return NextResponse.redirect(new URL('/login', request.url))
   }
 
   return response
@@ -100,6 +96,6 @@ export async function proxy(request: NextRequest) {
 export const config = {
   // Bỏ qua static assets + _next; chạy guard cho các route còn lại.
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|otf|eot)$).*)',
   ],
 }
