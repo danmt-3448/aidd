@@ -48,13 +48,12 @@
       "mcp__momorph__list_frame_styles",
       "mcp__momorph__list_frame_spec_diffs",
       "mcp__backlog__get_issue",
-      "mcp__backlog__get_issue_comments"
+      "mcp__backlog__get_issue_comments",
+      "Bash(echo \"=== .mcp.example.json ===\" && cat .mcp.example.json 2>/dev/null; echo; echo \"=== .mcp.json \\(masked\\) ===\" && sed -E 's/\\(gh[pous]_[A-Za-z0-9]+|Bearer [A-Za-z0-9._-]+\\)/<REDACTED>/g' .mcp.json 2>/dev/null || echo \"\\(no .mcp.json\\)\")"
+    ],
+    "additionalDirectories": [
+      "/Users/mai.thanh.dan/Desktop/Sun/AI/aidd"
     ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/statusline.cjs",
-    "padding": 0
   },
   "hooks": {
     "SessionStart": [
@@ -367,5 +366,10 @@
         ]
       }
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/statusline.cjs",
+    "padding": 0
   }
 }
