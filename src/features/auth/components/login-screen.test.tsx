@@ -65,12 +65,15 @@ describe('LoginScreen', () => {
     expect(mainDiv).toHaveClass('min-h-screen')
   })
 
-  it('should render ROOT FURTHER heading as a single-line h1 element', () => {
+  it('should render ROOT FURTHER wordmark as an image asset (not h1 text)', () => {
+    // The wordmark is a pixel-perfect PNG/SVG asset (CẤM dựng lại bằng text/font).
+    // It renders as <img> via next/image with the headingAlt translation key.
     render(<LoginScreen />)
-    const heading = screen.getByRole('heading', { level: 1 })
-    expect(heading).toBeInTheDocument()
-    expect(heading).toHaveTextContent('ROOT FURTHER')
-    // white-space:nowrap prevents 2-line wrap (set via style prop)
-    expect(heading).toHaveClass('whitespace-nowrap')
+    // LoginHeader mock receives logoAlt; the wordmark img receives headingAlt.
+    // Both are rendered via next/image which our mock turns into <img>.
+    // The headingAlt translation in the default locale is "Root Further — Sun* Annual Awards 2025".
+    const wordmark = screen.getByAltText(/root further/i)
+    expect(wordmark).toBeInTheDocument()
+    expect(wordmark.tagName).toBe('IMG')
   })
 })

@@ -1,17 +1,23 @@
 /**
- * Unit tests for RulesPage — /rules renders as a modal over a dim backdrop.
+ * Unit tests for RulesPage — /rules mounts RulesModal with onClose = router.back().
  *
- * Happy paths:
- *  - renders dim backdrop element
- *  - renders RulesPanel with role="dialog"
- *  - × close button calls router.back()
- *  - Esc keydown calls router.back()
- *  - backdrop click (on the backdrop itself) calls router.back()
- *  - clicking inside the panel does NOT trigger close
+ * The page is a thin wrapper:
+ *   export default function RulesPage() {
+ *     const router = useRouter()
+ *     return <RulesModal onClose={() => router.back()} />
+ *   }
  *
- * Failure / edge paths:
- *  - onWriteKudos opens KudoComposeModal
+ * We mock RulesModal (the component the page actually renders) to expose the
+ * same interaction contract it promises callers, exercising the page's wiring:
+ *   - dim backdrop  (data-testid="rules-backdrop")
+ *   - dialog panel  (role="dialog", aria-label="Thể lệ SAA 2025")
+ *   - close button  → onClose()
+ *   - Esc key       → onClose() (suppressed while compose modal is open)
+ *   - backdrop click (target === backdrop) → onClose()
+ *   - panel click   → no close
+ *   - "Viết KUDOS" → opens inline KudoComposeModal; while open, Esc is suppressed
  */
+import React, { useState, useEffect } from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import RulesPage from './page'
@@ -24,53 +30,63 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ back: mockBack, push: mockPush }),
 }))
 
-// ── Mock RulesPanel to expose dialog role + onClose / onWriteKudos ──────────
-vi.mock('@/features/rules/components', () => ({
-  RulesPanel: ({
-    onClose,
-    onWriteKudos,
-  }: {
-    onClose: () => void
-    onWriteKudos: () => void
-    [key: string]: unknown
-  }) => (
-    <div role="dialog" aria-modal="true" aria-label="Thể lệ SAA 2025" data-testid="rules-panel">
-      <button onClick={onClose} aria-label="Đóng thể lệ">
-        Đóng
-      </button>
-      <button onClick={onWriteKudos}>Viết KUDOS</button>
-    </div>
-  ),
-}))
+// ── Mock RulesModal ───────────────────────────────────────────────────────────
+// Mirrors the real component's external contract so we can test the page wiring.
+vi.mock('@/features/rules/components', () => {
+  function RulesModal({ onClose }: { onClose: () => void }) {
+    const [composeOpen, setComposeOpen] = useState(false)
 
-// ── Mock KudoComposeModal ────────────────────────────────────────────────────
-vi.mock('@/features/kudos/components/kudo-compose-modal', () => ({
-  KudoComposeModal: ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) =>
-    isOpen ? (
-      <div role="dialog" aria-label="Viết KUDOS" data-testid="compose-modal">
-        <button onClick={onClose}>Đóng modal</button>
-      </div>
-    ) : null,
-}))
+    // Esc → onClose unless compose is open (same guard as the real component)
+    useEffect(() => {
+      function onKey(e: KeyboardEvent) {
+        if (e.key === 'Escape' && !composeOpen) onClose()
+      }
+      document.addEventListener('keydown', onKey)
+      return () => document.removeEventListener('keydown', onKey)
+    }, [composeOpen, onClose])
 
-// ── Mock rules-content (static data, not under test) ────────────────────────
-vi.mock('@/features/rules/rules-content', () => ({
-  RECIPIENT_SECTION: { heading: 'Người nhận', body: '' },
-  SENDER_SECTION: { heading: 'Người gửi', body: '' },
-  HERO_BADGES: [],
-  SECRET_BADGES: [],
-  SENDER_FOOTER_TEXT: '',
-  KUDOS_QUOC_DAN_HEADING: '',
-  KUDOS_QUOC_DAN_BODY: '',
-}))
+    function handleBackdropPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+      if (e.target === e.currentTarget) onClose()
+    }
 
+    return (
+      <>
+        <div
+          data-testid="rules-backdrop"
+          onPointerDown={handleBackdropPointerDown}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Thể lệ SAA 2025"
+            data-testid="rules-panel"
+          >
+            <button onClick={onClose} aria-label="Đóng thể lệ">
+              Đóng
+            </button>
+            <button onClick={() => setComposeOpen(true)}>Viết KUDOS</button>
+          </div>
+        </div>
+
+        {composeOpen && (
+          <div role="dialog" aria-label="Viết KUDOS" data-testid="compose-modal">
+            <button onClick={() => setComposeOpen(false)}>Đóng modal</button>
+          </div>
+        )}
+      </>
+    )
+  }
+
+  return { RulesModal }
+})
+
+// ── Setup ─────────────────────────────────────────────────────────────────────
 beforeEach(() => {
   vi.clearAllMocks()
 })
 
+// ── Tests ─────────────────────────────────────────────────────────────────────
 describe('RulesPage', () => {
-  // ── Happy path ────────────────────────────────────────────────────────────
-
   it('renders a dim backdrop element', () => {
     render(<RulesPage />)
     expect(screen.getByTestId('rules-backdrop')).toBeInTheDocument()
@@ -78,8 +94,7 @@ describe('RulesPage', () => {
 
   it('renders the rules panel with role="dialog"', () => {
     render(<RulesPage />)
-    const dialog = screen.getByRole('dialog', { name: /thể lệ saa 2025/i })
-    expect(dialog).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: /thể lệ saa 2025/i })).toBeInTheDocument()
   })
 
   it('close button calls router.back()', () => {
@@ -97,7 +112,7 @@ describe('RulesPage', () => {
   it('clicking the backdrop itself calls router.back()', () => {
     render(<RulesPage />)
     const backdrop = screen.getByTestId('rules-backdrop')
-    // Simulate a pointerdown directly on the backdrop (not a child)
+    // pointerDown whose target IS the backdrop (not a child) → triggers onClose
     fireEvent.pointerDown(backdrop, { target: backdrop })
     expect(mockBack).toHaveBeenCalledTimes(1)
   })
@@ -110,8 +125,6 @@ describe('RulesPage', () => {
     expect(mockPush).not.toHaveBeenCalled()
   })
 
-  // ── KudoComposeModal ──────────────────────────────────────────────────────
-
   it('onWriteKudos opens KudoComposeModal', () => {
     render(<RulesPage />)
     expect(screen.queryByTestId('compose-modal')).not.toBeInTheDocument()
@@ -121,10 +134,8 @@ describe('RulesPage', () => {
 
   it('Esc does NOT close rules when compose modal is open', () => {
     render(<RulesPage />)
-    // Open compose modal
     fireEvent.click(screen.getByRole('button', { name: /viết kudos/i }))
     mockBack.mockClear()
-    // Esc should not close the rules page while compose is open
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(mockBack).not.toHaveBeenCalled()
   })

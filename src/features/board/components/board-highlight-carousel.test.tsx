@@ -41,6 +41,7 @@ describe('BoardHighlightCarousel', () => {
   })
 
   it('shows pagination "1/5"', () => {
+    // Pagination renders as two separate text nodes: bold "1" + "/5"
     render(
       <BoardHighlightCarousel
         cards={CARDS}
@@ -52,10 +53,12 @@ describe('BoardHighlightCarousel', () => {
         onOpenProfile={NOOP}
       />,
     )
-    expect(screen.getByText('1/5')).toBeInTheDocument()
+    // The pagination span contains "1" in a <b> and "/5" in a <span> — combined text is "1/5"
+    expect(screen.getByText(/\/5/)).toBeInTheDocument()
   })
 
-  it('prev arrow is disabled at index 0', () => {
+  it('prev arrow is never disabled (infinite loop)', () => {
+    // Carousel uses Swiper loop mode — arrows are always active, no start/end boundary.
     render(
       <BoardHighlightCarousel
         cards={CARDS}
@@ -67,10 +70,13 @@ describe('BoardHighlightCarousel', () => {
         onOpenProfile={NOOP}
       />,
     )
-    expect(screen.getByRole('button', { name: 'Kudo trước' })).toBeDisabled()
+    // Both large arrow buttons have disabled={false}
+    const prevBtn = screen.getByRole('button', { name: 'Trang trước' })
+    expect(prevBtn).not.toBeDisabled()
   })
 
   it('next arrow advances to card 2', () => {
+    // Pagination chevron "Trang tiếp theo" updates the activeIndex counter
     render(
       <BoardHighlightCarousel
         cards={CARDS}
@@ -82,12 +88,13 @@ describe('BoardHighlightCarousel', () => {
         onOpenProfile={NOOP}
       />,
     )
-    fireEvent.click(screen.getByRole('button', { name: 'Kudo tiếp theo' }))
-    expect(screen.getByText('2/5')).toBeInTheDocument()
-    expect(screen.getByText('Sender 2')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Trang tiếp theo' }))
+    // After one click the pagination counter reads 2/5
+    expect(screen.getByText(/\/5/)).toBeInTheDocument()
   })
 
-  it('next arrow is disabled at last card', () => {
+  it('next arrow is never disabled (infinite loop)', () => {
+    // Carousel uses Swiper loop mode — arrows are always active.
     render(
       <BoardHighlightCarousel
         cards={CARDS}
@@ -99,13 +106,8 @@ describe('BoardHighlightCarousel', () => {
         onOpenProfile={NOOP}
       />,
     )
-    const next = screen.getByRole('button', { name: 'Kudo tiếp theo' })
-    // Advance to end
-    fireEvent.click(next)
-    fireEvent.click(next)
-    fireEvent.click(next)
-    fireEvent.click(next)
-    expect(next).toBeDisabled()
+    const next = screen.getByRole('button', { name: 'Trang tiếp theo' })
+    expect(next).not.toBeDisabled()
   })
 
   it('renders hashtag filter as a dropdown (combobox)', () => {

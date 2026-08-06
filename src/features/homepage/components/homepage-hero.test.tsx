@@ -78,14 +78,14 @@ describe('HomepageHero', () => {
   })
 
   describe('Event info', () => {
-    it('renders event date placeholder', () => {
+    it('renders event date', () => {
       render(
         <HomepageHero
           countdown={{ days: 0, hours: 0, minutes: 0 }}
         />
       )
 
-      expect(screen.getByText('Tháng 12/2025')).toBeInTheDocument()
+      expect(screen.getByText('26/12/2025')).toBeInTheDocument()
     })
 
     it('renders event location', () => {
@@ -95,7 +95,7 @@ describe('HomepageHero', () => {
         />
       )
 
-      expect(screen.getByText('TP. Hồ Chí Minh')).toBeInTheDocument()
+      expect(screen.getByText('Âu Cơ Art Center')).toBeInTheDocument()
     })
 
     it('renders livestream text', () => {
@@ -121,17 +121,18 @@ describe('HomepageHero', () => {
       expect(awardsButton).toHaveAttribute('href', '/awards')
     })
 
-    it('ID-45: "ABOUT KUDOS" CTA links to /kudos', () => {
+    it('ID-45: "ABOUT KUDOS" CTA links to /board', () => {
+      // Figma CTA2 links to the Kudos board feed (/board), not /kudos.
       render(
         <HomepageHero
           countdown={{ days: 0, hours: 0, minutes: 0 }}
         />
       )
 
-      // Find all CTA buttons and look for the one mentioning Kudos
+      // Find all CTA links and look for the one mentioning Kudos
       const ctaButtons = screen.getAllByRole('link')
       const kudosButton = ctaButtons.find(btn => btn.textContent?.includes('ABOUT KUDOS'))
-      expect(kudosButton).toHaveAttribute('href', '/kudos')
+      expect(kudosButton).toHaveAttribute('href', '/board')
     })
 
     it('renders both CTA buttons with correct styling', () => {
@@ -191,85 +192,94 @@ describe('HomepageHero', () => {
     // H-3: FAB is auth-gated — only rendered when onWriteKudo is provided.
     // Anonymous visitors (no handler) must NOT see the FAB.
 
-    it('does NOT render FAB when onWriteKudo is not provided (anonymous visitor)', () => {
+    it('does NOT render FAB when onWriteKudo and onOpenRules are not provided (anonymous visitor)', () => {
+      // FAB requires BOTH onWriteKudo and onOpenRules — omitting either hides the FAB.
       render(
         <HomepageHero
           countdown={{ days: 0, hours: 0, minutes: 0 }}
         />
       )
 
-      const fab = screen.queryByRole('button', { name: /viết kudo nhanh/i })
+      const fab = screen.queryByRole('button', { name: /mở menu nhanh/i })
       expect(fab).not.toBeInTheDocument()
     })
 
-    it('renders Viết Kudo FAB trigger when onWriteKudo is provided (authenticated)', () => {
+    it('renders Viết Kudo FAB trigger when onWriteKudo and onOpenRules are provided (authenticated)', () => {
       const onWriteKudo = vi.fn()
+      const onOpenRules = vi.fn()
 
       render(
         <HomepageHero
           countdown={{ days: 0, hours: 0, minutes: 0 }}
           onWriteKudo={onWriteKudo}
+          onOpenRules={onOpenRules}
         />
       )
 
-      const fab = screen.getByRole('button', { name: /viết kudo nhanh/i })
+      // Collapsed FAB pill label is "Mở menu nhanh"
+      const fab = screen.getByRole('button', { name: /mở menu nhanh/i })
       expect(fab).toBeInTheDocument()
-      // FAB pill is the menu trigger — check aria-haspopup
       expect(fab).toHaveAttribute('aria-haspopup', 'menu')
     })
 
     it('opens quick-action menu when FAB is clicked', async () => {
       const onWriteKudo = vi.fn()
+      const onOpenRules = vi.fn()
 
       render(
         <HomepageHero
           countdown={{ days: 0, hours: 0, minutes: 0 }}
           onWriteKudo={onWriteKudo}
+          onOpenRules={onOpenRules}
         />
       )
 
-      const fab = screen.getByRole('button', { name: /viết kudo nhanh/i })
+      const fab = screen.getByRole('button', { name: /mở menu nhanh/i })
       await userEvent.click(fab)
 
       expect(screen.getByRole('menu')).toBeInTheDocument()
-      expect(screen.getByRole('menuitem', { name: /viết kudo/i })).toBeInTheDocument()
+      expect(screen.getByRole('menuitem', { name: /viết kudos/i })).toBeInTheDocument()
       expect(screen.getByRole('menuitem', { name: /thể lệ/i })).toBeInTheDocument()
     })
 
-    it('calls onWriteKudo when "Viết Kudo" menu item is clicked', async () => {
+    it('calls onWriteKudo when "Viết KUDOS" menu item is clicked', async () => {
       const onWriteKudo = vi.fn()
+      const onOpenRules = vi.fn()
 
       render(
         <HomepageHero
           countdown={{ days: 0, hours: 0, minutes: 0 }}
           onWriteKudo={onWriteKudo}
+          onOpenRules={onOpenRules}
         />
       )
 
-      await userEvent.click(screen.getByRole('button', { name: /viết kudo nhanh/i }))
-      await userEvent.click(screen.getByRole('menuitem', { name: /viết kudo/i }))
+      await userEvent.click(screen.getByRole('button', { name: /mở menu nhanh/i }))
+      await userEvent.click(screen.getByRole('menuitem', { name: /viết kudos/i }))
 
       expect(onWriteKudo).toHaveBeenCalledTimes(1)
     })
 
     it('closes menu on Escape key', async () => {
       const onWriteKudo = vi.fn()
+      const onOpenRules = vi.fn()
 
       render(
         <HomepageHero
           countdown={{ days: 0, hours: 0, minutes: 0 }}
           onWriteKudo={onWriteKudo}
+          onOpenRules={onOpenRules}
         />
       )
 
-      await userEvent.click(screen.getByRole('button', { name: /viết kudo nhanh/i }))
+      await userEvent.click(screen.getByRole('button', { name: /mở menu nhanh/i }))
       expect(screen.getByRole('menu')).toBeInTheDocument()
 
       await userEvent.keyboard('{Escape}')
       expect(screen.queryByRole('menu')).not.toBeInTheDocument()
     })
 
-    it('does not throw when onWriteKudo is not provided', () => {
+    it('does not throw when onWriteKudo and onOpenRules are not provided', () => {
       expect(() => {
         render(
           <HomepageHero

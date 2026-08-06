@@ -100,7 +100,10 @@ describe('ProfileHero', () => {
   })
 
   describe('Tier badge', () => {
-    it('renders tier badge + stars when tier and stars are non-null', () => {
+    it('renders tier badge when tier is non-null', () => {
+      // TierBadge renders the tier name as a styled pill. Stars are not
+      // rendered in the current design (the `stars` prop is accepted for
+      // future use but the component does not display star icons).
       render(
         <ProfileHero
           header={{
@@ -111,7 +114,6 @@ describe('ProfileHero', () => {
         />
       )
       expect(screen.getByText('Rising Hero')).toBeInTheDocument()
-      expect(screen.getByLabelText('2 sao')).toBeInTheDocument()
     })
 
     it('hides tier badge when tier is null', () => {

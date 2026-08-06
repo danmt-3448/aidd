@@ -50,10 +50,11 @@ describe('HomepageFooter', () => {
       expect(kudosLink).toHaveAttribute('href', '/board')
     })
 
-    it('renders "Thể lệ" link to /rules', () => {
+    it('renders "Tiêu chuẩn chung" link to /rules', () => {
+      // Figma nav label is "Tiêu chuẩn chung" (not "Thể lệ") in the footer.
       render(<HomepageFooter />)
 
-      const rulesLink = screen.getByRole('link', { name: /thể lệ/i })
+      const rulesLink = screen.getByRole('link', { name: /tiêu chuẩn chung/i })
       expect(rulesLink).toHaveAttribute('href', '/rules')
     })
 
@@ -149,11 +150,12 @@ describe('HomepageFooter', () => {
     it('all nav links have proper text content', () => {
       render(<HomepageFooter />)
 
+      // Fourth nav link is "Tiêu chuẩn chung" (Figma label), not "Thể lệ".
       const expectedLinks = [
         /about saa 2025/i,
         /award information/i,
         /sun\* kudos/i,
-        /thể lệ/i,
+        /tiêu chuẩn chung/i,
       ]
 
       expectedLinks.forEach((label) => {
