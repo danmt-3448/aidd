@@ -32,6 +32,8 @@ Chốt chặn chất lượng UI theo `.claude/rules/ui-first-gate.md`. Một sc
 ## Steps
 
 ### 1. Resolve refs
+**Runtime guard (RT-12):** nếu thiếu `.claude/skills/aidd-ui-gate/scripts/style-assert.mjs` → **BLOCKED** "tooling property-diff chưa cài", KHÔNG rơi về pixel-diff cũ làm cổng. (Chống gate cũ clear nhầm lúc rollout.)
+
 Xác định `fileKey` + `screenId` + route local. Theo thứ tự:
 1. Input là **URL** → parse thẳng `fileKey`/`screenId`.
 2. Input là **route** (vd `/board`) → tìm screenId bằng, theo thứ tự: (a) grep MoMorph URL trong `src/app/{route}/page.tsx` + component của feature đó; (b) grep trong `plans/**/phase-*.md` của feature; (c) chạy `check-progress` để lấy bảng screen↔route nếu có.
@@ -49,45 +51,32 @@ Không resolve được screenId → **hỏi user**, KHÔNG đoán. Không có r
   3. `mcp__momorph__get_figma_image` / `get_frame_node_tree` để dò node annotation nếu có.
   - Quét hết **NOTE / callout / nhãn state** (vd `Dropdown Hashtag filter`, `NOTE Highlight`, `Avatar info user`) → mỗi cái là **1 mục behavior/state** phải đưa vào checklist nhóm B. Figma có mà MoMorph không có → Figma thắng.
 
-### 3. Visual-diff (nhóm A) — AUTO PIXEL-DIFF ≥ 99%
-Với mỗi viewport: `browser_resize(w, h)` → `browser_navigate` route → `browser_take_screenshot` (`fullPage:true`).
-**Chụp FULL PAGE — soi TỪ HEADER TỚI FOOTER, mọi section, không chỉ vùng nhìn thấy.** (Đã từng sót hẳn footer.)
+### 3. Visual + property gate (nhóm A) — CỔNG CHÍNH = PROPERTY-DIFF (SỐ)
 
-**3a. Pixel-diff định lượng (cổng chính — PASS khi ≤ 1% pixel lệch):**
+> **Đổi 2026-08-06 (plan `260806-0711`, red-team-hardened):** cổng cứng nhóm A là **property-diff số** (`getComputedStyle` code vs `get_node` design), KHÔNG phải pixel-diff toàn trang. Pixel/band-diff hạ xuống **overlay tham khảo** (không quyết verdict). Lý do: pixel-diff toàn trang mù với sai màu/weight/icon/asset và vỡ vì ref 1512≠1440 + height cascade.
 
-1. Lưu ảnh Figma reference (Step 2 `get_frame_image`) → `plans/reports/_gate-ref/{screen}-{vw}.png`. Lưu screenshot app → `{screen}-{vw}-actual.png`.
-2. **Align kích thước** (bắt buộc — 2 ảnh phải cùng W×H mới diff được): scale ảnh app về **đúng width reference** (1440/1280), rồi crop/pad chiều cao cho khớp reference height. Đặt DPR=1 khi chụp để tránh nhân đôi pixel.
-3. **Mask vùng động** trước khi diff: countdown digits, avatar, timestamp, bất kỳ giá trị runtime — vẽ khối đặc lên cả 2 ảnh (chúng là behavior/data, không phải drift layout).
-4. Chạy pixel-diff qua script node (pixelmatch + pngjs), ví dụ:
+**Tiền đề:** mỗi màn có `plans/reports/_gate-ref/nodemap/{screen}.nodemap.json` map `nodeId ↔ selector ↔ kind` (build gắn `data-fig`/`data-fig-asset`/`data-fig-icon` — xem `.claude/roles/fe-developer.md`). **Không có nodemap / 0 tag → BLOCKED**, KHÔNG chấm bằng mắt.
+
+**3a. Property-diff (CỔNG CỨNG):**
+1. **Pin state + font:** `browser_navigate {route}?ui_state=full`, chờ `document.fonts.ready` rồi `document.fonts.check('700 16px Inter')` — false → **dừng, không kết luận** (font chưa load ⇒ mọi weight/size giả). Chụp/eval với `--force-color-profile=srgb` (màu xác định, chống lệch P3/sRGB).
+2. **Cross-check tag đúng node** (chống gắn nhầm nodeId): mỗi entry crop bbox node (`get_node.absoluteBoundingBox` trên `get_frame_image`) đặt cạnh `browser_take_screenshot` theo selector → xác nhận **cùng element** rồi mới tính số.
+3. **Đọc code — 1 lần `browser_evaluate`** quét mọi selector trong nodemap, trả `getComputedStyle`: `color, backgroundColor, opacity, fontWeight, fontSize, lineHeight, letterSpacing, paddingTop, paddingLeft, rowGap, columnGap, width, height, offsetHeight, borderTopLeftRadius, borderTopWidth+color` + `src`/`iconFill` cho asset/icon. **Dùng `rowGap`/`columnGap`, KHÔNG `gap`** (getComputedStyle trả `""`).
+4. **Đọc design:** `get_node(screenId, nodeId)` mỗi entry → fill (rgba), fontWeight, fontSize, padding, w/h, cornerRadius, border, opacity.
+5. **So số:** ghép `{key:{kind,code,design}}` → JSON, chạy:
    ```bash
-   node .claude/skills/aidd-ui-gate/scripts/pixel-diff.mjs \
-     --ref plans/reports/_gate-ref/{screen}-1440.png \
-     --actual plans/reports/_gate-ref/{screen}-1440-actual.png \
-     --out plans/reports/_gate-ref/{screen}-1440-diff.png \
-     --mask "x,y,w,h;..." --aa
+   node .claude/skills/aidd-ui-gate/scripts/style-assert.mjs \
+     --map plans/reports/_gate-ref/nodemap/{screen}.map.json \
+     --min-elements 5 --screen {screen}
    ```
-   Script dùng `pixelmatch(img1, img2, diff, w, h, { threshold: 0.1, includeAA: false })` → in `mismatchedPixels` + `ratio = mismatched/(w*h)`. Chưa có tool → `npx pixelmatch` hoặc `npx odiff <ref> <actual> <diff> --antialiasing --threshold=0.1`; odiff in luôn % khác biệt.
-5. **PASS pixel-gate khi `ratio ≤ 0.01` (≥ 99% giống)** ở CẢ 1440 + 1280. `> 1%` → FAIL, mở ảnh `-diff.png` khoanh vùng đỏ để biết chỗ lệch.
+   Màu so **rgba cả alpha** (opacity cha nhân vào) — KHÔNG drop-to-hex; ±1px size/spacing/line-height; weight tuyệt đối; asset phải `<img>/<svg>/<picture>`; icon fill khớp (null = FAIL, không WARN); `kind:'section'` so `offsetHeight` vs node height ±2px. **Exit 0=PASS · 1=FAIL** (localize element/prop) **· 2=coverage** (map rỗng / thiếu tag / element missing — **KHÔNG PASS câm**).
 
-**3b. Model-visual (bắt lỗi pixel-diff bỏ sót — chạy sau khi 3a PASS):** đặt screenshot cạnh reference, soi từng vùng theo checklist (những lỗi này pixel-diff có thể cho ratio thấp mà vẫn sai bản chất):
-   - **Layout composition** ⚠️ — section nào **full-width** vs section nào chia **2 cột (feed + sidebar)**? Nhóm sai (vd sidebar bọc nhầm cả highlight/spotlight) = FAIL. Đối chiếu cấu trúc tổng thể, không chỉ từng component.
-   - **Kích thước/tỉ lệ element** — box/section có cao/rộng đúng tỉ lệ Figma? (Đã từng: spotlight box quá dài.) So chiều cao node.
-   - **Màu sắc** — bg, text, border, gradient: đối chiếu **hex** (qua `get_node`, không đoán). ⚠️ card có thể là nền SÁNG/kem — đừng mặc định tối.
-   - **Màu icon** ⚠️ — fill/stroke MỌI icon khớp design (dễ sai: icon đen mặc định, sai brand color, sai state active/inactive).
-   - **Ảnh/logo/wordmark là ASSET ẢNH** — nếu Figma là image (logo, wordmark, artwork) thì phải render bằng `<Image>` từ file export, **KHÔNG dựng lại bằng text/CSS/font**. Kiểm: element đó là `<img>`/`<svg>` hay bị fake bằng `<h1>`/`<div>`? Fake = FAIL.
-   - **Không đè/không cắt** — text/word-cloud/element không chồng lên nhau, không bị cắt.
-   - font (family/weight/size) · spacing · vị trí · **control states** (nút active/disabled, carousel trang active, dropdown) theo test-cases.
-   - Vùng nghi ngờ → đọc giá trị thật (`browser_evaluate` + `getComputedStyle`; icon SVG đọc `fill`/`stroke`) đối chiếu node spec.
+**3b. Nets phụ (cùng state `?ui_state=full`, trong `browser_evaluate`):**
+- **overflow/overlap @1280:** `scrollWidth>clientWidth` = FAIL; bbox 2 item cùng nhóm giao nhau = FAIL (đè/cắt chữ).
+- **density:** đếm DOM item vs số con list trong `get_frame_node_tree` — dưới ngưỡng = FAIL "mock thưa"; assert section bắt buộc tồn tại (vd `footer`).
 
-**Ngưỡng PASS/FAIL (pixel-perfect ≥ 99% — pixel-diff ≤ 1%):**
+**3c. Pixel/band overlay (OPT-IN — KHÔNG quyết verdict):** soi bố cục tổng bằng mắt. `pixel-diff.mjs [--bands manifest]`, downscale ref 1512→1440 (**không upscale actual**). In ratio/band cho người xem, KHÔNG exit-fail gate.
 
-| Viewport | Ngưỡng |
-|---|---|
-| **1440 (ưu tiên 1)** | **PASS khi pixel-diff ratio ≤ 1%** (sau khi mask vùng động + bật AA tolerance). > 1% → FAIL, liệt kê vùng đỏ trên `-diff.png`. Ngoài ra vẫn FAIL bất kể ratio nếu model-visual (3b) bắt: logo/wordmark/artwork **dựng bằng text/CSS thay vì asset ảnh**, **sai màu icon**, **mock data thưa hơn Figma**, thiếu section (footer), text đè/cắt. |
-| **1280 (ưu tiên 2)** | Cùng ngưỡng ≤ 1% pixel-diff, **THÊM** FAIL nếu overflow ngang (scroll ngang) · đè/cắt chữ · layout vỡ khi thu về 1280. |
-| ~~768 / 375~~ | **BỎ — không chấm ở gate.** |
-
-Report ghi **ratio % từng viewport** + từng FAIL kèm bằng chứng (vùng đỏ trên diff, sai cái gì).
+**Ngưỡng nhóm A:** PASS khi **property-diff (3a) exit 0** ở cả 1440 + 1280 **VÀ** nets (3b) không FAIL. `style-assert` exit 1/2 → FAIL/BLOCKED. Pixel/band (3c) chỉ ghi tham khảo. Report: bảng `key|prop|code|design|verdict` + nets + (tuỳ chọn) overlay ratio.
 
 ### 4. Behavior checklist với MOCK DATA (nhóm B — bỏ nếu `--visual-only`)
 Lấy test cases làm checklist (KHÔNG viết code test):
@@ -107,22 +96,25 @@ Ghi report vào `plans/reports/ui-gate-{date}-{screen-slug}.md`:
 ```
 # UI-First Gate — {screen} — {PASS|FAIL}
 
-## A. Visual pixel-perfect ≥ 99% (1440 ưu tiên 1 / 1280 ưu tiên 2) — chấm full-page
-- **Pixel-diff ratio: 1440 = {x.xx}% · 1280 = {x.xx}%** (PASS khi ≤ 1%); mask vùng động: {liệt kê}
-- Model-visual (3b): layout composition · màu icon · asset ảnh (không fake text) · không đè/cắt · density mock · đủ section (footer): {liệt kê FAIL nếu có}
-- 1440: PASS|FAIL · 1280: PASS|FAIL · diff images: `plans/reports/_gate-ref/{screen}-*-diff.png`
-- Port đã verify: {vd 127.0.0.1:3001}
+## A. Property-diff (CỔNG CỨNG) — 1440 + 1280
+- **`style-assert` verdict: {PASS|FAIL|coverage-error}** · elements={N} (min {N_min}) · checks={M} · failed={K}
+- FAIL rows: {key | prop | code | design} — localize element/prop sai
+- Nets (3b): overflow/overlap @1280 · density vs get_frame_node_tree · section tồn tại: {FAIL nếu có}
+- Overlay tham khảo (3c, KHÔNG quyết verdict): pixel/band ratio {x.xx}% · diff: `plans/reports/_gate-ref/{screen}-*-diff.png`
+- Port đã verify: {vd 127.0.0.1:3001} · color-profile=srgb · font.ready=true
 
 ## B. Behavior (mock data) — phải 100%
 - [x]/[ ] từng mục checklist + note
 
-## Verdict: PASS | FAIL
-## Nếu FAIL → việc cần fix (file + mô tả), gửi lại fe-developer
+## Verdict: PASS | FAIL | BLOCKED
+## Nếu FAIL → việc cần fix (file + element + prop), gửi lại fe-developer
 ```
 
-- **PASS** khi: A đạt pixel-diff ≤ 1% (≥ 99%) ở cả 1440+1280 **VÀ** B đúng 100%. → screen được phép sang integration → test → review. Báo user.
-- Lưu ý: B sai 1 mục → **FAIL toàn gate** kể cả A đẹp. A > 1% pixel-diff → FAIL kể cả B đúng.
-- **FAIL** → liệt kê cụ thể file + fix cần làm, KHÔNG cho đi tiếp. Loop: fe-developer fix → chạy `/aidd-ui-gate` lại.
+- **PASS** khi: A `style-assert` exit 0 + nets không FAIL ở cả 1440+1280 **VÀ** B đúng 100%. → screen được phép sang integration → test → review. Báo user.
+- Lưu ý: B sai 1 mục → **FAIL toàn gate** kể cả A đẹp. A exit 1 (prop sai) → FAIL; exit 2 (coverage/map rỗng/thiếu tag) → **BLOCKED**, KHÔNG PASS câm. Overlay (3c) đẹp KHÔNG cứu được A FAIL.
+- **FAIL** → liệt kê cụ thể file + element + prop cần fix, KHÔNG cho đi tiếp. Loop: fe-developer fix → chạy `/aidd-ui-gate` lại.
+
+**Ghi verdict cho hook (RT-4):** cuối Step 5, ghi `lastVerdict` + `lastVerdictAt` vào session state (`.claude/hooks/.logs/ui-gate-<session>.json` qua `lib/ui-gate-state.cjs`). Enforcer chỉ clear khi `lastVerdict==='PASS'` — run BLOCKED/FAIL KHÔNG mở được Stop.
 
 ---
 

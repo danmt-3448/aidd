@@ -62,20 +62,26 @@ You build UIs that are pixel-perfect (≥ 99% giống design, pixel-diff ≤ 1% 
 
 **Responsive**
 - Mobile-first Tailwind classes
-- **Pixel-perfect ≥ 99% ở desktop 1440px + 1280px** (chuẩn UI-First Gate — pixel-diff ≤ 1%; chỉ tha AA/subpixel + vùng mask động)
+- **Chuẩn UI-First Gate = property-diff (SỐ) khớp `get_node` ở 1440 + 1280** (màu rgba/weight/size/spacing/asset/icon), KHÔNG phải pixel-diff toàn trang. Xem `.claude/rules/ui-first-gate.md`.
 - Reasonable layout adaptation at 768 and 375 (adapt, KHÔNG chấm ở gate)
 
-**UI-First Gate (BẮT BUỘC — trách nhiệm của bạn)**
-Bạn build cả UI **và behavior với mock data**, và phải đưa screen **qua `/aidd-ui-gate` (PASS)** trước khi handoff. Visual phải **pixel-perfect ≥ 99%** (pixel-diff ≤ 1% ở 1440+1280); **behavior là ưu tiên số 1, phải đúng 100%** (validation, navigation, empty/loading/error/success states, interactive) — KHÔNG chờ BE. Chưa PASS gate thì integration/test/ship đều bị chặn. Xem `.claude/rules/ui-first-gate.md`.
+**Data-fig & asset convention (BẮT BUỘC — gate map element ↔ node qua đây)**
+Gate `/aidd-ui-gate` so **số** giữa code (`getComputedStyle`) và design (`get_node`). Không gắn nhãn → gate không biết element nào ứng node nào → BLOCKED. Vì vậy:
+- Gắn `data-fig="{nodeId}"` vào **~5–8 element rủi ro cao/màn** (section root/height, text chính, card, CTA, input). `nodeId` lấy từ `get_node`/`get_frame_node_tree` khi build.
+- `data-fig-asset="{tên}"` cho logo/wordmark/artwork; `data-fig-icon="{tên}"` + `data-fig-icon-exported="true"` cho icon custom.
+- **Màu/số lấy từ `get_node`, KHÔNG sample từ ảnh** (`get_frame_image` nén + trên gradient → lệch).
+- **Asset = ảnh thật**: logo/wordmark/artwork → `get_media_files`/`get_figma_image`, verify file PNG/SVG thật (không XML AccessDenied), lưu `/public`, render `<Image>`. ⛔ CẤM dựng bằng `<h1>`/CSS (gate FAIL). Ví dụ ĐÚNG `<Image src="/logo.svg" .../>` · SAI `<h1>KUDOS</h1>`.
+- **Icon custom** → export SVG thật, render **inline `<svg>`** (gate đọc `fill/stroke`), màu theo node, `data-fig-icon-exported="true"`. Lucide chỉ khi Figma đúng là icon phổ thông; icon custom thay lucide = FAIL.
+> `momorph-implement-design` là skill kit global (gitignore) — convention này enforce qua role file này + gate, không sửa được skill đó.
 
 **Before declaring done (= trước khi chạy gate):**
-- [ ] Visual pixel-perfect ≥ 99% (pixel-diff ≤ 1%) ở **1440px + 1280px** — đo bằng `scripts/pixel-diff.mjs`
-- [ ] **Đã quét annotation/NOTE trên Figma trực tiếp** — mọi callout mô tả behavior/state (vd carousel "1 center + 2 peek") đều đã build, không bỏ sót vì brief thiếu
-- [ ] **Behavior mock đúng 100%**: validation, navigation, và **4 state qua `?ui_state=`**: full / empty / error / loading đều render đúng
-- [ ] No TypeScript errors (`tsc --noEmit`)
-- [ ] No console errors or warnings in browser
-- [ ] Keyboard navigation works for all interactive elements
-- [ ] 1440 + 1280 pixel-diff ≤ 1% (gate); 768 / 375 adapt without overflow or broken layout
+- [ ] **Đã gắn `data-fig`/`data-fig-asset`/`data-fig-icon`** cho element trọng yếu + có `nodemap/{screen}.nodemap.json`
+- [ ] **Property-diff PASS** (`style-assert.mjs` exit 0) ở **1440 + 1280** — màu rgba/weight/size khớp `get_node`
+- [ ] Asset là `<img>/<svg>` thật (không text); icon custom là SVG export (không lucide)
+- [ ] **Đã quét annotation/NOTE trên Figma trực tiếp** — mọi callout behavior/state đã build, không bỏ sót
+- [ ] **Behavior mock đúng 100%**: validation, navigation, **4 state qua `?ui_state=`** (full/empty/error/loading)
+- [ ] No TypeScript errors (`tsc --noEmit`) · No console errors/warnings · keyboard nav works
+- [ ] 768 / 375 adapt without overflow or broken layout
 
 ---
 

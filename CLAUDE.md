@@ -110,10 +110,10 @@ Quy tắc: **skill trước, code sau** — không code ad-hoc. Takumi điều p
 
 > Đây là tiêu chuẩn của **UI-First Gate** — xem `.claude/rules/ui-first-gate.md`. Mỗi screen phải qua gate (`/aidd-ui-gate`) trước integration/test/ship.
 
-- **Chuẩn desktop = 1440px + 1280px, PIXEL-PERFECT ≥ 99% (pixel-diff ≤ 1%)** — đo bằng auto pixel-diff (pixelmatch) vs ảnh Figma; chỉ tha anti-alias/subpixel + vùng mask động (countdown/avatar). KHÔNG đoán giá trị visual — lấy qua MoMorph MCP làm mốc.
+- **Chuẩn desktop = 1440px + 1280px, PROPERTY-DIFF (SỐ) là cổng cứng** — `getComputedStyle` code khớp `get_node` design (màu rgba/weight/size/spacing/asset/icon), đo bằng `scripts/style-assert.mjs`. Pixel/band-diff chỉ là overlay tham khảo. KHÔNG đoán giá trị visual — lấy qua MoMorph MCP làm mốc.
 - **Behavior/logic ưu tiên số 1 — phải đúng 100%** (validation, navigation, states, interactive). Sai behavior → FAIL gate kể cả UI đẹp.
-- **Responsive default-on** — màn nhỏ hơn chỉ cần adapt đúng (768/375 KHÔNG chấm ở gate). Chuẩn pixel-perfect chỉ áp cho **1440 + 1280**. Mobile-first, breakpoint Tailwind mặc định `sm 640 · md 768 · lg 1024 · xl 1280`.
-- Design là artboard **desktop 1440** → pixel-perfect ≥ 99% ở 1440 + 1280; size khác adapt hợp lý (`clamp()` cho font lớn, stack cột, `width:100%` cho media). Màn nào có artboard mobile riêng → khớp luôn.
+- **Responsive default-on** — màn nhỏ hơn chỉ cần adapt đúng (768/375 KHÔNG chấm ở gate). Chuẩn property-diff chỉ áp cho **1440 + 1280**. Mobile-first, breakpoint Tailwind mặc định `sm 640 · md 768 · lg 1024 · xl 1280`.
+- Design là artboard **desktop 1440** → property-diff số khớp ở 1440 + 1280; size khác adapt hợp lý (`clamp()` cho font lớn, stack cột, `width:100%` cho media). Màn nào có artboard mobile riêng → khớp luôn.
 - Không hardcode `width/height` cố định cho element rộng > 50% viewport.
 
 ## Gen-Code Workflow (MoMorph → code)
@@ -125,7 +125,7 @@ Match the scenario to the task (see the hands-on README):
 3. **UI only from design** → `/momorph-implement-design <MoMorph Screen URLs>`
 4. **Fix a bug on a screen** → `/tkm:fix-bug <description> <MoMorph Screen URL>`
 
-Rules: **never guess visual values** — MCP design data is authoritative. Fetch spec + test cases, resolve gaps via clarification, then build. UI (Track A) and backend/logic (Track B) run in parallel — **nhưng mỗi screen phải qua UI-First Gate (`/aidd-ui-gate`, 1440+1280 pixel-perfect ≥ 99% + behavior mock đúng 100%) TRƯỚC khi integration/test/ship**. Xem `.claude/rules/ui-first-gate.md`.
+Rules: **never guess visual values** — MCP design data is authoritative. Fetch spec + test cases, resolve gaps via clarification, then build. UI (Track A) and backend/logic (Track B) run in parallel — **nhưng mỗi screen phải qua UI-First Gate (`/aidd-ui-gate`, 1440+1280 property-diff số khớp get_node + behavior mock đúng 100%) TRƯỚC khi integration/test/ship**. Xem `.claude/rules/ui-first-gate.md`.
 
 ## Testing (UI-First — test SAU gate, KHÔNG test-first)
 
@@ -137,7 +137,7 @@ Rules: **never guess visual values** — MCP design data is authoritative. Fetch
 
 ## Definition of Done (theo thứ tự UI-First)
 
-1. **UI-First Gate PASS** — `/aidd-ui-gate`: 1440 + 1280 **pixel-perfect ≥ 99%** (pixel-diff ≤ 1%) + **behavior mock đúng 100%**. **Đây là cửa đầu tiên, chưa PASS thì các bước sau chưa được bắt đầu.**
+1. **UI-First Gate PASS** — `/aidd-ui-gate`: 1440 + 1280 **property-diff số khớp `get_node`** (style-assert exit 0, asset/icon thật) + **behavior mock đúng 100%**. **Đây là cửa đầu tiên, chưa PASS thì các bước sau chưa được bắt đầu.**
 2. **Integration:** wire real BE data, thay hết mock.
 3. **Logic:** behaves exactly per the MoMorph screen spec (với data thật).
 4. **Quality:** Unit + E2E tests present and passing (viết SAU gate, không test-first).

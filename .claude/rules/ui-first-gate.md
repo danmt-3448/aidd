@@ -11,9 +11,11 @@ Thực trạng: UI + behavior FE lỗi nhiều, chưa xét tới BE/API. Nguyên
 
 ## Gate criteria — screen chỉ PASS khi đủ cả 2 nhóm
 
-**A. Visual fidelity (vs Figma) — PIXEL-PERFECT ≥ 99% (pixel-diff ≤ 1%)**
-- [ ] **1440px (ưu tiên 1) pixel-diff ≤ 1%** — auto pixel-diff (pixelmatch) screenshot vs ảnh Figma reference; đúng layout/cấu trúc, màu, font, element, vị trí tới từng pixel. Chỉ tha **anti-alias/subpixel** + **vùng mask động** (countdown/avatar/timestamp).
-- [ ] **1280px (ưu tiên 2) pixel-diff ≤ 1%** — không overflow ngang / vỡ layout / đè-cắt chữ.
+**A. Visual fidelity (vs Figma) — PROPERTY-DIFF (SỐ) là CỔNG CỨNG**
+- [ ] **Property-diff PASS ở 1440 + 1280** — `getComputedStyle` code khớp `get_node` design cho element gắn `data-fig`: màu **rgba (cả alpha)** · font-weight · font-size · padding/gap (rowGap/columnGap) · w/h · radius · border · section-height (±2px). Đo bằng `scripts/style-assert.mjs` (exit 0=PASS, 1=FAIL localize element/prop, 2=coverage). Màu KHÔNG guess — lấy `get_node`.
+- [ ] **Asset/icon**: logo/wordmark/artwork là `<img>/<svg>` thật (không `<h1>`/CSS); icon custom là SVG export, fill khớp node.
+- [ ] **Nets @1280**: không overflow ngang / đè-cắt chữ; density (số item) khớp Figma (`get_frame_node_tree`).
+- [ ] **Pixel/band-diff = overlay tham khảo** (soi bố cục bằng mắt) — KHÔNG quyết verdict.
 - [ ] Không guess visual value — vẫn lấy màu/spacing/size/font từ MoMorph MCP làm mốc (không bịa)
 - [ ] **Chỉ chấm 1440 + 1280** — BỎ 768/375.
 
@@ -24,7 +26,7 @@ Thực trạng: UI + behavior FE lỗi nhiều, chưa xét tới BE/API. Nguyên
 - [ ] Interactive elements hoạt động (click, hover, keyboard nav)
 - [ ] Không console error/warning
 
-> **A (visual) là pixel-perfect ≥ 99% (pixel-diff ≤ 1%, chỉ tha AA + mask động). B (behavior) là 100% — không nhân nhượng.** Chỉ khi A ≤ 1% pixel-diff ở cả 1440+1280 VÀ B đúng hết → screen mới "qua gate". Đo bằng `.claude/skills/aidd-ui-gate/scripts/pixel-diff.mjs`.
+> **A (visual) = property-diff SỐ khớp `get_node` (cổng cứng) + asset/icon thật + nets. B (behavior) là 100% — không nhân nhượng.** Chỉ khi A `style-assert` exit 0 ở cả 1440+1280 VÀ B đúng hết → screen mới "qua gate". Đo bằng `.claude/skills/aidd-ui-gate/scripts/style-assert.mjs`; pixel/band (`pixel-diff.mjs`) chỉ là overlay tham khảo.
 
 ### Mock fixtures convention (để gate ép được state — deterministic)
 
@@ -60,8 +62,8 @@ Chỉ chấm 2 viewport desktop, theo thứ tự ưu tiên. **BỎ 768/375** (kh
 
 | Viewport | Ưu tiên | Yêu cầu |
 |---|---|---|
-| **1440px** | **1 (chính)** | **CHUẨN desktop — pixel-perfect ≥ 99%** (pixel-diff ≤ 1%; chỉ tha AA/subpixel + vùng mask động) |
-| **1280px** | **2 (phụ)** | Desktop hẹp — pixel-diff ≤ 1%, KHÔNG overflow ngang / vỡ layout / đè-cắt chữ. |
+| **1440px** | **1 (chính)** | **CHUẨN desktop — property-diff PASS** (style-assert exit 0, số khớp get_node) |
+| **1280px** | **2 (phụ)** | Desktop hẹp — property-diff PASS + KHÔNG overflow ngang / vỡ layout / đè-cắt chữ. |
 | ~~768 / 375~~ | — | **BỎ** — không chấm ở gate. |
 
 ## Parallel-but-gated (không chặn cứng BE)
