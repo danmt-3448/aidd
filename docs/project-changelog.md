@@ -9,6 +9,34 @@ Dates and descriptions derived from `git log` (branch `develop`). Commits listed
 
 _(Nothing merged to main yet — all work is on `develop`.)_
 
+### Added — 2026-08-06 (Phases 5–6 + gate hardening)
+
+- **Homepage SAA** (`efc9001`) — hero redesign, awards grid, widget FAB, updated keyvisual;
+  route `/` renders `HomepageConnected` (public, no redirect to /todo).
+- **Awards page** (`bfd6895`, `df05770`) — `/awards` with tier-based card layout, medallion
+  icons; statically generated. UI-First Gate PASS at 1440 + 1280.
+- **Rules page** (`78301b6`) — `/rules` with action bar and modal integration.
+- **Countdown refinements** (`525a91e`) — display polish + mock fixtures for all 4 ui_state values.
+- **Shared ui_state fixture infra** (`7eeba16`) — `?ui_state=full|empty|error|loading` dev bypass
+  wired across all screens via `src/lib/ui-state-override.ts`.
+- **Property-diff hard gate** (`2bd507f`) — `scripts/style-assert.mjs` replaces whole-page
+  pixel-diff as the primary UI-First Gate verdict; exit 0 = PASS, 1 = FAIL with element/prop
+  localization, 2 = coverage warning.
+- **1920px no-break** — gate extended to verify no overflow/clipping at 1920px viewport.
+
+### Changed — 2026-08-06
+
+- **Property-diff parity: shared chrome + homepage** (`49f9d73`) — `site-header`,
+  `site-account-menu`, homepage hero all pass `style-assert` at 1440 + 1280.
+- **Fixed header** (`484a0f7`) — switched `site-header` and login header from `sticky` to
+  `fixed` overlay; content offsets added to all affected routes.
+- **Modal z-index** (`098beff`) — rules / secret-box / compose modals raised to z-60/70 to
+  render above fixed header.
+- **Pre-launch gate parallelized** (`229c0c5`) — proxy fast-path for unauthenticated users
+  (no DB query); `event_config` + `profiles.is_admin` fetched in parallel for authenticated.
+- **`/todo` page removed** (`08788b9`) — route deleted; auth callback default redirect is now
+  `/` (per `sanitizeNext`). All docs and guard references updated.
+
 ### Changed — Live Board (rework pass 2, 2026-08-05)
 - **Card backgrounds (D1):** All feed and highlight cards now use `#FFF8E1` (warm cream) per Figma.
   Highlight cards get a `4px solid #FFEA9E` gold border + `16px` radius; feed cards use `24px` radius,

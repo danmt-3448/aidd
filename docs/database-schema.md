@@ -1,6 +1,6 @@
 # Database Schema — SAA 2025 Kudos (Web)
 
-> **Nguồn:** derive từ MoMorph screen specs (file `9ypp4enmFmdK3YAFJLIu6C`). Cột `databaseTable/Column` trong MoMorph để trống → schema này suy ra từ mô tả chức năng + quyết định của product owner (xem Decisions Log).
+> **Nguồn:** derive từ `supabase/migrations/` (source of truth). Tất cả bảng/cột ở đây đã có migration applied.
 > **Lưu trữ:** Supabase — Postgres (data) + Storage (ảnh) + Auth (Google). Không có backend riêng.
 > **Scope:** Web only.
 
@@ -8,11 +8,14 @@
 
 | # | Câu hỏi | Quyết định |
 |---|---------|-----------|
-| 1 | Tim (hearts) cộng cho ai? | **Người nhận** kudos (`recipient`) |
-| 2 | Kudos ẩn danh hiển thị thế nào? | Ẩn `sender_id` khỏi UI, chỉ show `anonymous_name` (nickname). **Admin xem được** danh tính thật (RLS) |
-| 3 | Cơ chế nhận Secret Box? | Không có spec admin → **seed/admin cấp thủ công**. Mở box → random 1 huy hiệu theo tỉ lệ drop |
+| 1 | Tim (hearts) cộng cho ai? | **Người nhận** kudos (`receiver_id`) |
+| 2 | Kudos ẩn danh hiển thị thế nào? | `kudos_public` view mask `sender_id` → null, `sender_name` → `anonymous_name`. Admin xem được danh tính thật qua base table. |
+| 3 | Cơ chế nhận Secret Box? | Seed/admin cấp thủ công. Mở box → RPC `open_secret_box()` ghi badge_key vào `secret_box_badges`. |
 | 4 | Lưu `content` kudos? | **HTML** (rich-text: bold/italic/strike/list/link/quote) — render y như lúc nhập |
 | 5 | Lưu ảnh? | **Supabase Storage** (bucket), DB chỉ giữ `storage_path` |
+| 6 | Config sự kiện (countdown start)? | **DB table `event_config`** (singleton id=1, `event_start_at` timestamptz). Không dùng env var. |
+| 7 | Huy hiệu (badges)? | **Static config** `src/features/secret-box/badge-assets.ts`. Không có DB table `badges`. |
+| 8 | Awards? | **Static TS config** trong `src/features/awards/`. Không có DB table `awards`. |
 
 ## Tables
 
@@ -23,21 +26,23 @@
 | `email` | text | từ Google |
 | `full_name` | text | |
 | `avatar_url` | text | ảnh Gmail |
-| `department_id` | int FK → departments | |
+| `department_id` | int | legacy column (no FK); kept for compat — use `department_ref` |
+| `department_ref` | uuid FK → departments | added `20260804040000`; nullable |
 | `title` | text null | danh hiệu |
 | `kudos_received_count` | int default 0 | → suy `star_level` |
 | `kudos_sent_count` | int default 0 | |
-| `hearts_received` | int default 0 | +1 (hoặc +2 ngày đặc biệt) khi kudos user **nhận** được thả tim |
+| `hearts_received` | int default 0 | +N khi kudos user **nhận** được thả tim |
 | `star_level` | int (0–3) | computed: ≥10→1, ≥20→2, ≥50→3 kudos nhận |
-| `is_admin` | bool default false | quyền xem danh tính ẩn danh |
+| `is_admin` | bool default false | quyền xem danh tính ẩn danh + bypass pre-launch gate |
 | `created_at` | timestamptz | |
 
 ### departments — phòng ban (lookup, seed sẵn)
 | Cột | Kiểu | Ghi chú |
 |-----|------|---------|
-| `id` | int PK | |
-| `code` | text unique | vd `CEVC2`, `OPDC-HRF` |
-> Seed ~50 phòng: CTO, SPD, FCOV, CEVC1–4, STVC-R&D, STVC-R&D-DTR/DPS/AIR/SDX, CEVC2-CySS/System, FCOV-LRM/F&A/GA/ISO, OPDC-HRF/-HRD (L&D, TI, TA, HRBP, C&B, OD, C&C), CEVC1-DSV (UI/UX 1/2, AIE), GEU (HUST, DUT, UET, UIT, TM), PAO/-PEC/-PAO, IAV, CPV/-CGP, BDV, CEVEC/-SAPD/-GSD... *(danh sách đầy đủ trong spec "Dropdown Phòng ban")*
+| `id` | uuid PK | gen_random_uuid() (fixed RFC 4122 v4 UUIDs for seed rows) |
+| `name` | text unique | vd `Marketing`, `Engineering`, `HR` |
+| `created_at` | timestamptz | |
+> Migration `20260804040000`. Seed: 7 departments (Marketing, CEVC10, DXVC, Engineering, HR, Finance, Design).
 
 ### hashtags — thẻ (lookup, load động)
 | Cột | Kiểu | Ghi chú |
@@ -51,15 +56,15 @@
 | Cột | Kiểu | Ghi chú |
 |-----|------|---------|
 | `id` | uuid PK | client-generated (passed to RPC) |
-| `sender_id` | uuid FK → profiles | **luôn lưu** (kể cả ẩn danh; admin xem được) |
-| `receiver_id` | uuid FK → profiles | tên cột thực tế trong DB (spec gọi là `recipient_id`) |
+| `sender_id` | uuid FK → profiles | **luôn lưu** (kể cả ẩn danh; masked via `kudos_public` view) |
+| `receiver_id` | uuid FK → profiles | tên cột thực tế trong DB |
 | `content_html` | text | sanitized HTML (B/I/S/list/link/quote + @mention) |
 | `is_anonymous` | bool default false | |
 | `anonymous_name` | text null | nickname khi ẩn danh |
+| `danh_hieu` | text null | "Danh hiệu" field (migration `20260804010000`) |
 | `created_at` | timestamptz | |
 > Constraint: `sender_id <> receiver_id` (DB-level check). Index trên `receiver_id` và `created_at desc`.
-> **Lưu ý bảo mật:** RLS SELECT policy hiện tại (`kudos_select_authenticated`) expose toàn bộ `sender_id` kể cả khi `is_anonymous=true`. Cần mask `sender_id` (column-level policy hoặc view) **trước khi** bất kỳ màn READ nào ship.
-> `like_count` **chưa có trong migration này** — denormalized counter sẽ thêm khi implement màn Live Board.
+> `like_count` không có trong DB — tính tổng từ `hearts` table tại query time.
 
 ### kudo_hashtags — n-n (tối đa 5/kudos)
 `kudo_id` uuid FK → kudos · `hashtag_id` uuid FK → hashtags · PK(kudo_id, hashtag_id)
@@ -77,105 +82,122 @@
 `kudos_id` FK · `mentioned_user_id` FK · PK(kudos_id, mentioned_user_id)
 > **Chưa có migration** — @mention hiện nhúng vào `content_html`. Bảng này sẽ tạo khi cần query "đồng nghiệp được mention".
 
-### kudos_likes — lượt thả tim
+### hearts — lượt thả tim
+| Cột | Kiểu | Ghi chú |
+|-----|------|---------|
+| `user_id` | uuid FK → profiles | |
+| `kudo_id` | uuid FK → kudos | |
+| `liked_at` | timestamptz default now() | |
+| `is_special_day` | boolean default false | true khi thả tim trong ngày có multiplier |
+| PK | (user_id, kudo_id) | mỗi user 1 tim/kudos |
+> Self-heart blocked by INSERT RLS policy. Migration `20260731030000`.
+
+### special_day_config — ngày thả tim x2 (admin config)
+| Cột | Kiểu | Ghi chú |
+|-----|------|---------|
+| `event_date` | date PK | |
+| `hearts_multiplier` | int default 1 | multiplier áp cho ngày đó |
+> Migration `20260731040000`. Admin writes via service role / direct DB.
+
+### event_config — config sự kiện (singleton)
+| Cột | Kiểu | Ghi chú |
+|-----|------|---------|
+| `id` | smallint PK | always = 1 (check constraint) |
+| `event_start_at` | timestamptz | thời điểm mở cửa sự kiện |
+| `hearts_special_multiplier` | int default 1 | multiplier toàn cục |
+| `updated_at` | timestamptz | |
+> Migration `20260731020000`. Proxy reads this to enforce pre-launch gate. Anonymous read enabled via `20260805020000`.
+
+### secret_box — hộp quà (per-user)
+| Cột | Kiểu | Ghi chú |
+|-----|------|---------|
+| `user_id` | uuid PK FK → profiles | chủ box |
+| `unopened_box_count` | int default 0 | số box chưa mở |
+| `updated_at` | timestamptz | |
+> Migration `20260731050000`. All mutations go through `open_secret_box()` DEFINER RPC.
+
+### secret_box_badges — huy hiệu đã nhận
 | Cột | Kiểu | Ghi chú |
 |-----|------|---------|
 | `id` | uuid PK | |
-| `kudos_id` | uuid FK | |
-| `liker_id` | uuid FK → profiles | |
-| `hearts_value` | smallint | 1 thường, 2 ngày đặc biệt (để thu hồi đúng khi hủy) |
+| `user_id` | uuid FK → profiles | |
+| `badge_key` | text | key maps to static config in `badge-assets.ts` |
+| `opened_at` | timestamptz | |
+> Badge display config (name, icon, drop_rate) is static in `src/features/secret-box/badge-assets.ts`.
+> There is no DB `badges` table or `user_badges` table — both are superseded by this design.
+
+### notifications — hộp thư thông báo
+| Cột | Kiểu | Ghi chú |
+|-----|------|---------|
+| `id` | uuid PK | |
+| `user_id` | uuid FK → profiles | |
+| `type` | text | |
+| `title` | text | |
+| `body` | text | |
+| `link` | text | |
+| `is_read` | boolean default false | |
 | `created_at` | timestamptz | |
-> **UNIQUE(kudos_id, liker_id)** — mỗi user 1 tim/kudos. Không thả tim kudos mình gửi (chặn ở app + policy).
+> Migration `20260731060000`. Inserted only by triggers (notify_on_kudo_insert) or DEFINER RPCs.
+> Composite index on (user_id, is_read) for unread-count queries.
 
-### secret_boxes — hộp quà
-| Cột | Kiểu | Ghi chú |
-|-----|------|---------|
-| `id` | uuid PK | |
-| `user_id` | uuid FK → profiles | chủ box |
-| `is_opened` | bool default false | |
-| `opened_at` | timestamptz null | |
-| `badge_id` | int FK → badges null | huy hiệu nhận khi mở (random) |
-> Nguồn cấp box: seed/admin (chưa có spec). Mở → random 1 badge theo drop rate.
+## Views
 
-### badges — huy hiệu (lookup, seed sẵn)
-| Cột | Kiểu | Ghi chú |
-|-----|------|---------|
-| `id` | int PK | |
-| `name` | text unique | |
-| `icon_url` | text | |
-| `drop_rate` | numeric | xác suất khi mở box |
-> Seed 6 badge: Stay Gold (0.30), Flow to Horizon (0.25), Touch of Light (0.20), Beyond the Boundary (0.10), Revival (0.10), Root Further (0.05).
+### kudos_public — masked feed view
+> Migrations `20260731070000` + `20260731100000` (security_invoker removed).
+> Projects kudos with `sender_id → null` and `sender_name → anonymous_name` when `is_anonymous = true`.
+> `GRANT SELECT TO authenticated`. Base table `kudos` SELECT is restricted to own rows; all feed reads go through this view.
 
-### user_badges — bộ sưu tập icon của user
-`user_id` FK · `badge_id` FK · `earned_at` timestamptz · PK(user_id, badge_id)
-> Profile hiển thị icon đã mở; chưa có → icon xám.
+### profile_stats_view
+> Migration `20260731080000`. Aggregated kudos/hearts stats per profile for the board and profile pages.
 
-### special_days — ngày thả tim x2 (admin config)
-`id` PK · `date` date unique · `heart_multiplier` smallint default 2
+## RPCs
 
-### awards — hạng mục giải thưởng (optional, seed / read-only)
-| Cột | Kiểu | Ghi chú |
-|-----|------|---------|
-| `id` | int PK | |
-| `slug` | text unique | dùng làm hash anchor (Homepage → Awards Information) |
-| `title` | text | vd 'Top Talent', 'MVP' |
-| `description` | text | |
-| `quantity_label` | text | vd '10 Đơn vị', '02 Tập thể' |
-| `prize_value` | text | vd '7.000.000 VNĐ cho mỗi giải' |
-| `image_path` | text | |
-| `sort_order` | int | |
-> 6 hạng mục cố định: Top Talent, Top Project, Top Project Leader, Best Manager, Signature 2025 - Creator, MVP. **Read-only, không có admin quản lý** → có thể để **static content** trong code thay vì bảng DB (YAGNI). Chỉ tạo bảng nếu muốn data-driven.
+| Function | Args | Purpose |
+|----------|------|---------|
+| `create_kudo` | 8 args (incl. `p_danh_hieu`) | Atomic insert: kudos + kudo_hashtags + kudo_images |
+| `open_secret_box` | — | Migration `20260731110000`; decrements `unopened_box_count`, inserts badge row |
+| `get_highlight_kudos` | — | Migration `20260804000000`; top-5 weighted kudos for spotlight |
+| `board_leaderboard` | — | Migration `20260804020000`; leaderboard data for board sidebar |
 
-## Config (KHÔNG lưu DB — biến môi trường)
+## Config (DB, not env var)
 
-| Biến | Ghi chú |
-|------|---------|
-| `EVENT_START_AT` | Datetime ISO-8601, timezone Asia/Ho_Chi_Minh. Dùng cho Countdown (Homepage + Prelaunch page). |
-> **Prelaunch gate:** khi countdown chưa về 0 → **khóa điều hướng** sang trang khác (middleware/guard); về 0 → mở khóa. Không cần DB.
+| Table | Column | Ghi chú |
+|-------|--------|---------|
+| `event_config` | `event_start_at` | Datetime ISO-8601, timezone Asia/Ho_Chi_Minh. Proxy reads this for countdown gate. |
+
+> The `EVENT_START_AT` environment variable is **not used**. Config lives in the `event_config` DB table.
 
 ## Business Rules (ảnh hưởng schema/logic)
 
-1. **Hearts:** thả tim 1 kudos → `recipient.hearts_received += hearts_value` + `kudos.like_count += 1`. Hủy tim → trừ đúng `hearts_value` đã lưu. Ngày trong `special_days` → `hearts_value = multiplier` (2). Không thả tim kudos của chính mình.
-2. **Star level (số hoa thị):** từ `kudos_received_count` — 10→1 sao, 20→2 sao, 50→3 sao.
-3. **Ẩn danh:** UI dùng `anonymous_name`; `sender_id` chỉ lộ cho `is_admin`.
-4. **Secret box:** mở → chọn ngẫu nhiên 1 badge theo `drop_rate`, ghi `user_badges`, set `is_opened`.
-5. **Spotlight/Highlight:** top kudos theo `like_count`; tổng "N KUDOS" = count toàn bảng `kudos`.
+1. **Hearts:** thả tim → increment `recipient.hearts_received`. Multiplier từ `special_day_config` hoặc `event_config.hearts_special_multiplier`. Không thả tim kudos của chính mình (RLS + app).
+2. **Star level:** từ `kudos_received_count` — ≥10→1 sao, ≥20→2 sao, ≥50→3 sao.
+3. **Ẩn danh:** `kudos_public` view — `sender_id = null`, `sender_name = anonymous_name`. Base table lưu real `sender_id` (admin-accessible).
+4. **Secret box:** mở → `open_secret_box()` RPC ghi badge_key (từ static drop config), set `updated_at`.
+5. **Spotlight/Highlight:** `get_highlight_kudos()` RPC — top-5 theo weighted score. Feed count = COUNT(*) trên `kudos`.
 
 ## RLS (Supabase) — nguyên tắc
 
-- `profiles`, `kudos`, `kudos_likes`... : authenticated read.
-- `kudos.sender_id` khi `is_anonymous=true`: che với user thường, lộ với admin (view riêng hoặc column-level policy).
-- Ghi `kudos` / `kudos_likes`: chỉ chính chủ (`auth.uid()`), kèm ràng buộc không tự thả tim.
-- Storage bucket ảnh kudos: đọc theo policy, ghi bởi owner.
+- `profiles`, `kudos_public`, `hearts`, `notifications`, `event_config`: authenticated SELECT.
+- `kudos` base table: SELECT restricted to own sender/receiver rows; feed reads go through `kudos_public`.
+- `kudos.sender_id` khi `is_anonymous=true`: masked trong `kudos_public` view (cột = null). Đây là cổng privacy duy nhất — **đã implemented**.
+- Ghi `kudos`: qua `create_kudo()` RPC (security invoker). Ghi `hearts`: owner INSERT với self-heart check.
+- Storage bucket ảnh kudos: INSERT/DELETE bởi owner `{uid}/`, SELECT for authenticated.
 
-## Coverage — 18 màn web spec-done đã quét
+## Coverage — màn đã build
 
-| Màn | Entity/kết luận |
-|-----|-----------------|
-| Login | Supabase Auth + `profiles` |
-| Viết Kudo | `kudos` + hashtags/images/mentions |
-| Sun* Kudos - Live board | `kudos` (read), `kudos_likes`, stats, `secret_boxes`, `badges` |
-| Profile bản thân | `profiles`, `user_badges`, stats *(spec phần lớn draft)* |
-| Dropdown Phòng ban | `departments` |
-| Dropdown list hashtag / Dropdown Hashtag filter | `hashtags` |
-| Open secret box- chưa mở | `secret_boxes`, `badges` (drop rates) |
-| Hệ thống giải | `awards` (optional/static) |
-| Homepage SAA | UI/static + nav; xác nhận `EVENT_START_AT` là env var; role admin |
-| Thể lệ UPDATE | UI/static (rules panel) — không entity mới |
-| Countdown - Prelaunch | env var `EVENT_START_AT` + prelaunch gate — không entity mới |
-| Addlink Box | UI thuần (dialog chèn link cho rich-text) — link nhúng vào `kudos.content` |
-| Dropdown-profile / Dropdown-ngôn ngữ / FAB (x2) | UI thuần — tái dùng entity đã có |
+| Màn | Status | Entity chính |
+|-----|--------|-------------|
+| Login | Done + Gate PASS | `profiles` |
+| Viết Kudo | Done + Gate PASS | `kudos` + hashtags/images + `danh_hieu` |
+| Sun* Kudos - Live board | Done + Gate PASS | `kudos_public`, `hearts`, `secret_box`, stats views |
+| Profile bản thân | Done + Gate PASS | `profiles`, `secret_box_badges`, stats |
+| Homepage SAA | Done + Gate PASS | `event_config`, static nav |
+| Countdown | Done + Gate PASS | `event_config.event_start_at` |
+| Thể lệ | Done + Gate PASS | static content |
+| Hệ thống giải | Done + Gate PASS | static TS config (no DB table) |
+| Notifications | Routes exist; gate BLOCKED | `notifications` |
 
-→ **Đã phủ hết. Không còn entity giao dịch nào bị bỏ sót.**
+## Out of scope / not yet migrated
 
-## Out of scope / hinted (chưa có spec web)
-
-- **notifications**: header có chuông + badge "chưa đọc" (Homepage A1.6) → gợi ý bảng `notifications`, nhưng **không có màn web spec** → để sau.
-- **Admin** (campaign, review content, user, special_days config): design in_progress, spec none → bỏ qua theo quyết định.
-
-## Open Assumptions (cần xác nhận khi build)
-
-- Cơ chế **cấp** secret box chưa có spec → tạm seed thủ công.
-- Hashtag list đầy đủ chưa rõ → seed từ các tag xuất hiện trong spec, bổ sung sau.
-- `awards`: để static content hay tạo bảng seed — chọn lúc build (mặc định static, YAGNI).
-- `hearts_received` / `kudos_*_count`: giữ counter denormalized (trigger) hay tính realtime (view) — quyết định lúc implement theo tải.
+- `kudos_mentions`: @mentions embedded in content_html; table deferred until "mentioned in" queries needed.
+- Admin screens (campaign, user management): no spec → deferred.

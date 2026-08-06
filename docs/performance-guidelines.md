@@ -42,7 +42,7 @@ lands a report in `plans/reports/`.
 ## 2. FE Checklist
 
 - [ ] `next build` — inspect First Load JS per route; no route over hard cap.
-- [ ] **Client/Server boundary** — is `'use client'` justified? Push data-fetching + static markup to Server Components. (Baseline: 63 client comps — audit for over-use.)
+- [ ] **Client/Server boundary** — is `'use client'` justified? Push data-fetching + static markup to Server Components. (Baseline: 89 client comps as of 2026-08-06 — audit for over-use.)
 - [ ] **Tiptap** (kudo editor) — dynamically imported (`next/dynamic`, `ssr:false`), not shipped on routes that don't edit.
 - [ ] Images via `next/image`; fonts via `next/font` (no layout shift, no render-block).
 - [ ] TanStack Query — sensible `staleTime`; no refetch storms; not duplicating Server Component data.
@@ -96,5 +96,4 @@ Re-measure against §1 budgets → PASS = done. Optionally auto-research to driv
 **Rule:** a finding isn't "fixed" until re-measured against the §1 budget. No guessing — numbers decide.
 
 ## 6. Open Items
-- Add `@next/bundle-analyzer` as a devDependency + `npm run analyze` script (optional, for treemaps).
 - Decide whether `profile_stats_view` should be materialized (depends on measured cost + refresh needs).

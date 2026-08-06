@@ -141,8 +141,9 @@ feature folder.
 - Use `placeholderData: (prev) => prev` for search queries to avoid flicker on keystroke.
 - `staleTime` set explicitly — `60s` for general queries, `5m` for slow-changing catalogs
   (hashtags), `30s` for autocomplete.
-- `QueryProvider` is mounted at the page level, not in the root layout — only pages that need
-  client-side fetching pay the cost.
+- `QueryProvider` is mounted once at the root in `src/app/providers.tsx` (`RootProviders`),
+  shared across all routes via client-side navigation. Individual pages do not mount their own
+  `QueryProvider`.
 
 ---
 
@@ -179,12 +180,8 @@ feature folder.
 - Test files colocated with source: `foo.test.ts` next to `foo.ts`.
 - Cover: happy path + all validation branches + edge cases.
 - Test files follow the same naming convention as source files (kebab-case).
-- Current test files:
-  - `src/features/auth/guard-rules.test.ts`
-  - `src/features/auth/components/login-screen.test.tsx`
-  - `src/features/kudos/kudo-schema.test.ts`
-  - `src/components/language-switcher.test.ts`
-  - `src/i18n/config.test.ts`
+- Test files follow the pattern `src/**/*.test.ts(x)` — colocated with source.
+  As of 2026-08-06 there are 39 test files across all feature modules.
 - Run: `npm test` (single run) or `npm run test:watch`.
 
 ### E2E (Playwright)

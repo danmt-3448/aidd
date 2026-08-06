@@ -1,6 +1,6 @@
 # System Architecture — SAA 2025 Internal
 
-> Describes the actual running system as of 2026-08-03.
+> Describes the actual running system as of 2026-08-06.
 > All route paths, module names, and data flows are derived from reading `src/`.
 > See `docs/database-schema.md` for full table/column reference.
 
@@ -30,16 +30,23 @@
 ## Route Map (`src/app/`)
 
 ```
-/                          src/app/page.tsx              — redirects → /todo (authed) / /login (unauth, via proxy)
-/login                     src/app/login/page.tsx         — LoginScreen; guard redirects here if unauthenticated
-/auth/callback             src/app/auth/callback/route.ts — OAuth/magic-link code exchange → session
-/dev-login                 src/app/dev-login/page.tsx     — email+password (NEXT_PUBLIC_ENABLE_DEV_LOGIN)
-/todo                      src/app/todo/page.tsx          — placeholder post-login destination
-/kudos                     src/app/kudos/page.tsx         — Viết Kudo compose modal (auth-guarded)
+/                          src/app/page.tsx                — HomepageConnected (public; proxy guards with pre-launch gate)
+/login                     src/app/login/page.tsx          — LoginScreen; guard redirects here if unauthenticated
+/auth/callback             src/app/auth/callback/route.ts  — OAuth/magic-link code exchange → session → redirect /
+/dev-login                 src/app/dev-login/page.tsx      — email+password (NEXT_PUBLIC_ENABLE_DEV_LOGIN)
+/board                     src/app/board/page.tsx          — Sun* Kudos live board (auth-guarded)
+/kudos                     src/app/kudos/page.tsx          — Viết Kudo compose modal (auth-guarded)
+/awards                    src/app/awards/page.tsx         — Hệ thống giải award showcase (auth-guarded)
+/rules                     src/app/rules/page.tsx          — Thể lệ rules page (auth-guarded)
+/profile                   src/app/profile/page.tsx        — Profile bản thân (auth-guarded)
+/countdown                 src/app/countdown/page.tsx      — Pre-launch countdown (public)
+/secret-box                src/app/secret-box/page.tsx     — Secret box open flow (auth-guarded)
+/notifications             src/app/notifications/page.tsx  — Notifications inbox (auth-guarded)
+/notifications/panel       src/app/notifications/panel/page.tsx — Notification panel (auth-guarded)
 ```
 
-All routes except `/login`, `/auth/**`, `/dev-login` are protected. The route guard
-(`src/proxy.ts`) enforces this at the edge.
+All routes except `/`, `/login`, `/auth/**`, `/dev-login`, `/countdown` are protected.
+The route guard (`src/proxy.ts`) enforces this at the edge.
 
 ---
 
@@ -48,33 +55,40 @@ All routes except `/login`, `/auth/**`, `/dev-login` are protected. The route gu
 ```
 src/
 ├── app/                   Next.js App Router pages + route handlers
-│   ├── layout.tsx         Root layout: NextIntlClientProvider + Geist fonts
+│   ├── layout.tsx         Root layout: NextIntlClientProvider + Geist fonts + RootProviders
+│   ├── providers.tsx      RootProviders: QueryProvider + Toaster (single root instance)
 │   ├── globals.css        Tailwind base styles
 │   ├── auth/callback/     OAuth callback route handler
+│   ├── awards/            Hệ thống giải page
+│   ├── board/             Sun* Kudos live board page
+│   ├── countdown/         Pre-launch countdown page
 │   ├── dev-login/         Dev-only email+password page
-│   ├── kudos/             Viết Kudo page (QueryProvider + KudoComposeModal)
+│   ├── kudos/             Viết Kudo page
 │   ├── login/             Login page + signInWithGoogle / signInWithPassword server actions
-│   └── todo/              Post-login placeholder
+│   ├── notifications/     Notifications inbox + panel
+│   ├── profile/           User profile page
+│   ├── rules/             Thể lệ rules page
+│   └── secret-box/        Secret box open flow page
 │
-├── features/
-│   ├── auth/              Auth feature module
-│   │   ├── components/    LoginScreen, LoginHeader, GoogleLoginButton, LanguageSelector
-│   │   ├── fonts.ts       Montserrat + MontserratAlternates (Google Fonts)
-│   │   └── guard-rules.ts PUBLIC_PATHS, isPublic(), sanitizeNext()
-│   │
-│   └── kudos/             Viết Kudo feature module
-│       ├── components/    KudoComposeModal, RecipientSelect, TiptapEditor,
-│       │                  TiptapMentionList, HashtagPicker, ImageUploader,
-│       │                  AnonymousToggle, SubmitBar, RichTextToolbar, ContentEditor
-│       ├── hooks/         useCreateKudo, useRecipientSearch, useHashtags, useCurrentUserId
-│       ├── fonts.ts       Montserrat (scoped to kudos modal)
-│       ├── kudo-schema.ts Zod schema: createKudoSchema, CreateKudoInput, countContentChars
-│       ├── kudo-actions.ts  Server action: createKudo (auth + Zod + sanitize + RPC)
-│       ├── recipient-actions.ts  Server action: searchRecipients
-│       └── hashtag-actions.ts   Server action: listHashtags
+├── features/              12 feature modules
+│   ├── auth/              Auth: LoginScreen, guard-rules, get-is-admin
+│   ├── awards/            Awards showcase: static config + components
+│   ├── board/             Live board: feed, spotlight, sidebar, connected helpers
+│   ├── countdown/         Countdown display + mock fixtures
+│   ├── errors/            Shared error components
+│   ├── event/             launch-gate.ts (isPreLaunch, isBypassPath)
+│   ├── homepage/          HomepageConnected + hero, nav, awards grid, FAB
+│   ├── kudos/             Viết Kudo compose modal (8 components, hooks, schema, actions)
+│   ├── notifications/     Notification inbox + panel components
+│   ├── profile/           Profile hero + stats components
+│   ├── rules/             Thể lệ content + modal
+│   └── secret-box/        Secret box flow + badge-assets.ts (static badge config)
 │
-├── components/
-│   └── language-switcher.tsx  useLanguageSwitcher hook + minimal LanguageSwitcher select
+├── components/            Shared app components
+│   ├── language-switcher.tsx
+│   ├── page-container.tsx
+│   ├── site-account-menu.tsx
+│   └── site-header.tsx
 │
 ├── i18n/
 │   ├── config.ts          locales=['vi','en'], defaultLocale='vi', LOCALE_COOKIE='NEXT_LOCALE'
@@ -85,11 +99,18 @@ src/
 │   │   ├── client.ts      createClient() — browser (createBrowserClient)
 │   │   ├── server.ts      createClient() — server async (createServerClient + cookies())
 │   │   └── middleware.ts  updateSession() — refreshes Supabase session in proxy
-│   └── query/
-│       ├── query-client.ts  makeQueryClient(), getQueryClient() — SSR-safe singleton
-│       └── query-provider.tsx  <QueryProvider> — mounts QueryClientProvider client-side
+│   ├── query/
+│   │   ├── query-client.ts  makeQueryClient(), getQueryClient() — SSR-safe singleton
+│   │   └── query-provider.tsx  <QueryProvider> — mounts QueryClientProvider client-side
+│   ├── time/              Time utilities (countdown, formatting)
+│   └── ui-state-override.ts  Dev-only: reads ?ui_state= param for mock rendering
 │
-└── proxy.ts               Route guard + session refresh (Next.js 16 proxy, replaces middleware.ts)
+└── proxy.ts               3 responsibilities:
+                             1. Session refresh (updateSession)
+                             2. Pre-launch gate — reads event_config DB; non-admin before
+                                event_start_at → redirect /countdown. Fail-open on error.
+                             3. Auth guard — logged-in on /login → /; unauthenticated on
+                                protected path → /login.
 ```
 
 ---
@@ -110,18 +131,22 @@ Browser
   └─ GET /auth/callback?code=...
        └─ supabase.auth.exchangeCodeForSession(code)
             └─ session cookie set
-                 └─ redirect → /todo (or sanitizeNext(?next=))
+                 └─ redirect → / (or sanitizeNext(?next=))
 ```
 
 ### Route Guard (every request)
 
 ```
 Request → src/proxy.ts
-  └─ updateSession(request)         // refresh Supabase session cookie
-       └─ supabase.auth.getUser()   // validate token with Auth server
-            ├─ user + path=/login   → redirect /todo
-            ├─ !user + !isPublic    → redirect /login
-            └─ otherwise            → NextResponse.next()
+  │
+  ├─ 1. updateSession(request)          // refresh Supabase session cookie
+  ├─ 2. Auth fast-path
+  │       user + path=/login → redirect /
+  │       !user + !isPublic  → redirect /login (no DB query)
+  └─ 3. Pre-launch gate (non-bypass paths only)
+          parallel: event_config.event_start_at + profiles.is_admin
+          isPreLaunch && !isAdmin → redirect /countdown
+          otherwise → NextResponse.next()
 ```
 
 ### Viết Kudo Submit
@@ -140,10 +165,10 @@ KudoComposeModal (client)
   │
   └─ useCreateKudo().submit(input)
        └─ createKudo(input) [server action]
-            ├─ supabase.auth.getUser()          // auth guard
-            ├─ createKudoSchema.safeParse(input) // Zod validation
-            ├─ sanitizeHtml(contentHtml, ...)    // strip disallowed tags
-            └─ supabase.rpc('create_kudo', ...) // atomic Postgres RPC
+            ├─ supabase.auth.getUser()           // auth guard
+            ├─ createKudoSchema.safeParse(input)  // Zod validation (8 fields incl. danh_hieu)
+            ├─ sanitizeHtml(contentHtml, ...)     // strip disallowed tags
+            └─ supabase.rpc('create_kudo', ...)  // 8-arg atomic Postgres RPC
                  └─ INSERT kudos + kudo_hashtags + kudo_images (1 transaction)
                       └─ returns kudoId → toast.success + modal close + form reset
 ```
@@ -152,34 +177,64 @@ KudoComposeModal (client)
 
 ## Database (Supabase Postgres)
 
-Tables in scope today (migrations applied):
+All migrations applied (`supabase/migrations/`):
 
-| Table | Migration | Purpose |
-|-------|-----------|---------|
+| Table | Key migration | Purpose |
+|-------|--------------|---------|
 | `profiles` | `20260730062749` | Sunner profiles, 1-1 with `auth.users` |
 | `hashtags` | `20260731000000` | Tag catalog (12 seeded) |
-| `kudos` | `20260731000000` | Kudo records (sender/receiver/content_html) |
+| `kudos` | `20260731000000` + `20260804010000` | Kudo records (incl. `danh_hieu`) |
 | `kudo_hashtags` | `20260731000000` | M-N kudos ↔ hashtags (max 5) |
 | `kudo_images` | `20260731000000` | Storage paths for attached images (max 5) |
+| `event_config` | `20260731020000` | Singleton (id=1): `event_start_at`, pre-launch gate config |
+| `hearts` | `20260731030000` | Like-hearts per kudo (PK: user_id + kudo_id) |
+| `special_day_config` | `20260731040000` | Per-date hearts multiplier overrides |
+| `secret_box` | `20260731050000` | Per-user unopened box count (PK: user_id) |
+| `secret_box_badges` | `20260731050000` | Badges earned on open (badge_key, opened_at) |
+| `notifications` | `20260731060000` | Per-user notification inbox |
+| `kudos_public` | `20260731070000` + `20260731100000` | View: sender masked for anonymous kudos |
+| `profile_stats_view` | `20260731080000` | View: aggregated kudos/hearts stats per profile |
+| `departments` | `20260804040000` | Department lookup; `profiles.department_ref` uuid FK |
 
-Tables in schema but not yet migrated: `kudos_likes`, `secret_boxes`, `badges`, `user_badges`,
-`departments`, `kudos_mentions`, `special_days`, `awards` — see `docs/database-schema.md`.
+Tables with pending migration: `kudos_mentions` (schema only; @mentions embedded in content_html).
 
-### RLS Summary
+### Anonymous Kudos — Sender Masking (A10)
 
-| Table | SELECT | INSERT | UPDATE |
-|-------|--------|--------|--------|
-| `profiles` | authenticated (all) | trigger only | own row |
-| `hashtags` | authenticated (all) | — | — |
-| `kudos` | authenticated (all)* | own `sender_id` | — |
-| `kudo_hashtags` | authenticated (all) | via owned kudo | — |
-| `kudo_images` | authenticated (all) | via owned kudo | — |
+`kudos_public` view (migration `20260731070000` + corrected `20260731100000`) masks `sender_id`
+to `null` and `sender_name` to `anonymous_name` for rows where `is_anonymous = true`.
+The base table `kudos` still stores the real `sender_id` (admin-accessible via direct table
+query with appropriate role). **Masking is implemented and active.** The prior "must ship
+before Live board" concern is resolved.
 
-*`kudos` SELECT exposes `sender_id` even for anonymous kudos — masking required before Live board ships (see known issues).
+### RLS Summary (core tables)
+
+| Table | SELECT | INSERT | UPDATE | DELETE |
+|-------|--------|--------|--------|--------|
+| `profiles` | authenticated (all) | trigger only | own row | — |
+| `hashtags` | authenticated (all) | — | — | — |
+| `kudos` | own sender/receiver | own `sender_id` via RPC | — | — |
+| `kudos_public` | authenticated (all, masked) | — | — | — |
+| `hearts` | authenticated (all) | own, not self-heart | — | own |
+| `notifications` | own | trigger/RPC only | own | — |
+| `secret_box` | own | RPC only | RPC only | — |
+| `secret_box_badges` | own | RPC only | — | — |
+| `event_config` | authenticated (all) | — | — | — |
 
 ### Storage
 
 Bucket `kudo-images` (private). Policy: INSERT/DELETE to own `{uid}/` prefix; SELECT for all authenticated.
+
+---
+
+## Root Providers
+
+`src/app/providers.tsx` exports `RootProviders` — a single client-side wrapper mounted in
+`src/app/layout.tsx` that provides:
+
+- `QueryProvider` — single `QueryClient` instance shared across all routes via client-side navigation
+- `Toaster` (Sonner, `position="top-center"`, `richColors`) — toast calls from any feature surface here
+
+Individual pages no longer mount their own `QueryProvider`.
 
 ---
 
@@ -200,9 +255,9 @@ Bucket `kudo-images` (private). Policy: INSERT/DELETE to own `{uid}/` prefix; SE
 ┌─────────────────────────────────────────────────────────────┐
 │  Browser                                                    │
 │  ┌──────────┐  ┌─────────────────────────────────────────┐ │
-│  │ Next.js  │  │ Client Components                       │ │
-│  │ App      │  │  LoginScreen, KudoComposeModal,         │ │
-│  │ Router   │  │  TiptapEditor, ImageUploader, ...       │ │
+│  │ Next.js  │  │ Client Components (RootProviders wrap)  │ │
+│  │ App      │  │  HomepageConnected, BoardScreen,        │ │
+│  │ Router   │  │  KudoComposeModal, TiptapEditor, ...    │ │
 │  └────┬─────┘  │  TanStack Query (useQuery/useMutation)  │ │
 │       │        └────────────────────┬────────────────────┘ │
 └───────┼─────────────────────────────┼─────────────────────┘
@@ -211,21 +266,21 @@ Bucket `kudo-images` (private). Policy: INSERT/DELETE to own `{uid}/` prefix; SE
 ┌─────────────────────────────────────────────────────────────┐
 │  Next.js Server (App Router)                                │
 │                                                             │
-│  proxy.ts           route guard + session refresh           │
-│  app/login/actions  signInWithGoogle, signInWithPassword    │
-│  app/auth/callback  code exchange                           │
-│  features/kudos/    createKudo, searchRecipients,           │
-│    *-actions.ts     listHashtags                            │
+│  proxy.ts  session refresh + pre-launch gate + auth guard  │
+│  app/login/actions   signInWithGoogle, signInWithPassword   │
+│  app/auth/callback   code exchange → redirect /            │
+│  features/*/         server actions per feature domain     │
 └──────────────────────────┬──────────────────────────────────┘
                            │ @supabase/ssr
                            ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  Supabase (local / cloud)                                   │
 │                                                             │
-│  Auth   Google OAuth, session tokens                        │
-│  DB     Postgres: profiles, kudos, hashtags, ...            │
-│  RPC    create_kudo() — atomic transaction                  │
-│  Storage  bucket: kudo-images                               │
+│  Auth    Google OAuth, session tokens                       │
+│  DB      Postgres: 14 tables/views, RLS on all             │
+│  RPC     create_kudo() (8-arg), open_secret_box(),          │
+│          get_highlight_kudos(), board_leaderboard()         │
+│  Storage bucket: kudo-images                                │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -235,6 +290,6 @@ Bucket `kudo-images` (private). Policy: INSERT/DELETE to own `{uid}/` prefix; SE
 
 | ID | Issue | Impact | Resolution |
 |----|-------|--------|-----------|
-| M3 | `kudos_select_authenticated USING(true)` exposes `sender_id` for anonymous kudos | Security — Live board must not ship with this | Column-level policy or view before Phase 4 |
-| — | `profiles.department_id` has no FK constraint yet | Data integrity | Wire when `departments` table is migrated |
+| — | `profiles.department_id` (int, no FK) remains alongside new `department_ref` (uuid FK) | Data integrity; legacy column kept for compat | Drop `department_id` in a future migration after backfill confirmed |
 | — | 3 files slightly over 200-line target (`kudo-compose-modal ~270`, `tiptap-editor ~230`, `image-uploader ~210`) | Maintainability | Split on next feature touch |
+| — | `kudos_mentions` table not yet migrated | @mention query capability deferred | Migrate when "mentioned in" queries are needed |

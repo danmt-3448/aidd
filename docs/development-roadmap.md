@@ -21,91 +21,107 @@
 
 ## Phase 2 — Login Screen (Done)
 
-**Delivered:** 2026-07-30 · commits `bb3d2f5`
+**Delivered:** 2026-07-30 · commit `bb3d2f5`
 **Plan:** `plans/260730-1150-login/`
 **MoMorph screen:** `GzbNeVGJHz`
 
 - [x] `profiles` table + trigger `on_auth_user_created` (migration `20260730062749`)
-- [x] Supabase clients: browser (`src/lib/supabase/client.ts`), server (`src/lib/supabase/server.ts`), middleware (`src/lib/supabase/middleware.ts`)
+- [x] Supabase clients: browser (`src/lib/supabase/client.ts`), server, middleware
 - [x] Google OAuth Server Action (`src/app/login/actions.ts → signInWithGoogle`)
-- [x] OAuth callback route (`src/app/auth/callback/route.ts`)
-- [x] Route guard / proxy (`src/proxy.ts`) with open-redirect protection
+- [x] OAuth callback route (`src/app/auth/callback/route.ts`) → redirect default `/`
+- [x] Route guard / proxy (`src/proxy.ts`) with open-redirect protection (`sanitizeNext`)
 - [x] i18n via next-intl — cookie-based locale (VN/EN), no URL prefix
 - [x] Login UI pixel-perfect from Figma — keyvisual, gradient overlays, login button
 - [x] `dev-login` route (env-gated, email+password for local seeded users)
-- [x] Unit tests (Vitest): `guard-rules`, `language-switcher`, `login-screen`, `i18n/config` — 64 passing
+- [x] Unit tests (Vitest): `guard-rules`, `language-switcher`, `login-screen`, `i18n/config`
 - [x] E2E tests (Playwright): `e2e/login.spec.ts`
+- [x] UI-First Gate PASS at 1440 + 1280 (property-diff)
 
 ---
 
 ## Phase 3 — Viết Kudo Compose Screen (Done)
 
-**Delivered:** 2026-07-31 · commits `992daa6`, `dc4e23a`, `26f30ef`, `9ce9e1a`, `7ee46d5`, `be791ae`
+**Delivered:** 2026-07-31 · commits `992daa6`–`be791ae`
 **Plan:** `plans/260731-0836-viet-kudo/`
 **MoMorph screen:** `ihQ26W78P2`
 
 - [x] DB tables: `hashtags`, `kudos`, `kudo_hashtags`, `kudo_images` (migration `20260731000000`)
-- [x] Atomic RPC `create_kudo()` in Postgres — single transaction for kudos + hashtags + images
-- [x] RLS policies on all four tables
+- [x] `kudos.danh_hieu` column + 8-arg `create_kudo()` RPC (migration `20260804010000`)
+- [x] Atomic RPC `create_kudo()` — single transaction for kudos + hashtags + images
+- [x] RLS policies on all four tables; `kudos_public` view with sender masking
 - [x] Supabase Storage bucket `kudo-images` with per-user folder policies
 - [x] Seed: 10 `auth.users` + `profiles`, 12 hashtags
-- [x] Server actions: `createKudo` (auth guard + Zod + sanitize-html + RPC), `searchRecipients`, `listHashtags`
+- [x] Server actions: `createKudo`, `searchRecipients`, `listHashtags`
 - [x] TanStack Query hooks: `useCreateKudo`, `useRecipientSearch`, `useHashtags`, `useCurrentUserId`
 - [x] Rich-text editor: Tiptap with bold/italic/strike/list/link/blockquote/`@mention`
-- [x] KudoComposeModal (8 components): RecipientSelect, TiptapEditor, HashtagPicker, ImageUploader, AnonymousToggle, SubmitBar
-- [x] `/kudos` route — modal mounted with QueryProvider + Sonner toasts
-- [x] Unit tests: `kudo-schema.test.ts` (64 passing including UUID regression)
-- [x] DB integration tests: `supabase/tests/kudo-integration-simple.sql` (8 passing)
+- [x] KudoComposeModal (8 components): RecipientSelect, TiptapEditor, HashtagPicker,
+      ImageUploader, AnonymousToggle, SubmitBar
+- [x] `/kudos` route — modal mounted; QueryProvider + Sonner moved to root `providers.tsx`
+- [x] Unit tests: `kudo-schema.test.ts`
+- [x] DB integration tests: `supabase/tests/kudo-integration-simple.sql`
 - [x] E2E tests: `e2e/viet-kudo.spec.ts`
 
 ---
 
-## Phase 4 — Live Board / Sun* Kudos Feed (Planned)
+## Phase 4 — Live Board / Sun* Kudos Feed (Done)
 
-**Status:** Not started
-**Screens:** Live board (read view — kudos feed + like hearts + stats + secret boxes)
+**Delivered:** 2026-08-05
+**Screens:** Live board — kudos feed + like hearts + stats + spotlight + secret boxes
 
-- [ ] Read `kudos` with hashtags, images, sender/receiver profiles
-- [ ] Like hearts (`kudos_likes` table — schema drafted in `docs/database-schema.md`)
-- [ ] Secret box open flow (`secret_boxes` + `badges` tables)
-- [ ] `sender_id` masking for anonymous kudos before this ships (security gap noted in schema)
-- [ ] Spotlight / highlight top kudos by `like_count`
-- [ ] Real-time or polling for new kudos
+- [x] `hearts` table (migration `20260731030000`) — PK(user_id, kudo_id); self-heart blocked by RLS
+- [x] `secret_box` + `secret_box_badges` tables (migration `20260731050000`)
+- [x] `notifications` table (migration `20260731060000`) — trigger-inserted on kudo create
+- [x] `kudos_public` view — sender masking for anonymous kudos (implemented and active)
+- [x] `profile_stats_view` — aggregated stats per profile
+- [x] `get_highlight_kudos()` RPC — top-5 weighted rows (replaces client-side ranking)
+- [x] `board_leaderboard()` RPC (migration `20260804020000`)
+- [x] Performance indexes migration `20260804000000`
+- [x] BoardScreen: feed cards, highlight kudos, spotlight, sidebar
+- [x] UI-First Gate PASS at 1440 + 1280 (property-diff)
+- [x] `/kudos` navigates to `/board` in the live board context
 
 ---
 
-## Phase 5 — User Profile Screen (Planned)
+## Phase 5 — User Profile Screen (Done)
 
-**Status:** Not started
+**Delivered:** 2026-08-05
 **Screens:** Profile bản thân
 
-- [ ] Profile page: avatar, `star_level`, stats (`kudos_received_count`, `kudos_sent_count`, `hearts_received`)
-- [ ] `user_badges` display (badge collection from secret box opens)
-- [ ] Department label (`departments` table — FK wiring deferred)
+- [x] Profile page: avatar, `star_level`, stats (`kudos_received_count`, `kudos_sent_count`, `hearts_received`)
+- [x] Badge display from `secret_box_badges` (badge config in `badge-assets.ts` — static, no DB `badges` table)
+- [x] `departments` table (migration `20260804040000`) — uuid PK, `name` unique; `profiles.department_ref` FK wired
+- [x] UI-First Gate PASS at 1440 + 1280 (property-diff)
 
 ---
 
-## Phase 6 — Homepage SAA + Countdown (Planned)
+## Phase 6 — Homepage + Countdown + Rules + Awards (Done)
 
-**Status:** Not started
-**Screens:** Homepage SAA, Countdown/Prelaunch, Thể lệ UPDATE, Hệ thống giải
+**Delivered:** 2026-08-06
+**Screens:** Homepage SAA, Countdown/Prelaunch, Thể lệ, Hệ thống giải
 
-- [ ] Homepage: nav, event info, awards information section
-- [ ] Prelaunch countdown gate (env `EVENT_START_AT`; locks navigation until `0`)
-- [ ] "Thể lệ" (rules) page — static content
-- [ ] "Hệ thống giải" (awards) page — 6 award categories (static content or `awards` table)
+- [x] `event_config` DB table (migration `20260731020000`) — `event_start_at` timestamptz, singleton (id=1)
+- [x] `event_config_anon_read` policy (migration `20260805020000`) — anonymous can read for countdown
+- [x] Homepage: nav, hero, awards grid, FAB widget, account menu
+- [x] Prelaunch gate: proxy reads `event_config.event_start_at` DB (not env var); non-admin before start → `/countdown`
+- [x] `special_day_config` table (migration `20260731040000`) — per-date hearts multiplier
+- [x] "Thể lệ" (`/rules`) page — static content + modal
+- [x] "Hệ thống giải" (`/awards`) page — static TS config (no DB table; YAGNI)
+- [x] Countdown page (`/countdown`) — public route, pre-launch display
+- [x] UI-First Gate PASS at 1440 + 1280 for Homepage, Countdown, Rules, Awards (property-diff)
 
 ---
 
-## Phase 7 — Polish + Production Readiness (Planned)
+## Phase 7 — Polish + Production Readiness (In Progress)
 
-**Status:** Not started
+**Status:** In progress
 
-- [ ] Mask `kudos.sender_id` for anonymous kudos before Live board (per M3 concern in viet-kudo plan)
-- [ ] `departments` table FK + department dropdown
-- [ ] Admin: content review, user management, `special_days` config (design in-progress, no spec)
-- [ ] Notifications table/flow (hinted from header bell icon, no spec yet)
-- [ ] Responsive audit at 375 / 768 / 1280 px across all screens
+- [x] Fixed header (sticky → fixed overlay) with content offsets for all routes
+- [x] Z-index layering: rules/secret-box/compose modals above fixed header
+- [x] 1920px no-break verified (property-diff gate extended)
+- [ ] Notifications UI (`/notifications`, `/notifications/panel`) — routes exist, gate BLOCKED on MoMorph spec
+- [ ] Secret box open flow — UI exists; `open_secret_box()` RPC in migration `20260731110000`; gate pending
+- [ ] `kudos_mentions` table migration (deferred; @mentions embedded in content_html)
+- [ ] Responsive audit at 375 / 768 across all screens
 - [ ] Production Supabase project + deployment
 
 ---
@@ -114,18 +130,18 @@
 
 | Screen | Status |
 |--------|--------|
-| Login | Done |
-| Viết Kudo (compose modal) | Done |
-| Sun* Kudos — Live board | Planned |
-| Profile bản thân | Planned |
-| Homepage SAA | Planned |
-| Countdown / Prelaunch | Planned |
-| Thể lệ UPDATE | Planned |
-| Hệ thống giải | Planned |
-| Open secret box | Planned |
-| Dropdown Phòng ban | Planned |
-| Addlink Box (inline) | Planned |
-| Dropdown-profile / Dropdown-ngôn ngữ / FAB | Planned |
+| Login | Done + Gate PASS |
+| Viết Kudo (compose modal) | Done + Gate PASS |
+| Sun* Kudos — Live board | Done + Gate PASS |
+| Profile bản thân | Done + Gate PASS |
+| Homepage SAA | Done + Gate PASS |
+| Countdown / Prelaunch | Done + Gate PASS |
+| Thể lệ UPDATE | Done + Gate PASS |
+| Hệ thống giải | Done + Gate PASS |
+| Open secret box | In Progress |
+| Notifications | BLOCKED (MoMorph spec) |
+| Dropdown Phòng ban | Done (departments FK wired) |
+| Dropdown-profile / Dropdown-ngôn ngữ / FAB | Done (in homepage/shared chrome) |
 
 ---
 
@@ -133,10 +149,10 @@
 
 | Item | Status |
 |------|--------|
-| Anonymous kudo `sender_id` masking (M3) | Pending — must ship before Live board |
-| `departments` FK wiring | Deferred to Phase 5 |
-| `kudos_mentions` table (separate from `content_html`) | Deferred |
-| Notifications | No spec — deferred |
+| Anonymous kudo `sender_id` masking | **Done** — `kudos_public` view masks sender for anonymous rows |
+| `departments` FK wiring | Done — `profiles.department_ref` uuid FK (migration `20260804040000`) |
+| `kudos_mentions` table | Deferred — @mentions embedded in content_html |
+| Notifications | Routes exist; UI gate BLOCKED on MoMorph spec |
 | E2E with real Supabase session injection | In-progress |
 
 > Schema reference: `docs/database-schema.md`

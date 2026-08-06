@@ -118,7 +118,7 @@
   <div class="wrap">
     <span class="badge">SAA 2025 · Internal · AIDD Hands-on</span>
     <h1>Gen Code từ <span class="grad">Figma + MoMorph</span><br>với Takumi &amp; Claude Code</h1>
-    <p class="lead">Hướng dẫn dành cho người mới: hiểu quy trình biến <b>Design (Figma)</b> + <b>Screen Spec (MoMorph)</b> thành <b>source code hoàn thiện</b> — UI chuẩn pixel, logic đúng spec, kèm Unit &amp; E2E test theo TDD.</p>
+    <p class="lead">Hướng dẫn dành cho người mới: hiểu quy trình biến <b>Design (Figma)</b> + <b>Screen Spec (MoMorph)</b> thành <b>source code hoàn thiện</b> — UI chuẩn pixel, logic đúng spec, kèm Unit &amp; E2E test (viết sau khi screen qua UI-First Gate).</p>
     <div class="pipeline">
       <span class="chip">🎨 Figma Design</span>
       <span class="arrow">+</span>
@@ -192,14 +192,12 @@
     <tr><th style="width:220px">Hạng mục</th><th>Lựa chọn</th></tr>
     <tr><td>Framework</td><td>Next.js (App Router) + React + TypeScript</td></tr>
     <tr><td>Styling</td><td>Tailwind CSS</td></tr>
-    <tr><td>UI components</td><td>shadcn/ui (trên nền Radix, copy-in)</td></tr>
     <tr><td>Data fetching</td><td>TanStack Query (server state)</td></tr>
-    <tr><td>Client state</td><td>Zustand</td></tr>
     <tr><td>Backend / Auth</td><td>Supabase (local project)</td></tr>
     <tr><td>Unit test</td><td>Vitest</td></tr>
     <tr><td>E2E test</td><td>Playwright</td></tr>
   </table>
-  <div class="callout warn"><span class="ic">⚠️</span> Hiện chỉ mới cài <code>next</code>, <code>react</code>, <code>react-dom</code>. Các package trên chỉ cài <b>khi màn nào cần đến</b> — giữ <code>package.json</code> gọn, đúng thực tế.</div>
+  <div class="callout"><span class="ic">📦</span> Các package trên cài <b>khi màn cần đến</b> — giữ <code>package.json</code> gọn, đúng thực tế.</div>
 </div></section>
 
 <!-- 4 -->
@@ -273,7 +271,7 @@
     <div class="flow-arrow">↓</div>
     <div class="merge"><b>⑧ INTEGRATION</b> — không có merge cứng. Track A xong màn nào → thay mock data bằng Supabase thật, nối event handler, wire TanStack Query + Zustand.</div>
     <div class="flow-arrow">↓</div>
-    <div class="flow-step"><span class="st">⑨ TESTING (TDD)</span><b>Vitest (unit) + Playwright (E2E)</b><small>chạy theo test cases MoMorph</small></div>
+    <div class="flow-step"><span class="st">⑨ TESTING (sau UI-First Gate)</span><b>Vitest (unit) + Playwright (E2E)</b><small>viết test SAU khi screen PASS /aidd-ui-gate — không test-first</small></div>
     <div class="flow-arrow">↓</div>
     <div class="flow-step"><span class="st">⑩ INSPECTION</span><b>Reviewer agent (tự động)</b></div>
     <div class="flow-arrow">↓</div>
@@ -339,10 +337,10 @@
     <li><b>Nhân rộng</b> <span>— khi quen flow, dùng <code>/tkm:create-plan</code> (Scenario 2) cho nhiều màn cùng lúc.</span></li>
   </ol>
 
-  <div class="callout"><span class="ic">📌</span> Dự án Figma <b>SAA 2025 - Internal Live Coding</b> hiện có <b>18 màn web đã có spec sẵn</b> (17 màn chưa dev + 1 màn đã done) — sẵn sàng để thực hành ngay, không cần viết lại spec.</div>
+  <div class="callout"><span class="ic">📌</span> Dự án Figma <b>SAA 2025 - Internal Live Coding</b> hiện có <b>18 màn web đã có spec sẵn</b>. 8 màn đã Done + UI-First Gate PASS (Login, Homepage, Board, Awards, Profile, Rules, Countdown, Kudos) — sẵn sàng để thực hành ngay.</div>
 
   <h3>Lệnh dev cơ bản</h3>
-  <pre><span class="k">npm run dev</span>     <span class="c"># dev server → http://localhost:3000</span>
+  <pre><span class="k">npm run dev</span>     <span class="c"># dev server → http://localhost:3001</span>
 <span class="k">npm run build</span>   <span class="c"># production build</span>
 <span class="k">npm run lint</span>    <span class="c"># eslint</span></pre>
 
