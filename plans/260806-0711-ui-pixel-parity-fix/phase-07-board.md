@@ -1,6 +1,6 @@
 # Phase 07 — `/board` (Live board)
 
-**Track:** A · **blockedBy:** 02, 04 · **Status:** pending
+**Track:** A · **blockedBy:** 02, 04 · **Status:** ✅ PASS (2026-08-06; heights 525/548/3068 + 1280 spotlight overflow fixed — see summary report)
 
 ## MoMorph refs
 - Sun* Kudos Live board: https://momorph.ai/files/9ypp4enmFmdK3YAFJLIu6C/screens/MaZUn5xHXZ

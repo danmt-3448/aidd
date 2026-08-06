@@ -1,6 +1,6 @@
 # Phase 09 — `/rules` + `/notifications` (gỡ chặn)
 
-**Track:** A · **blockedBy:** 02 · **Status:** pending (đã gỡ chặn — `/rules` = MODAL, chốt 2026-08-06)
+**Track:** A · **blockedBy:** 02 · **Status:** ⚠️ PARTIAL — /rules ✅ PASS; /notifications x2 BLOCKED (MoMorph node metadata not synced) — see summary report
 
 ## Hai màn này chưa chấm được — không phải vì code sai
 

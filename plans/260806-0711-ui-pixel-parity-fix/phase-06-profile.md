@@ -1,6 +1,6 @@
 # Phase 06 — `/profile`
 
-**Track:** A · **blockedBy:** 02, 04 · **Status:** pending
+**Track:** A · **blockedBy:** 02, 04 · **Status:** ✅ PASS (2026-08-06, verified vs live get_node — see plans/reports/ui-gate-260806-1850-phases-05-10-summary.md)
 
 ## MoMorph refs
 - Profile bản thân: https://momorph.ai/files/9ypp4enmFmdK3YAFJLIu6C/screens/3FoIx6ALVb

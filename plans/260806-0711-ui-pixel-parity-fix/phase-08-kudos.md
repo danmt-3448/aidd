@@ -1,6 +1,6 @@
 # Phase 08 — `/kudos` (modal Viết Kudo)
 
-**Track:** A · **blockedBy:** 02, 07 · **Status:** pending
+**Track:** A · **blockedBy:** 02, 07 · **Status:** ✅ PASS (2026-08-06; modal 26/26 @1440+1280; interactive behavior HELD on Turbopack-headless — see summary)
 
 ## MoMorph refs
 - Viết Kudo: https://momorph.ai/files/9ypp4enmFmdK3YAFJLIu6C/screens/ihQ26W78P2
