@@ -16,7 +16,7 @@ interface RulesActionBarProps {
  */
 export function RulesActionBar({ onClose, onWriteKudos }: RulesActionBarProps) {
   return (
-    <div className="flex w-full flex-row gap-4">
+    <div className="flex w-full flex-row gap-4 mt-3">
       {/* Đóng — secondary */}
       <button
         type="button"
