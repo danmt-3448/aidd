@@ -1,22 +1,24 @@
-# UI-First Gate — /login (Login, GzbNeVGJHz) — **PASS** (run 2, 2026-08-05)
+# UI-First Gate — /login (Login, GzbNeVGJHz) — **PASS (visual) · behavior partial** (run 2)
 
-Port: 127.0.0.1:3001 · ref node 662:14387 · frame 1440×1024.
+Port: localhost:3001 (visual ref chụp qua 127.0.0.1) · ref node 662:14387 · frame 1440×1024.
 
-## A. Visual — pixel-diff (`scripts/pixel-diff.mjs`)
-- **1440: pixel-diff = 0.45%** (similarity 99.55%) → **PASS** (bar ≤ 1%). diff: `_gate-ref/login-1440-diff-v9.png`.
-- **1280: no overflow/layout break** → PASS (no exact 1280 Figma ref; layout adapts correctly).
+## A. Visual — pixel-diff (`scripts/pixel-diff.mjs`) — **PASS**
+- **1440: pixel-diff = 0.44%** (similarity 99.56%) → **PASS** (bar ≤ 1%). diff: `_gate-ref/login-1440-verify-diff.png`. **Đã tự verify độc lập** (không tin report subagent).
+- **1280: no overflow / layout adapts** → PASS.
 
-### Run 1 → Run 2 fixes applied
-1. **Title**: replaced `<h1>` text with `<Image src="root-further.png">` (Figma node 2939:9548, 451×200px RGBA wordmark).
-2. **BOTTOM_DARK gradient positioning**: Figma node 662:14390 (Cover) has `startY=138, height=1093px`. Changed from `inset-0` (stretches over full page height) to `top=138 height=1093` — fixes gradient darkening at y=640-900.
-3. **Title-to-body gap**: Frame 487 (662:14394) `gap=80px`. Changed `gap-6` → `gap-20` — fixes ~60px button position error.
-4. **Keyvisual artwork**: regenerated `keyvisual-v2.png` by inverting reference gradients with corrected Cover element dimensions (startY=138, h=1093). Formula: `kv = (ref − bg×(1−pt)) / pt`.
+### Fix run1→run2 (FE subagent, đã tự đo lại)
+1. Title `<h1>` text → `<Image src="root-further.png">` (wordmark asset, Figma node 2939:9548) — 2 dòng ROOT/FURTHER.
+2. BOTTOM_DARK gradient: `inset-0` → `top=138 h=1093` (Cover node 662:14390).
+3. Title→body gap: `gap-6` → `gap-20` (Frame 487 gap=80px).
+4. keyvisual regenerated khớp Cover dims.
 
-## B. Behavior (mock) — chưa chấm đầy đủ
-- Console: dev-server HMR noise (không phải app error) — không tính FAIL.
-- 4-state `?ui_state`, language dropdown, google button hover/loading → cần chấm sau.
+## B. Behavior — **partial (env-constrained)**
+- ✅ **Authenticated → redirect `/`**: verified LIVE trên localhost (session có → `/login` redirect `/`). Test case f62b0c97 PASS.
+- ✅ Structure đúng (snapshot): logo top-left, VN selector top-right, wordmark img "ROOT FURTHER", "LOGIN With Google" button, footer "Bản quyền thuộc về Sun* © 2025".
+- ⚠️ Language dropdown open / Google hover-shadow / loading: **code implement đúng** (đọc source `language-selector.tsx` — toggle `open` + `<ul role=listbox>` VN/EN; `google-login-button.tsx`). KHÔNG exercise được interactive vì: localhost=authenticated→redirect; 127.0.0.1=**client không hydrate** (Next dev cross-origin, fiberDetected=false). Không phải app defect.
+- Console: 127.0.0.1 = HMR websocket noise (dev-only, không tính); **localhost = 0 error**.
 
-## Verdict: **PASS** A visual 0.45%
-- 1440: PASS (0.45% ≤ 1%)
-- 1280: PASS (no overflow, layout adapts)
-- Screenshots: `_gate-ref/login-1440-v9.png`, `_gate-ref/login-1280-v9.png`
+## ⚠️ PHÁT HIỆN MÔI TRƯỜNG (ảnh hưởng gate MỌI màn)
+Truy cập qua **`127.0.0.1:3001` → React KHÔNG hydrate** (fiberDetected=false, HMR ws handshake fail) → không test được interactive/4-state. Qua **`localhost:3001` → hydrate OK, 0 console error**. → **Từ nay gate chạy trên `localhost:3001`.** SSR visual giống nhau cả 2 path nên pixel-diff không đổi.
+
+## Verdict: **PASS** (visual 0.44% + auth behavior verified). Interactive dropdown = code-verified (env không exercise được unauthenticated).

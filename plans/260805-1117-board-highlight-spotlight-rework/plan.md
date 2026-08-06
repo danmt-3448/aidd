@@ -1,4 +1,12 @@
+---
+blockedBy: [260806-0711-ui-pixel-parity-fix]
+---
+
 # Plan — Board /board full-page rework (Sun* Kudos)
+
+> **⚠️ Blocked (2026-08-06).** Chờ `plans/260806-0711-ui-pixel-parity-fix/` — band-diff phải có trước
+> mới đo được `/board` (app 8622px vs Figma 5862px, ratio toàn cục 23.33% không chỉ ra chỗ sai).
+> **Phân tích Figma + `clarifications.md` ở plan này VẪN CÒN GIÁ TRỊ** — phase-07 của plan mới tham chiếu, không viết lại.
 
 **Screen:** Sun* Kudos (Live board) · MoMorph `MaZUn5xHXZ` · route `/board` · Figma frame 2940:13431
 **Track:** A only (UI + behavior mock). BE/data đã wire sẵn — plan này KHÔNG đụng BE/queries.

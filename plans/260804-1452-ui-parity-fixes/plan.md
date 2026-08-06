@@ -7,9 +7,15 @@ effort: 17h
 branch: develop
 tags: [ui-parity, bugfix, responsive, i18n, supabase-config]
 created: 2026-08-04
+blockedBy: [260806-0711-ui-pixel-parity-fix]
 ---
 
 # UI Parity Fixes
+
+> **⚠️ Blocked / một phần đã lỗi thời (2026-08-06).** Plan này viết theo chuẩn cũ (**1280 pixel-perfect + responsive 375/768**);
+> `.claude/rules/ui-first-gate.md` nay chấm **1440 (ưu tiên 1) + 1280**, BỎ 768/375, và đo bằng pixel-diff ≤1%.
+> Các phase UI (05–09) bị `plans/260806-0711-ui-pixel-parity-fix/` thay thế.
+> **Vẫn dùng được:** phase 01 (dicebear whitelist), 02 (awards data), 03 (secret-box counter), 04 (countdown i18n), 12 (danh_hieu migration) — thuộc Track B, không đụng UI.
 
 Fix plan for UI-parity drift found in the audit. Source report:
 `plans/reports/reviewer-260804-ui-parity-audit.md` (per-screen table + 1440 wide + inventory).

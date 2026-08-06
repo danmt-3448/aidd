@@ -9,9 +9,13 @@ tags: [ui-parity, ui-first-gate, homepage, visual-fidelity, fix]
 work_type: feature
 spec_waived: "UI-parity FIX against existing built screen; reference = MoMorph frame i87tDx10uM + Figma node 2167:9026. No new feature spec authored."
 created: 2026-08-05
+blockedBy: [260806-0711-ui-pixel-parity-fix]
 ---
 
 # Home UI Parity Check & Fix
+
+> **⚠️ Blocked (2026-08-06).** Bị `plans/260806-0711-ui-pixel-parity-fix/phase-05-homepage.md` thay thế —
+> plan mới đo bằng band-diff (per-section) thay vì ratio toàn cục. Phase file ở đây giữ làm tham khảo phân tích.
 
 **FIX plan** — Homepage (`/`, screen `i87tDx10uM`) is already built (phase-11 of
 `260803-1636-saa2025-remaining-7-screens`, status completed). This plan **re-audits its visual
