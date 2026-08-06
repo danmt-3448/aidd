@@ -13,6 +13,8 @@ export interface Award {
   navLabelMultiline?: string
   /** Path to award icon used in the content card header (from /awards/*.svg) */
   icon: string
+  /** Path to the award medallion artwork (crystal-ball + name composite, from /awards/*.png) */
+  image: string
   /** Number of awards given in this category */
   quantity: number
   /** Unit label for quantity, e.g. "Cá nhân" or "Dự án" */

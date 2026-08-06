@@ -19,6 +19,7 @@ const mockAward = (slug: string): Award => ({
   title: `Award ${slug}`,
   navLabel: slug,
   icon: '/awards/icon-target.svg',
+  image: `/awards/${slug}.png`,
   quantity: 1,
   quantityUnit: 'Cá nhân',
   prize: '10.000.000 VNĐ',

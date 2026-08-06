@@ -76,49 +76,47 @@ export function KudosPromo() {
             </p>
           </div>
 
-          {/* CTA button — href wired in integration phase */}
-          <div className="flex items-center" style={{ gap: '24px' }}>
+          {/* CTA button — gold pill + up-arrow inside (Figma mms_D2.1_Button-IC:
+              bg #FFEA9E, radius 4, icon MM_MEDIA_Up). href wired at integration. */}
+          <div className="flex items-center">
             <a
               href="#"
-              className="inline-flex items-center justify-center rounded-lg font-montserrat font-bold transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 font-montserrat font-bold transition-opacity hover:opacity-90"
               style={{
                 backgroundColor: '#FFEA9E',
                 color: '#00101A',
                 fontSize: '16px',
                 lineHeight: '24px',
-                padding: '12px 24px',
+                padding: '16px',
+                borderRadius: '4px',
               }}
               aria-label="Khám phá Sun* Kudos ngay"
             >
-              Khám phá ngay
+              Chi tiết
+              <span className="relative" style={{ width: '24px', height: '24px', flexShrink: 0 }}>
+                <Image
+                  src="/homepage/icon-arrow-up-black.svg"
+                  alt=""
+                  fill
+                  className="object-contain"
+                />
+              </span>
             </a>
-            <div className="relative" style={{ width: '40px', height: '40px' }}>
-              <Image
-                src="/awards/icon-kudos.svg"
-                alt="Sun* Kudos icon"
-                fill
-                className="object-contain"
-              />
-            </div>
           </div>
         </div>
 
-        {/* Right: QR / app store */}
-        <div className="hidden shrink-0 flex-col items-center gap-4 md:flex">
-          <div className="relative" style={{ width: '140px', height: '140px' }}>
-            <Image
-              src="/awards/kudos-qr.svg"
-              alt="Mã QR Sun* Kudos"
-              fill
-              className="object-contain"
-            />
-          </div>
-          <p
-            className="font-montserrat font-bold tracking-widest"
-            style={{ fontSize: '14px', lineHeight: '20px', color: '#FFFFFF' }}
-          >
-            KUDOS
-          </p>
+        {/* Right: Sun* Kudos wordmark (Figma MM_MEDIA_Logo/Kudos, 383×74 wide).
+            No QR, no separate "KUDOS" label — the wordmark already reads KUDOS. */}
+        <div
+          className="relative hidden shrink-0 md:block"
+          style={{ width: 'min(383px, 40%)', aspectRatio: '383 / 74' }}
+        >
+          <Image
+            src="/awards/kudos-qr.svg"
+            alt="Sun* Kudos"
+            fill
+            className="object-contain"
+          />
         </div>
       </div>
     </section>

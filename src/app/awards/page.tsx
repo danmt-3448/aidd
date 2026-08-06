@@ -17,26 +17,46 @@ import { AWARDS } from '@/features/awards/award-config'
  * Pattern mirrors /app/board/page.tsx — session read once, plain props to header.
  * /awards is auth-guarded via middleware (not in PUBLIC_PATHS).
  */
-export default async function AwardsPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+export default async function AwardsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ui_state?: string }>
+}) {
+  const { ui_state: uiState } = await searchParams
 
-  const isAdmin = user ? await getIsAdmin() : false
+  // Dev-only UI-gate bypass: with `?ui_state=` present, render the header from a
+  // mock identity and skip Supabase entirely, so /aidd-ui-gate can screenshot
+  // /awards without local Supabase running (mirrors proxy.ts:26-31). Never in prod.
+  const mockMode = process.env.NODE_ENV !== 'production' && Boolean(uiState)
 
-  // Header identity from OAuth session metadata — no extra profile query.
-  const headerUser = user
-    ? {
-        name:
-          (user.user_metadata?.full_name as string | undefined) ??
-          (user.user_metadata?.name as string | undefined) ??
-          'Sunner',
-        avatarUrl:
-          (user.user_metadata?.avatar_url as string | undefined) ??
-          (user.user_metadata?.picture as string | undefined),
-      }
-    : null
+  let headerUser: { name: string; avatarUrl?: string } | null = null
+  let isAdmin = false
+
+  if (mockMode) {
+    // Awards is auth-guarded → reference state is logged-in. Figma header shows a
+    // profile icon (no name text), so name falls back to the generic 'Sunner'.
+    headerUser = { name: 'Sunner' }
+  } else {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    isAdmin = user ? await getIsAdmin() : false
+
+    // Header identity from OAuth session metadata — no extra profile query.
+    headerUser = user
+      ? {
+          name:
+            (user.user_metadata?.full_name as string | undefined) ??
+            (user.user_metadata?.name as string | undefined) ??
+            'Sunner',
+          avatarUrl:
+            (user.user_metadata?.avatar_url as string | undefined) ??
+            (user.user_metadata?.picture as string | undefined),
+        }
+      : null
+  }
 
   return (
     <div style={{ background: 'rgba(0,16,26,1)', minHeight: '100vh' }}>
