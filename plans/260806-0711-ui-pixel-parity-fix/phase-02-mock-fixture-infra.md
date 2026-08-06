@@ -25,7 +25,7 @@ Ba mảnh hiện có, giữ nguyên kiến trúc:
 
 > **KHÔNG tạo fixture cho `/awards`** — `awards/page.tsx` là Server Component, data từ `award-config.ts` (static), `supabase-files=0`. Không xuyên qua BE → không cần tách. Phase-03 sửa thuần UI, không phụ thuộc phase này.
 
-> **`/kudos` không có `*-connected.tsx`** — modal `KudoComposeModal` do state `composeOpen` ở [board-screen.tsx:76](../../src/features/board/components/board-screen.tsx#L76) điều khiển (mở tại `:169`). Điểm nối mock: init `composeOpen` từ query param trong `board-screen` (vd `?ui_state=full` + `&modal=compose`) chỉ khi `NODE_ENV !== 'production'`, để `/aidd-ui-gate` mở được modal trên nền board mà không cần click. Chi tiết chấm ở phase-08.
+> **`/kudos` không có `*-connected.tsx`** — modal `KudoComposeModal` do state `composeOpen` ở [board-screen.tsx:76](../../src/features/board/components/board-screen.tsx#L76) điều khiển (mở tại `:169`). **(fix RT-13/Scope-7: KHÔNG nhét logic đọc query param vào `board-screen.tsx` production — file có 31 phụ thuộc.)** Thay vào đó: dev-only wrapper (kiểu [board-connected.tsx:41](../../src/features/board/components/board-connected.tsx#L41)) đọc `?modal=compose` ở tầng proxy rồi truyền `initialComposeOpen` **dạng prop** vào board-screen. Prop do test-harness lái, không cần guard `NODE_ENV` nhúng trong component. Chi tiết chấm ở phase-08.
 
 ## Steps
 

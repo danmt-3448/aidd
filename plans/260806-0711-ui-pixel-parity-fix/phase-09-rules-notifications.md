@@ -1,18 +1,13 @@
 # Phase 09 — `/rules` + `/notifications` (gỡ chặn)
 
-**Track:** A · **blockedBy:** quyết định của user (không phải phase khác) · **Status:** blocked
+**Track:** A · **blockedBy:** 02 · **Status:** pending (đã gỡ chặn — `/rules` = MODAL, chốt 2026-08-06)
 
 ## Hai màn này chưa chấm được — không phải vì code sai
 
-### `/rules` — mâu thuẫn modal vs full-page
+### `/rules` — ✅ CHỐT = MODAL (2026-08-06)
 - Thể lệ UPDATE: https://momorph.ai/files/9ypp4enmFmdK3YAFJLIu6C/screens/b1Filzi9i6 · node `3204:6051`
-- Figma artboard **1440×1796** (trang dài, content trải hết, footer ở đáy).
-- App render **modal cao cố định ~1024px**, scroll nội bộ, nút "Đóng"/"Viết KUDOS" giữa viewport.
-- → 1024 vs 1796, không diff trực tiếp được. [Report](../reports/ui-gate/ui-gate-260805-rules.md)
-
-**Cần user quyết:** Figma "Thể lệ" là **trang riêng** hay **modal**? Đây là câu hỏi thiết kế, đọc code không trả lời được.
-- Nếu là trang → đổi `/rules` thành full-page, dựng band manifest, chấm bình thường.
-- Nếu là modal → app đúng hướng, chỉ cần chốt lại chuẩn chấm (chỉ diff vùng modal, như `/kudos`).
+- Figma artboard **1440×1796** chỉ là canvas trình bày; **UI thật là MODAL overlay** (app đang đi đúng hướng).
+- **Chuẩn chấm:** property-diff trên **vùng modal** (element trong modal gắn `data-fig`), KHÔNG so full-page với artboard 1796. Giống cách chấm `/kudos` (modal trên nền cha). KHÔNG dựng band manifest full-page cho màn này.
 
 ### `/notifications` — ✅ ĐÃ GỠ CHẶN (2026-08-06)
 Gate cũ báo BLOCKED vì resolve nhầm screenId ([report](../reports/ui-gate/ui-gate-260805-notifications.md)). `list_frames` tìm ra **2 màn riêng biệt**, khớp ảnh Figma user gửi:

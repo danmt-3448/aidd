@@ -1,6 +1,8 @@
-# Phase 01 — Band-diff mode cho `pixel-diff.mjs`
+# Phase 01 — Band-diff mode cho `pixel-diff.mjs` (overlay lưới phụ)
 
-**Track:** Tooling · **Priority:** CRITICAL (chặn mọi phase đo đạc) · **Status:** pending · **blockedBy:** —
+**Track:** Tooling · **Priority:** HIGH (overlay bắt lỗi bố cục/tỉ lệ) · **Status:** pending · **blockedBy:** —
+
+> **Vai đã đổi (fold 2026-08-06):** band-diff KHÔNG còn là cổng cứng — **property-diff (phase-01B) mới là cổng cứng bằng số**. Band-diff hạ xuống **overlay lưới phụ**: bắt lỗi **bố cục/tỉ lệ section** mà property-diff (đo điểm rời rạc) bỏ sót. `pixel-diff.mjs` vẫn cần fix căn chỉnh vì overlay phải đáng tin. **SKILL.md do phase-01B chủ trì** — phase này giao nội dung band-mode dạng patch cho 01B ghép vào Step 3-band, KHÔNG tự viết đè Step 3.
 
 ## Vì sao
 
@@ -29,14 +31,16 @@ Không có band-diff thì sửa UI là mò kim: không biết chỗ nào sai, s�
 3. `heightDelta = appH - refH` → **báo cáo riêng, KHÔNG normalize**. Chênh chiều cao là defect thật (section cao/thấp sai tỉ lệ), giấu đi là gian lận.
 4. pixelmatch trên phần chồng lấn `min(refH, appH)` với `includeAA:false` như hiện tại.
 
-**Verdict:** PASS khi **mọi band** có `ratio ≤ 1%` **VÀ** `|heightDelta| ≤ 2px` (khớp ngưỡng F1 trong [kaizen report](../reports/kaizen-260805-0732-aidd-ui-gate.md)). Một band fail → màn fail, nhưng report chỉ đúng band đó.
+**Verdict (đã hạ vai — fix RT-11):** band-diff **KHÔNG còn quyết định PASS/FAIL gate**. Nó là **overlay dev opt-in** để soi bố cục/tỉ lệ. Lỗi **section cao/thấp sai tỉ lệ** giờ do **property-diff gánh** (entry `kind:'section'` so `offsetHeight` vs node height, `|Δ|≤2px` — phase-01B). Band mode in bảng `name | ratio | heightDelta` cho người soi, không exit-fail gate. → **R2 spike không còn là blocker** của phase 03–09 (property-diff không cần absolute-Y toàn artboard; chỉ cần height từng section root đã tag).
 
 ## Files
 
-**Sửa:**
+**Sửa (phase này sở hữu):**
 - `.claude/skills/aidd-ui-gate/scripts/pixel-diff.mjs` — thêm `--bands <manifest.json>` + `--app-offsets <json>`; giữ nguyên chế độ toàn-ảnh cho màn 1-viewport (countdown/login đang PASS bằng nó, không được phá).
-- `.claude/skills/aidd-ui-gate/SKILL.md` — Step 3a: trang cao > 2000px **bắt buộc** chạy band mode; report ghi bảng per-band.
-- `.claude/rules/ui-first-gate.md` — mục "Gate criteria A": bổ sung định nghĩa PASS theo band cho trang dài.
+
+**Giao patch cho phase-01B ghép (KHÔNG tự sửa — tránh đụng file với 01B):**
+- `.claude/skills/aidd-ui-gate/SKILL.md` — nội dung "Step 3-band": trang cao > 2000px chạy band mode, report bảng per-band. Giao cho 01B ghép vào Step 3 (mục overlay B).
+- `.claude/rules/ui-first-gate.md` — định nghĩa band cho trang dài, giao 01B ghép vào criteria A (mục overlay).
 
 **Tạo:**
 - `plans/reports/_gate-ref/bands/` — thư mục manifest.
