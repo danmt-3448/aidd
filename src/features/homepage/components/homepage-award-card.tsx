@@ -16,6 +16,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { montserrat } from '@/features/auth/fonts'
+import { AwardMedallion } from '@/features/awards/components/award-medallion'
 import type { Award } from '@/features/awards/types'
 
 interface HomepageAwardCardProps {
@@ -31,27 +32,13 @@ export function HomepageAwardCard({ award }: HomepageAwardCardProps) {
       style={{ gap: 24, width: '100%' }}
       aria-label={`Award: ${award.title}`}
     >
-      {/* Image square */}
+      {/* Image square — shared AwardMedallion (DRY with /awards detail cards) */}
       <Link href={href} tabIndex={-1} aria-hidden="true">
-        <div
-          className="relative overflow-hidden"
-          style={{
-            width: '100%',
-            aspectRatio: '1 / 1',
-            borderRadius: 24,
-            border: '1px solid #FFEA9E',
-            boxShadow: '0 4px 4px rgba(0,0,0,0.25), 0 0 6px #FAE287',
-            background: 'rgba(0,16,26,0.8)',
-          }}
-        >
-          <Image
-            src="/homepage/award-card-bg.png"
-            alt={award.title}
-            fill
-            className="object-cover"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 336px"
-          />
-        </div>
+        <AwardMedallion
+          src={award.image}
+          alt={award.title}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 336px"
+        />
       </Link>
 
       {/* Text block */}

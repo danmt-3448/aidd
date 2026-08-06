@@ -11,30 +11,37 @@
  *   - shadow: 0 4px 4px rgba(0,0,0,0.25), 0 0 6px #FAE287
  *   - icons: pen (24×24) + "/" separator + kudos-logo (24×24)
  *
- * Interaction (per task spec):
- *   Clicking the pill opens a popover menu above it with two items:
- *     1. "Viết Kudo"  → calls onWriteKudo()  (opens KudoComposeModal)
- *     2. "Thể lệ"     → navigates to /rules
- *   Menu closes on Esc, outside-click, or item selection.
+ * Interaction (Figma Frame 525 annotation — "Button fix cứng ở vị trí này"):
+ *   Collapsed = pen "/" Sun* pill. Clicking it EXPANDS in place to a vertical
+ *   stack of two gold action pills + a red round close (✕):
+ *     1. "Thể lệ"      → navigates to /rules            (top, icon = Sun* logo)
+ *     2. "Viết KUDOS"  → calls onWriteKudo()             (opens KudoComposeModal)
+ *     ✕ (red circle)   → collapses back to the pill
+ *   Also closes on Esc or outside-click.
  *
- * Accessibility: aria-haspopup="menu", aria-expanded, role="menu",
- *   role="menuitem", Escape key, outside-click via document listener.
+ * Tokens (existing, not invented): pill bg #FFEA9E / text #00101A (same as the
+ *   hero "ABOUT AWARDS" CTA + the collapsed pill). Red ✕ = #EF4444 (⚠ verify exact
+ *   hex against Figma widget node when MoMorph MCP is reachable).
+ *
+ * Accessibility: aria-haspopup, aria-expanded, role="menu"/"menuitem",
+ *   Escape key, outside-click via document listener.
  *
  * H-3: Only rendered when onWriteKudo is provided — anonymous visitors
  * do not get the FAB. HomepageScreen passes the handler only when user != null.
  */
 
 import Image from 'next/image'
-import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { montserrat } from '@/features/auth/fonts'
 
 export interface HomepageWidgetFabProps {
   /** Called when the user picks "Viết Kudo" from the menu. */
   onWriteKudo: () => void
+  /** Called when the user picks "Thể lệ" — opens the RulesModal in-place. */
+  onOpenRules: () => void
 }
 
-export function HomepageWidgetFab({ onWriteKudo }: HomepageWidgetFabProps) {
+export function HomepageWidgetFab({ onWriteKudo, onOpenRules }: HomepageWidgetFabProps) {
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -65,6 +72,11 @@ export function HomepageWidgetFab({ onWriteKudo }: HomepageWidgetFabProps) {
     onWriteKudo()
   }
 
+  function handleOpenRules() {
+    setOpen(false)
+    onOpenRules()
+  }
+
   return (
     <div
       ref={containerRef}
@@ -74,77 +86,77 @@ export function HomepageWidgetFab({ onWriteKudo }: HomepageWidgetFabProps) {
         right: 16,
       }}
     >
-      {/* Quick-action popover menu — rendered above the FAB pill */}
-      {open && (
+      {open ? (
+        /* Expanded — gold action pills + red round close, right-aligned stack */
         <div
           role="menu"
           aria-label="Quick actions"
-          className="absolute bottom-[72px] right-0 flex flex-col overflow-hidden rounded-xl shadow-lg"
-          style={{
-            minWidth: 140,
-            background: 'rgba(16,20,23,0.96)',
-            border: '1px solid rgba(153,140,95,0.35)',
-            backdropFilter: 'blur(12px)',
-          }}
+          className="flex flex-col items-end"
+          style={{ gap: 12 }}
         >
           <button
             role="menuitem"
-            className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10 focus:outline-none focus-visible:bg-white/10"
-            style={{ fontFamily: montserrat.style.fontFamily }}
-            onClick={handleWriteKudo}
+            className={`${montserrat.className} inline-flex items-center font-bold shadow-lg transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300`}
+            style={{ gap: 8, padding: '10px 16px', background: '#FFEA9E', color: '#00101A', borderRadius: 8, fontSize: 16, boxShadow: '0 4px 4px rgba(0,0,0,0.25), 0 0 6px #FAE287' }}
+            onClick={handleOpenRules}
           >
-            <div className="relative" style={{ width: 18, height: 18, flexShrink: 0 }}>
-              <Image src="/homepage/icon-pen.svg" alt="" fill className="object-contain" />
-            </div>
-            Viết Kudo
-          </button>
-
-          <Link
-            href="/rules"
-            role="menuitem"
-            className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10 focus:outline-none focus-visible:bg-white/10"
-            style={{ fontFamily: montserrat.style.fontFamily }}
-            onClick={() => setOpen(false)}
-          >
-            <div className="relative" style={{ width: 18, height: 18, flexShrink: 0 }}>
+            <div className="relative" style={{ width: 20, height: 20, flexShrink: 0 }}>
               <Image src="/homepage/icon-kudos-logo.svg" alt="" fill className="object-contain" />
             </div>
             Thể lệ
-          </Link>
-        </div>
-      )}
+          </button>
 
-      {/* FAB pill trigger — visual unchanged from design */}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-label="Viết Kudo nhanh"
-        className="flex items-center justify-center rounded-full font-bold shadow-lg transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300"
-        style={{
-          gap: 8,
-          padding: 16,
-          width: 106,
-          height: 64,
-          background: '#FFEA9E',
-          borderRadius: 100,
-          boxShadow: '0 4px 4px rgba(0,0,0,0.25), 0 0 6px #FAE287',
-          color: '#00101A',
-          fontSize: 24,
-          fontFamily: montserrat.style.fontFamily,
-        }}
-      >
-        {/* Pen icon */}
-        <div className="relative" style={{ width: 24, height: 24, flexShrink: 0 }}>
-          <Image src="/homepage/icon-pen.svg" alt="" fill className="object-contain" />
+          <button
+            role="menuitem"
+            className={`${montserrat.className} inline-flex items-center font-bold shadow-lg transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300`}
+            style={{ gap: 8, padding: '10px 16px', background: '#FFEA9E', color: '#00101A', borderRadius: 8, fontSize: 16, boxShadow: '0 4px 4px rgba(0,0,0,0.25), 0 0 6px #FAE287' }}
+            onClick={handleWriteKudo}
+          >
+            <div className="relative" style={{ width: 20, height: 20, flexShrink: 0 }}>
+              <Image src="/homepage/icon-pen-black.svg" alt="" fill className="object-contain" style={{fill: '#000'}} />
+            </div>
+            Viết KUDOS
+          </button>
+
+          <button
+            aria-label="Đóng"
+            onClick={() => setOpen(false)}
+            className="flex items-center justify-center rounded-full font-bold text-white shadow-lg transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
+            style={{ width: 40, height: 40, background: '#EF4444', fontSize: 18, lineHeight: 1 }}
+          >
+            ✕
+          </button>
         </div>
-        {/* Separator */}
-        <span style={{ fontSize: 24, fontWeight: 700, color: '#00101A', lineHeight: '32px' }}>/</span>
-        {/* Kudos logo icon */}
-        <div className="relative" style={{ width: 24, height: 24, flexShrink: 0 }}>
-          <Image src="/homepage/icon-kudos-logo.svg" alt="" fill className="object-contain" />
-        </div>
-      </button>
+      ) : (
+        /* Collapsed — pen "/" Sun* pill trigger */
+        <button
+          onClick={() => setOpen(true)}
+          aria-haspopup="menu"
+          aria-expanded={false}
+          aria-label="Mở menu nhanh"
+          className="flex items-center justify-center rounded-full font-bold shadow-lg transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300"
+          style={{
+            gap: 8,
+            padding: 16,
+            width: 106,
+            height: 64,
+            background: '#FFEA9E',
+            borderRadius: 100,
+            boxShadow: '0 4px 4px rgba(0,0,0,0.25), 0 0 6px #FAE287',
+            color: '#00101A',
+            fontSize: 24,
+            fontFamily: montserrat.style.fontFamily,
+          }}
+        >
+          <div className="relative" style={{ width: 24, height: 24, flexShrink: 0 }}>
+            <Image src="/homepage/icon-pen-black.svg" alt="" fill className="object-contain" />
+          </div>
+          <span style={{ fontSize: 24, fontWeight: 700, color: '#00101A', lineHeight: '32px' }}>/</span>
+          <div className="relative" style={{ width: 24, height: 24, flexShrink: 0 }}>
+            <Image src="/homepage/icon-kudos-logo.svg" alt="" fill className="object-contain" />
+          </div>
+        </button>
+      )}
     </div>
   )
 }

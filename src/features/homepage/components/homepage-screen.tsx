@@ -27,6 +27,7 @@ import { useState } from 'react'
 import { AWARDS } from '@/features/awards/award-config'
 import { KudosPromo } from '@/features/awards/components/kudos-promo'
 import { KudoComposeModal } from '@/features/kudos/components/kudo-compose-modal'
+import { RulesModal } from '@/features/rules/components'
 import type { HomepageHeaderProps } from './homepage-header'
 import type { HomepageCountdownProps } from './homepage-hero'
 import { HomepageHeader } from './homepage-header'
@@ -43,11 +44,11 @@ export interface HomepageScreenProps {
 
 export function HomepageScreen({ header, countdown }: HomepageScreenProps) {
   const [composeOpen, setComposeOpen] = useState(false)
+  const [rulesOpen, setRulesOpen] = useState(false)
 
   return (
     <div
       className="min-h-screen w-full"
-      style={{ backgroundColor: 'rgba(0,16,26,1)' }}
     >
       {/* Sticky header */}
       <HomepageHeader
@@ -65,6 +66,7 @@ export function HomepageScreen({ header, countdown }: HomepageScreenProps) {
         <HomepageHero
           countdown={countdown}
           onWriteKudo={header.user !== null ? () => setComposeOpen(true) : undefined}
+          onOpenRules={header.user !== null ? () => setRulesOpen(true) : undefined}
         />
 
         {/* Inner content block — padded, max-width container */}
@@ -86,6 +88,9 @@ export function HomepageScreen({ header, countdown }: HomepageScreenProps) {
       {composeOpen && (
         <KudoComposeModal onClose={() => setComposeOpen(false)} />
       )}
+
+      {/* "Thể lệ" rules side-panel modal — opened in-place from the FAB */}
+      {rulesOpen && <RulesModal onClose={() => setRulesOpen(false)} />}
     </div>
   )
 }

@@ -21,14 +21,10 @@ export function HomepageRootFurtherCard() {
       className="relative w-full overflow-hidden rounded-lg"
       style={{
         maxWidth: 1152,
-        background: 'rgba(0,16,26,0.65)',
-        border: '1px solid rgba(153,140,95,0.25)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
       }}
     >
       <div
-        className="flex flex-col items-center gap-6 px-4 py-12 md:px-16 md:py-20 xl:gap-8 xl:px-[104px] xl:py-[120px]"
+        className="flex flex-col items-center gap-6 px-4 pb-20 md:px-16 xl:gap-8 xl:px-[104px]"
       >
         {/* "Root Further" stacked text logo — fluid on mobile */}
         <div className="flex w-full max-w-[290px] flex-col items-center">

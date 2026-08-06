@@ -22,6 +22,7 @@ const makeAward = (a: Partial<Award> & Pick<Award, 'slug' | 'title'>): Award => 
   imageLeft: false,
   hashtagAnchor: a.slug,
   icon: '',
+  image: '',
   description: '',
   ...a,
 })

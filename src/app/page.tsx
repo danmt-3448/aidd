@@ -12,10 +12,25 @@ import { HomepageConnected } from '@/features/homepage/components/homepage-conne
  * QueryProvider is at root (src/app/providers.tsx) — shared across all routes.
  * HomepageConnected uses TanStack Query hooks (useCountdown, useUnreadCount)
  * which resolve against that single shared QueryClient.
- *
- * /todo route is still directly reachable (src/app/todo/ untouched).
  */
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ ui_state?: string }>
+}) {
+  const { ui_state: uiState } = await searchParams
+
+  // Dev-only UI-gate bypass: with `?ui_state=` present, skip Supabase entirely and
+  // render from a mock identity so /aidd-ui-gate can screenshot `/` without local
+  // Supabase running (mirrors proxy.ts:26-31 + /awards). Never in prod.
+  const mockMode = process.env.NODE_ENV !== 'production' && Boolean(uiState)
+
+  if (mockMode) {
+    return (
+      <HomepageConnected uid="mock-uid" user={{ name: 'Sunner' }} isAdmin={false} />
+    )
+  }
+
   const supabase = await createClient()
   const {
     data: { user },
