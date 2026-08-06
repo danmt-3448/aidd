@@ -30,7 +30,7 @@ export function BoardAllKudosFeed({
   onOpenProfile,
 }: BoardAllKudosFeedProps) {
   return (
-    <section aria-label="All Kudos">
+    <section data-fig="2940:13434" aria-label="All Kudos">
       {/* D5 — eyebrow + section title */}
       <SectionEyebrow />
       <h2
@@ -56,7 +56,9 @@ export function BoardAllKudosFeed({
           Hiện tại chưa có Kudos nào.
         </p>
       ) : (
-        <div className="flex flex-col gap-6">
+        /* data-fig="2940:13482" — node C.2 "Danh sách lời cảm ơn": 4 cards × 749px + 3 gaps × 24px = 3068px.
+           The section wrapper data-fig="2940:13434" is the full "Bìa" content frame. */
+        <div data-fig="2940:13482" className="flex flex-col gap-6">
           {cards.map((card) => (
             <BoardFeedCard
               key={card.id}

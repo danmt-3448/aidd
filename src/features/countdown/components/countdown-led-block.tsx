@@ -7,6 +7,10 @@ export interface CountdownLedBlockProps {
   value: number
   /** i18n label below the digit boxes (e.g. "NGÀY" / "DAYS"). */
   label: string
+  /** Figma nodeId for the LED block root (gate: data-fig). */
+  blockNodeId?: string
+  /** Figma nodeId for the label text (gate: data-fig). */
+  labelNodeId?: string
 }
 
 /**
@@ -23,27 +27,41 @@ export interface CountdownLedBlockProps {
  * Font: DSEG7Classic-Regular loaded via @font-face in globals.css from
  *       /public/fonts/DSEG7Classic-Regular.woff2 (dseg npm package v0.46.0).
  */
-export function CountdownLedBlock({ value, label }: CountdownLedBlockProps) {
+export function CountdownLedBlock({
+  value,
+  label,
+  blockNodeId,
+  labelNodeId,
+}: CountdownLedBlockProps) {
   const display = String(value).padStart(2, '0')
   const tens = display[0]
   const ones = display[1]
 
   return (
-    // mm:led-block-root
-    <div className="flex flex-col items-start" style={{ gap: 21 }}>
-      {/* mm:led-digit-row — 2 boxes, gap 21px */}
-      <div className="flex flex-row" style={{ gap: 21 }}>
+    // mm:led-block-root — Figma: 175×192px (1512 space) → ~166×183px @1440, gap 21px, flex-col.
+    // Gaps use clamp so they scale with viewport (21px at ≥1440, 18px at 1280, floor 14px).
+    // 21/1512*100 = 1.389vw; clamp(14px, 1.389vw, 21px) tracks the Figma ratio.
+    <div
+      data-fig={blockNodeId}
+      className="flex flex-col items-start"
+      style={{ gap: 'clamp(14px, 1.389vw, 21px)' }}
+    >
+      {/* mm:led-digit-row — 2 boxes, gap also clamp-scaled */}
+      <div className="flex flex-row" style={{ gap: 'clamp(14px, 1.389vw, 21px)' }}>
         <DigitBox digit={tens} aria={`${value} ${label}`} />
         <DigitBox digit={ones} aria={undefined} />
       </div>
 
-      {/* mm:led-label */}
+      {/* mm:led-label — Figma node: Montserrat 700 36px (1512 space) → ~34px @1440, white.
+          lineHeight 1.333 tracks fontSize (48/36 Figma ratio) — at 1440 resolves to ~45.5px
+          vs design scaled 45.7px, within ±1px tolerance. */}
       <span
+        data-fig={labelNodeId}
         className={`${montserrat.className} uppercase`}
         style={{
           fontWeight: 700,
           fontSize: 'clamp(1rem, 2.37vw, 2.25rem)',
-          lineHeight: '3rem',
+          lineHeight: 1.333,
           color: '#FFFFFF',
         }}
       >
@@ -63,6 +81,9 @@ function DigitBox({
 }) {
   return (
     // mm:digit-box
+    // Figma: width 76.8px × height 122.88px (1512 space) → ~73×117px @1440
+    // border: 0.75px solid #FFEA9E · radius 12px · blur 24.96px
+    // Outer div is transparent container (no bg); inner div holds glassy fill at opacity 0.5
     <div
       aria-label={aria}
       style={{
@@ -79,8 +100,9 @@ function DigitBox({
         justifyContent: 'center',
       }}
     >
-      {/* Glassy fill rendered at 0.5 opacity via a pseudo-layer div */}
+      {/* Glassy fill — Figma node I2268:35141;186:2616: linear-gradient(180deg, #FFF 0%, rgba(255,255,255,0.10) 100%) at opacity 0.5 */}
       <div
+        data-fig="I2268:35141;186:2616"
         aria-hidden
         style={{
           position: 'absolute',
@@ -90,8 +112,9 @@ function DigitBox({
           borderRadius: 12,
         }}
       />
-      {/* mm:digit-glyph */}
+      {/* mm:digit-glyph — Figma node I2268:35141;186:2617: fontFamily "Digital Numbers" 400 73.73px white */}
       <span
+        data-fig="I2268:35141;186:2617"
         style={{
           position: 'relative',
           fontFamily: "'DSEG7Classic', monospace",

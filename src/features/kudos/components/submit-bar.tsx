@@ -17,9 +17,10 @@ export function SubmitBar({
   return (
     /* Figma mms_H: flex row, gap 24px, height 60px, w 672px */
     <div className="flex w-full flex-row items-stretch gap-6">
-      {/* Hủy — Figma mms_H.1: padding 16px 40px, border-radius 4px, bg rgba(255,234,158,0.10), border #998C5F */}
+      {/* Hủy — Figma mms_H.1: node I520:11647;520:9906, padding 16px 40px, border-radius 4px, bg rgba(255,234,158,0.10), border #998C5F */}
       <button
         type="button"
+        data-fig="I520:11647;520:9906"
         onClick={onCancel}
         disabled={isSubmitting}
         className="flex shrink-0 items-center gap-2 font-montserrat text-base font-bold leading-6 tracking-[0.15px] text-[#00101A] transition-colors duration-200 hover:bg-[rgba(255,234,158,0.2)] disabled:opacity-50"
@@ -38,9 +39,10 @@ export function SubmitBar({
         </svg>
       </button>
 
-      {/* Gửi — Figma mms_H.2: flex-1, height 60px, border-radius 8px, bg #FFEA9E, font 22px/700 */}
+      {/* Gửi — Figma mms_H.2: node I520:11647;520:9907, flex-1, height 60px, border-radius 8px, bg #FFEA9E, font 22px/700 */}
       <button
         type="button"
+        data-fig="I520:11647;520:9907"
         onClick={onSubmit}
         disabled={isSubmitting || disabled}
         className="flex flex-1 items-center justify-center gap-2 font-montserrat text-[22px] font-bold leading-7 tracking-[0px] text-[#00101A] transition-opacity duration-200 hover:opacity-90 disabled:opacity-40"
@@ -48,6 +50,7 @@ export function SubmitBar({
           background: 'rgba(255,234,158,1)',
           height: '60px',
           borderRadius: '8px',
+          padding: '16px',
         }}
         aria-label="Gửi Kudo"
         aria-disabled={isSubmitting || disabled}

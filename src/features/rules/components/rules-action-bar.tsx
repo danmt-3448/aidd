@@ -17,8 +17,9 @@ interface RulesActionBarProps {
 export function RulesActionBar({ onClose, onWriteKudos }: RulesActionBarProps) {
   return (
     <div className="flex w-full flex-row gap-4 mt-3">
-      {/* Đóng — secondary */}
+      {/* Đóng — secondary — Figma 3204:6093 */}
       <button
+        data-fig="3204:6093"
         type="button"
         onClick={onClose}
         className={`${montserrat.className} flex shrink-0 items-center justify-center gap-2 rounded border px-4 py-4 text-[16px] font-bold leading-[24px] tracking-[0.5px] text-white transition-opacity hover:opacity-80`}
@@ -41,8 +42,9 @@ export function RulesActionBar({ onClose, onWriteKudos }: RulesActionBarProps) {
         Đóng
       </button>
 
-      {/* Viết KUDOS — primary */}
+      {/* Viết KUDOS — primary — Figma 3204:6094 */}
       <button
+        data-fig="3204:6094"
         type="button"
         onClick={onWriteKudos}
         className={`${montserrat.className} flex flex-1 items-center justify-center gap-2 rounded px-4 py-4 text-[16px] font-bold leading-[24px] tracking-[0.5px] transition-opacity hover:opacity-90`}

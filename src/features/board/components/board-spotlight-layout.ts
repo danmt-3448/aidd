@@ -99,8 +99,8 @@ export function computeWordLayout(nodes: SpotlightNode[]): WordLayout[] {
     const jx = deterministicJitter(originalIndex * 3 + 1) * cellW * 0.30
     const jy = deterministicJitter(originalIndex * 3 + 2) * cellH * 0.30
 
-    let candidateX = Math.max(PAD_X, Math.min(CANVAS_W - PAD_X - estW, cellCenterX + jx - estW / 2))
-    let candidateY = Math.max(PAD_Y, Math.min(CANVAS_H - PAD_Y - estH, cellCenterY + jy - estH / 2))
+    const candidateX = Math.max(PAD_X, Math.min(CANVAS_W - PAD_X - estW, cellCenterX + jx - estW / 2))
+    const candidateY = Math.max(PAD_Y, Math.min(CANVAS_H - PAD_Y - estH, cellCenterY + jy - estH / 2))
 
     let candidate: BBox = { x: candidateX, y: candidateY, w: estW, h: estH }
 

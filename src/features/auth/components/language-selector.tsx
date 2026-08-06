@@ -30,7 +30,7 @@ export function LanguageSelector() {
   }
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} data-fig="I662:14391;186:1601" className="relative">
       <button
         type="button"
         aria-haspopup="listbox"
@@ -43,7 +43,7 @@ export function LanguageSelector() {
           {locale === 'vi' && (
             <Image src="/images/login/flag-vn.svg" alt="" width={24} height={24} />
           )}
-          <span className="text-base font-semibold">{LABEL[locale]}</span>
+          <span data-fig="I662:14391;186:1696;186:1821;186:1439" className="text-base font-bold">{LABEL[locale]}</span>
         </span>
         <Image
           src="/images/login/chevron-down.svg"

@@ -57,8 +57,10 @@ export function RecipientSelect({
 
         {/* Dropdown trigger */}
         <div className="relative flex-1">
+          {/* Figma mms_B.2_Search node I520:11647;520:9873 */}
           <button
             type="button"
+            data-fig="I520:11647;520:9873"
             onClick={() => onOpenChange(!isOpen)}
             className="flex w-full flex-row items-center justify-between rounded-lg px-6 py-4"
             style={{

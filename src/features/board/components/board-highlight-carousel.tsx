@@ -67,6 +67,7 @@ export function BoardHighlightCarousel({
 
   // Reset to first slide on filter change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveIndex(0);
     if (swiperRef.current && !swiperRef.current.destroyed) {
       swiperRef.current.slideToLoop(0, 0);
@@ -83,7 +84,8 @@ export function BoardHighlightCarousel({
   }
 
   return (
-    <section aria-label="Highlight Kudos">
+    /* minHeight 525px: Figma node 2940:13461 h=525. At 1280 clamp() title gives 519 → minHeight pads to 525. */
+    <section data-fig="2940:13461" aria-label="Highlight Kudos" style={{ minHeight: 525 }}>
       <SectionEyebrow />
 
       {/* Title LEFT + filters RIGHT */}
@@ -172,7 +174,9 @@ export function BoardHighlightCarousel({
                     key={card.id}
                     style={{ width: 528, flexShrink: 0 }}
                   >
-                    <div className="hl-slide relative overflow-hidden rounded-2xl">
+                    {/* height 307px: measured overhead=218px (eyebrow+title+pagination), section target 525px → 525-218=307.
+                        Figma node 2940:13461 total h=525px (orchestrator get_node). */}
+                    <div className="hl-slide relative overflow-hidden rounded-2xl" style={{ height: 307 }}>
                       <BoardFeedCard
                         {...card}
                         variant="highlight"

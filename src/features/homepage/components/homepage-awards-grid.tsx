@@ -48,12 +48,12 @@ export function HomepageAwardsGrid({ awards }: HomepageAwardsGridProps) {
         {/* Divider */}
         <div style={{ height: 1, backgroundColor: 'rgba(46,57,64,1)', width: '100%' }} />
 
-        {/* Main heading — Figma child of 2167:9068, same token as /awards h1:
-            Montserrat 700 57px #FFEA9E rgba(255,234,158,1), line-height 64px, letterSpacing -0.25px */}
+        {/* Main heading — Figma nodeId 2167:9073 (TEXT child of 2167:9072 inside 2167:9068)
+            Montserrat 700 57px rgba(255,234,158,1), line-height 64px, letterSpacing -0.25px */}
         <h2
           id="awards-section-heading"
           className={montserrat.className}
-          data-fig="homepage-awards-h2"
+          data-fig="2167:9073"
           style={{
             fontSize: 'clamp(36px, 3.97vw, 57px)',
             fontWeight: 700,

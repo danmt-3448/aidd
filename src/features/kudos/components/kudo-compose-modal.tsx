@@ -169,6 +169,15 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
     onClose()
   }, [images, reset, onClose])
 
+  // ── Escape key closes modal ───────────────────────────────────────────────
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleCancel()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [handleCancel])
+
   const handleSubmit = useCallback(() => {
     if (!recipient || isSubmitDisabled) return
     submit({
@@ -198,8 +207,9 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,16,26,0.6)' }}
+      className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto pt-[10px]"
+      style={{ background: 'rgba(0,16,26,0.8)' }}
+      data-fig="520:11646"
       onClick={(e) => {
         if (e.target === e.currentTarget) handleCancel()
       }}
@@ -209,6 +219,7 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
     >
       <div
         key={formKey}
+        data-fig="520:11647"
         className={`${montserrat.className} flex w-full max-w-[752px] flex-col gap-8 overflow-y-auto`}
         style={{
           background: 'rgba(255,248,225,1)',
@@ -218,8 +229,9 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* A — Title: Figma mms_A: 32px/700/lh40/center */}
+        {/* A — Title: Figma mms_A: 32px/700/lh40/center, node I520:11647;520:9870 */}
         <h2
+          data-fig="I520:11647;520:9870"
           className="w-full text-center font-montserrat text-[32px] font-bold leading-10 tracking-[0px]"
           style={{ color: '#00101A' }}
         >

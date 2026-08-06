@@ -96,6 +96,7 @@ export function NotificationPanel({
   return (
     <div
       ref={panelRef}
+      data-fig="589:9152"
       role="dialog"
       aria-label="Thông báo"
       aria-modal="true"
@@ -114,7 +115,8 @@ export function NotificationPanel({
         className="flex items-center justify-between px-4 py-3"
         style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}
       >
-        <h2 className={`${montserrat.className} text-sm font-bold`} style={{ color: '#FFFFFF' }}>
+        {/* Panel title — HELD: MoMorph has no node metadata for gWBVcaSVIf */}
+        <h2 data-fig="589:9152-title" className={`${montserrat.className} text-sm font-bold`} style={{ color: '#FFFFFF' }}>
           Thông báo
         </h2>
         <button

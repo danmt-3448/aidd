@@ -89,14 +89,22 @@ export function CountdownDisplay({ countdown }: CountdownDisplayProps) {
 
   return (
     // mm:countdown-led-section — title + LED row stacked, gap 24px
-    <div className="flex flex-col items-center" style={{ gap: 24 }}>
-      {/* mm:countdown-title */}
+    // Figma node 2268:35136 "Countdown time" — gap 24px, flex-col, align center
+    <div
+      data-fig="2268:35136"
+      className="flex flex-col items-center"
+      style={{ gap: 24 }}
+    >
+      {/* mm:countdown-title — Figma node 2268:35137
+          lineHeight 1.333 keeps the 48/36 ratio from Figma so it tracks
+          the clamp fontSize — at 1440: 34.128px × 1.333 ≈ 45.5px (design: 48×0.9524=45.7px, within 1px). */}
       <h1
+        data-fig="2268:35137"
         className={montserrat.className}
         style={{
           fontWeight: 700,
           fontSize: 'clamp(1.125rem, 2.37vw, 2.25rem)',
-          lineHeight: '3rem',
+          lineHeight: 1.333,
           color: '#FFFFFF',
           textAlign: 'center',
         }}
@@ -105,9 +113,11 @@ export function CountdownDisplay({ countdown }: CountdownDisplayProps) {
       </h1>
 
       {/* mm:countdown-led-row — 3 units, gap 60px, no separators.
+          Figma node 2268:35138 "Time" — flex-row, gap 60px.
           flex-wrap: at 375px the 3 blocks wrap to prevent the 3rd block
           (minutes) clipping off the right edge. */}
       <div
+        data-fig="2268:35138"
         className="flex flex-row flex-wrap items-start justify-center"
         style={{ gap: 'clamp(16px, 3.97vw, 60px)' }}
         role="timer"
@@ -118,14 +128,29 @@ export function CountdownDisplay({ countdown }: CountdownDisplayProps) {
           minutes: countdown.minutes,
         })}
       >
-        {/* mm:led-block-days */}
-        <CountdownLedBlock value={countdown.days} label={t('days')} />
+        {/* mm:led-block-days — Figma node 2268:35139 */}
+        <CountdownLedBlock
+          value={countdown.days}
+          label={t('days')}
+          blockNodeId="2268:35139"
+          labelNodeId="2268:35143"
+        />
 
-        {/* mm:led-block-hours */}
-        <CountdownLedBlock value={countdown.hours} label={t('hours')} />
+        {/* mm:led-block-hours — Figma node 2268:35144 */}
+        <CountdownLedBlock
+          value={countdown.hours}
+          label={t('hours')}
+          blockNodeId="2268:35144"
+          labelNodeId="2268:35148"
+        />
 
-        {/* mm:led-block-minutes */}
-        <CountdownLedBlock value={countdown.minutes} label={t('minutes')} />
+        {/* mm:led-block-minutes — Figma node 2268:35149 */}
+        <CountdownLedBlock
+          value={countdown.minutes}
+          label={t('minutes')}
+          blockNodeId="2268:35149"
+          labelNodeId="2268:35153"
+        />
       </div>
     </div>
   )

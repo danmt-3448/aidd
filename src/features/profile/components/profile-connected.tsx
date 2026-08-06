@@ -116,6 +116,34 @@ export function ProfileConnected({ profileId, isSelf }: ProfileConnectedProps) {
 
   const { toggle, error: toggleError, clearError } = useToggleHeart()
 
+  // ── Callbacks ─────────────────────────────────────────────────────────────
+  const handleDirectionChange = useCallback(
+    (direction: KudosDirection) => {
+      if (!isSelf) return
+      setActiveDirection(direction)
+    },
+    [isSelf],
+  )
+
+  const handleWriteKudo = useCallback(() => {}, [])
+
+  const handleToggleHeart = useCallback(
+    (kudoId: string) => { toggle(kudoId) },
+    [toggle],
+  )
+
+  const handleCopyLink = useCallback((_kudoId: string) => {}, [])
+
+  const handleOpenProfile = useCallback(
+    (userId: string) => {
+      if (!userId) return
+      router.push('/profile?id=' + userId)
+    },
+    [router],
+  )
+
+  const handleLoadMore = useCallback(() => { fetchNextPage() }, [fetchNextPage])
+
   // ── Error toasts (suppressed in override mode) ────────────────────────────
   useEffect(() => { if (!isOverride && headerError) toast.error(headerError) }, [isOverride, headerError])
   useEffect(() => { if (!isOverride && statsError) toast.error(statsError) }, [isOverride, statsError])
@@ -161,34 +189,6 @@ export function ProfileConnected({ profileId, isSelf }: ProfileConnectedProps) {
   const feedItems: ProfileFeedItem[] = feedRows.map((row: ProfileKudoRow) =>
     mapProfileRowToFeedCard(row, profileId, safeDirection),
   )
-
-  // ── Callbacks ─────────────────────────────────────────────────────────────
-  const handleDirectionChange = useCallback(
-    (direction: KudosDirection) => {
-      if (!isSelf) return
-      setActiveDirection(direction)
-    },
-    [isSelf],
-  )
-
-  const handleWriteKudo = useCallback(() => {}, [])
-
-  const handleToggleHeart = useCallback(
-    (kudoId: string) => { toggle(kudoId) },
-    [toggle],
-  )
-
-  const handleCopyLink = useCallback((_kudoId: string) => {}, [])
-
-  const handleOpenProfile = useCallback(
-    (userId: string) => {
-      if (!userId) return
-      router.push('/profile?id=' + userId)
-    },
-    [router],
-  )
-
-  const handleLoadMore = useCallback(() => { fetchNextPage() }, [fetchNextPage])
 
   // ── Stats mapping ─────────────────────────────────────────────────────────
   const statsProps = stats

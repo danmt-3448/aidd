@@ -111,14 +111,14 @@ export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConn
     : unreadCount
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#00101A' }}>
+    <div data-fig="589:9132" className="min-h-screen" style={{ backgroundColor: '#00101A' }}>
       <SiteHeader user={user} unreadCount={resolvedUnreadCount} uid={uid} isAdmin={isAdmin} activeNav={null} />
 
       {/* pt-24 (96px) clears the fixed 80px header — no top banner on this screen. */}
       <main className="mx-auto w-full max-w-2xl px-4 pb-8 pt-24 md:px-0">
-        {/* Page heading */}
+        {/* Page heading — HELD: MoMorph has no node metadata for 6-1LRz3vqr */}
         <div className="mb-6 flex items-center justify-between">
-          <h1 className={`${montserrat.className} text-2xl font-bold`} style={{ color: '#FFFFFF' }}>
+          <h1 data-fig="589:9132-heading" className={`${montserrat.className} text-2xl font-bold`} style={{ color: '#FFFFFF' }}>
             Tất cả thông báo
           </h1>
           {hasUnread && (

@@ -13,12 +13,16 @@
  * KudoComposeModal is mounted here so it has access to the recipient name
  * from `header.full_name` and can be opened from ProfileWriteBar.
  *
- * Layout:
- *   Full-bleed dark background matching the app shell.
- *   Single column, max-w 680px centered — profile pages are narrow-focus.
- *   Mobile-first; breaks out at md (768px) with comfortable horizontal padding.
+ * Layout (Figma screen 3FoIx6ALVb, artboard 1440×4660):
+ *   KV banner — full-bleed 1440×512, same artwork as board (Figma node 1210:12622).
+ *   Hero (mms_A_Info, 362:5052) — overlaid inside KV starting at y=184 (paddingTop handled by ProfileHero).
+ *   Content column (max-w 680, centered) — starts after KV banner.
+ *   Sections: badges → stats/write-bar → kudos feed.
+ *   Note: NO pt-24 on content col — KV banner absorbs the header overlap.
+ *   The fixed header overlaps the top of the KV (same as board page).
  */
 
+import Image from 'next/image'
 import { useState } from 'react'
 import { montserrat } from '@/features/auth/fonts'
 import { KudoComposeModal } from '@/features/kudos/components/kudo-compose-modal'
@@ -30,6 +34,58 @@ import { ProfileKudosSection } from './profile-kudos-section'
 import type { ProfileScreenProps } from './profile-types'
 
 export type { ProfileScreenProps }
+
+// ── Profile KV Banner ────────────────────────────────────────────────────────
+
+/**
+ * ProfileKvBanner — 1440×512 hero banner at the top of the profile page.
+ *
+ * Figma node 1210:12622 (Keyvisual, y=0, h=512). Uses the same kv-background.png
+ * artwork as the board banner. Profile hero (mms_A_Info) is overlaid inside it.
+ *
+ * Gradient is the same board-style cover: linear-gradient(25deg, #00101A 14.74%, transparent 47.8%).
+ * ProfileHero positions its content via paddingTop: 184 (mms_A_Info y=184 in Figma).
+ */
+function ProfileKvBanner({ children }: { children: React.ReactNode }) {
+  return (
+    /* mm:profile-kv — 1210:12622 */
+    <div
+      data-fig="1210:12622"
+      className="relative w-full overflow-hidden"
+      style={{ height: 512, background: '#00101A' }}
+      aria-hidden={false}
+    >
+      {/* Full-bleed KV artwork */}
+      <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
+        <Image
+          src="/images/board/kv-background.png"
+          alt=""
+          fill
+          priority
+          className="object-cover"
+          style={{ objectPosition: 'center right' }}
+        />
+      </div>
+
+      {/* Gradient overlay */}
+      <div
+        className="pointer-events-none absolute inset-0 z-10"
+        style={{
+          background:
+            'linear-gradient(25deg, #00101A 14.74%, rgba(0,19,32,0) 47.8%)',
+        }}
+        aria-hidden
+      />
+
+      {/* Profile hero content positioned over the KV */}
+      <div className="absolute inset-0 z-20">
+        {children}
+      </div>
+    </div>
+  )
+}
+
+// ── ProfileScreen ────────────────────────────────────────────────────────────
 
 export function ProfileScreen({
   isSelf,
@@ -51,7 +107,6 @@ export function ProfileScreen({
   onLoadMore,
 }: ProfileScreenProps) {
   // KudoComposeModal open state — only relevant in OTHER mode.
-  // SELF mode: onWriteKudo is a no-op in the mock; integration wires a real nav.
   const [isComposeOpen, setIsComposeOpen] = useState(false)
 
   function handleWriteKudo() {
@@ -71,16 +126,26 @@ export function ProfileScreen({
       className={`${montserrat.className} min-h-screen w-full`}
       style={{ background: '#00101A' }}
     >
-      {/* Content column — narrow-focus profile layout.
-          pt-24 (96px) clears the fixed 80px header (no full-bleed banner here). */}
+      {/*
+       * Profile KV banner — full-bleed 1440×512.
+       * The fixed site header (80px) overlaps the top of this banner (same pattern as board).
+       * ProfileHero positions its content at paddingTop: 184 (Figma mms_A_Info y=184).
+       */}
+      <ProfileKvBanner>
+        {/* Hero centered inside the banner */}
+        {/* mm:profile-hero-container */}
+        <div className="flex h-full w-full items-start justify-center">
+          <ProfileHero header={header} />
+        </div>
+      </ProfileKvBanner>
+
+      {/* Content column — narrow-focus profile layout, no pt-24 (KV banner provides spacing).
+          Starts immediately after the KV banner. max-w 680px centered.           */}
       {/* mm:profile-content-col */}
       <div
-        className="mx-auto w-full pt-24"
+        className="mx-auto w-full"
         style={{ maxWidth: 680 }}
       >
-        {/* Hero — avatar / name / dept / tier / stars */}
-        <ProfileHero header={header} />
-
         {/* Badge collection — 6 greyed slots, heading varies by mode */}
         {/* mm:profile-badges-wrapper */}
         <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>

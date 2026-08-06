@@ -29,6 +29,7 @@ export function RulesPanel({
 }: RulesPanelProps) {
   return (
     <div
+      data-fig="3204:6052"
       className="flex w-full flex-col justify-between md:w-[553px]"
       style={{
         minHeight: '100svh',
@@ -46,8 +47,9 @@ export function RulesPanel({
 
         {/* ── SECTION: Người nhận ── */}
         <div className="flex flex-col gap-4">
-          {/* Section heading */}
+          {/* Section heading — Figma 3204:6132 */}
           <h2
+            data-fig="3204:6132"
             className={`${montserrat.className} text-[22px] font-bold leading-[28px] tracking-[0px]`}
             style={{ color: '#FFEA9E' }}
           >
@@ -72,8 +74,9 @@ export function RulesPanel({
 
         {/* ── SECTION: Người gửi ── */}
         <div className="flex flex-col gap-4">
-          {/* Section heading */}
+          {/* Section heading — Figma 3204:6077 */}
           <h2
+            data-fig="3204:6077"
             className={`${montserrat.className} text-[22px] font-bold leading-[28px] tracking-[0px]`}
             style={{ color: '#FFEA9E' }}
           >

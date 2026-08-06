@@ -68,17 +68,25 @@ export function BoardSpotlight({
       </h2>
 
       {/*
-       * Dark box — Figma artwork image as background (nodes 2940:14178 / 2940:14181).
-       * `relative overflow-hidden` clips the fill image to rounded corners.
-       * Content layers sit above via z-10.
+       * Dark box — Figma node 2940:14174 (B.7_Spotlight frame).
+       * Dimensions from orchestrator get_node: w=1157px h=548px border=1px solid #998C5F radius=47.14px.
+       * `data-fig` moved here so gate selector [data-fig='2940:14174'] matches this element directly.
+       * overflow-hidden clips the artwork + word-cloud canvas to the rounded frame.
        */}
       <div
-        className="relative overflow-hidden"
+        data-fig="2940:14174"
+        className="relative overflow-hidden mx-auto"
         style={{
           background: 'rgb(4, 8, 20)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: 16,
+          border: '1px solid #998C5F',
+          borderRadius: '47.14px',
           padding: '24px 24px 0 24px',
+          // Figma frame is 1157px wide inside the 1440 artboard's ~142px gutters.
+          // Responsive cap (not a fixed width) so it never overflows the narrower
+          // content column at 1280 — fixed 1157px caused horizontal page overflow there.
+          width: '100%',
+          maxWidth: 1157,
+          height: 548,
         }}
       >
         {/* Figma artwork (mms_B.7) — colourful feather art bleeds from the LEFT

@@ -13,6 +13,7 @@ function SubmitButton({ label, loadingLabel }: { label: string; loadingLabel: st
       type="submit"
       disabled={pending}
       aria-busy={pending}
+      data-fig="662:14426"
       className={`${montserrat.className} flex h-[60px] w-[305px] max-w-full items-center justify-center gap-2 rounded-lg bg-[#FFEA9E] px-6 py-4 text-[22px] font-bold leading-7 text-[#00101A] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70`}
     >
       <span>{pending ? loadingLabel : label}</span>

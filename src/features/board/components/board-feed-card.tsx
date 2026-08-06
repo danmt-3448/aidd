@@ -84,6 +84,10 @@ export function BoardFeedCard({
         border: isHighlight ? '4px solid #FFEA9E' : 'none',
         borderRadius: isHighlight ? 16 : 24,
         padding: isHighlight ? '24px 24px 16px 24px' : '40px 40px 16px 40px',
+        /* Feed variant: Figma node 3127:21871 h=749px. min-height ensures gate container
+           [data-fig='2940:13482'] reaches 3068px (4×749+3×24). Highlight variant is height-
+           constrained by the carousel slide wrapper and does not need a min-height here. */
+        minHeight: isHighlight ? undefined : 749,
       }}
       aria-label={`Kudo từ ${senderName} đến ${receiverName}`}
     >

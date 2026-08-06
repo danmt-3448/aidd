@@ -85,10 +85,11 @@ export function HomepageHero({
           className="flex w-full flex-col items-start"
           style={{ gap: 40, maxWidth: 1224 }}
         >
-          {/* Root Further logo — gate: asset must be <img>, not text/CSS reconstruction */}
+          {/* Root Further logo — gate: asset must be <img>, not text/CSS reconstruction
+              Figma: MM_MEDIA_Root Further Logo nodeId 2788:12911, 451×200px artboard 1512 */}
           <div
             className="relative w-full"
-            data-fig-asset="homepage-root-further-logo"
+            data-fig-asset="2788:12911"
             style={{ maxWidth: 451, height: "clamp(100px, 13.23vw, 200px)" }}
           >
             <Image
@@ -97,16 +98,17 @@ export function HomepageHero({
               fill
               priority
               className="object-contain object-left"
+              data-fig="2788:12911"
             />
           </div>
 
           {/* Countdown + event info */}
           <div className="flex flex-col" style={{ gap: 16 }}>
-            {/* "Coming soon" label (MoMorph spec B1.2 — correct spelling)
-                Figma: Frame 523, Montserrat 700 24px white rgba(255,255,255,1), line-height 32px */}
+            {/* "Coming soon" label — Figma: nodeId 2167:9036 (mms_B1.2_Coming soon)
+                Montserrat 700 24px white rgba(255,255,255,1), line-height 32px */}
             <p
               className={montserrat.className}
-              data-fig="homepage-coming-soon"
+              data-fig="2167:9036"
               style={{
                 fontSize: 24,
                 fontWeight: 700,
@@ -191,18 +193,19 @@ export function HomepageHero({
             className="flex flex-row flex-wrap items-center"
             style={{ gap: 40 }}
           >
-            {/* CTA1 — Figma mms_B3_Call-To-Action, bg #FFEA9E rgba(255,234,158,1), color #00101A, radius 8px */}
+            {/* CTA1 — Figma nodeId 2167:9063 (mms_B3.1_Button-IC About)
+                padding 16px 24px, bg rgba(255,234,158,1), color rgba(0,16,26,1), radius 8px, fontSize 22px */}
             <Link
               href="/awards"
-              data-fig="homepage-cta-awards"
+              data-fig="2167:9063"
               className={`${montserrat.className} inline-flex items-center rounded-lg font-bold transition-opacity hover:opacity-90`}
               style={{
                 gap: 8,
-                padding: "12px 16px",
+                padding: "16px 24px",
                 background: "#FFEA9E",
                 color: "#00101A",
-                fontSize: "clamp(14px, 1.46vw, 22px)",
-                lineHeight: "1.3",
+                fontSize: 22,
+                lineHeight: "28px",
                 fontWeight: 700,
                 borderRadius: 8,
               }}

@@ -1,16 +1,16 @@
 'use client'
 
 /**
- * profile-hero.tsx — Avatar, name, department, tier badge, and hoa-thi stars.
+ * profile-hero.tsx — Profile info section overlaid on keyvisual.
  *
- * Design tokens from MoMorph screen 3FoIx6ALVb (Profile bản thân):
- *   Background: radial gradient, dark navy base rgba(0,16,26,1)
- *   Avatar: 96×96 circle, border 3px solid rgba(255,234,158,0.4)
- *   Name: Montserrat 700, 24px, #FFFFFF
- *   Dept/title: Montserrat 400, 14px, rgba(255,255,255,0.6)
- *   Tier badge: Montserrat 700, 12px, #FFEA9E background rgba(255,234,158,0.15)
- *   Stars (hoa-thi): shown only when tier ≠ null (received ≥ 10)
+ * Design tokens from MoMorph screen 3FoIx6ALVb (get_node verified):
+ *   Section (mms_A_Info, 362:5052): height 468px, gap 32px, centered, starts at y=184 in keyvisual
+ *   Avatar (362:5053): 200×200px circle, border 4px solid rgba(255,255,255,1)
+ *   Name (362:5055): Montserrat 700, 36px, color rgba(255,234,158,1) (gold), lineHeight 44px
+ *   Dept (362:5057): Montserrat 700, 22px, color rgba(255,255,255,1)
+ *   Tier badge: pill with gold text on dark bg
  *
+ * Rendered inside the keyvisual overlay (pt-[184px] from keyvisual top).
  * Sparse-profile guard: null avatar → initials circle; null dept/title → no row.
  */
 
@@ -30,8 +30,8 @@ function InitialsAvatar({ name, size }: { name: string; size: number }) {
         width: size,
         height: size,
         flexShrink: 0,
-        background: 'rgba(255,234,158,0.15)',
-        border: '3px solid rgba(255,234,158,0.4)',
+        background: 'rgba(0,7,12,0.6)',
+        border: '4px solid rgba(255,255,255,1)',
         color: '#FFEA9E',
         fontSize: size * 0.38,
         fontFamily: montserrat.style.fontFamily,
@@ -43,51 +43,23 @@ function InitialsAvatar({ name, size }: { name: string; size: number }) {
   )
 }
 
-// ── Star icon (hoa-thi) ──────────────────────────────────────────────────────
-
-function StarIcon({ filled }: { filled: boolean }) {
-  return (
-    /* mm:star-icon */
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      aria-hidden
-      style={{ color: filled ? '#FFEA9E' : 'rgba(255,234,158,0.25)' }}
-    >
-      <path
-        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-        fill="currentColor"
-      />
-    </svg>
-  )
-}
-
 // ── Tier badge ───────────────────────────────────────────────────────────────
 
-function TierBadge({ tier, stars }: { tier: string; stars: number }) {
+function TierBadge({ tier }: { tier: string }) {
   return (
-    /* mm:tier-badge */
-    <div className="flex items-center gap-2">
-      <span
-        className="rounded-full px-3 py-1 text-xs font-bold"
-        style={{
-          background: 'rgba(255,234,158,0.15)',
-          border: '1px solid rgba(255,234,158,0.3)',
-          color: '#FFEA9E',
-          fontFamily: montserrat.style.fontFamily,
-          fontWeight: 700,
-          fontSize: 12,
-          lineHeight: '18px',
-        }}
-      >
-        {tier}
-      </span>
-      <div className="flex items-center gap-0.5" aria-label={`${stars} sao`}>
-        {[1, 2, 3].map((n) => (
-          <StarIcon key={n} filled={n <= stars} />
-        ))}
-      </div>
+    <div
+      className="rounded-full px-4 py-1"
+      style={{
+        background: 'rgba(255,234,158,0.15)',
+        border: '1px solid rgba(255,234,158,0.4)',
+        color: '#FFEA9E',
+        fontFamily: montserrat.style.fontFamily,
+        fontWeight: 700,
+        fontSize: 14,
+        lineHeight: '20px',
+      }}
+    >
+      {tier}
     </div>
   )
 }
@@ -99,96 +71,104 @@ export interface ProfileHeroProps {
 }
 
 export function ProfileHero({ header }: ProfileHeroProps) {
-  const { full_name, avatar_url, department_id, title, tier, stars } = header
+  const { full_name, avatar_url, department_id, title, tier } = header
   const displayName = full_name ?? 'Sunner'
-  const hasTier = tier !== null && stars !== null
 
   return (
-    /* mm:profile-hero */
+    /* mm:profile-hero — mms_A_Info 362:5052 — centered over keyvisual */
     <section
+      data-fig="362:5052"
       aria-label="Thông tin cá nhân"
-      className="flex flex-col items-center gap-4 px-6 py-10 text-center"
+      className="flex flex-col items-center text-center"
       style={{
-        background: 'linear-gradient(180deg, rgba(255,234,158,0.08) 0%, rgba(0,16,26,0) 100%)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        gap: 32,
+        paddingTop: 184,
+        paddingBottom: 40,
       }}
     >
-      {/* Avatar */}
+      {/* Avatar — 200×200px (362:5053), border 4px solid white */}
       {/* mm:profile-avatar */}
       {avatar_url ? (
         <div
           style={{
             borderRadius: '50%',
-            border: '3px solid rgba(255,234,158,0.4)',
+            border: '4px solid rgba(255,255,255,1)',
             flexShrink: 0,
             overflow: 'hidden',
+            width: 200,
+            height: 200,
           }}
         >
           <Image
             src={avatar_url}
             alt={`Avatar của ${displayName}`}
-            width={96}
-            height={96}
+            width={200}
+            height={200}
             className="rounded-full object-cover"
             style={{ display: 'block' }}
           />
         </div>
       ) : (
-        <InitialsAvatar name={displayName} size={96} />
+        <InitialsAvatar name={displayName} size={200} />
       )}
 
-      {/* Name */}
-      {/* mm:profile-name */}
-      <h1
-        style={{
-          fontFamily: montserrat.style.fontFamily,
-          fontWeight: 700,
-          fontSize: 24,
-          color: '#FFFFFF',
-          lineHeight: '32px',
-          margin: 0,
-        }}
-      >
-        {displayName}
-      </h1>
+      {/* Info block: name + dept/title + tier */}
+      <div className="flex flex-col items-center" style={{ gap: 8 }}>
+        {/* Name — 362:5055: Montserrat 700 36px rgba(255,234,158,1) */}
+        {/* mm:profile-name */}
+        <h1
+          data-fig="362:5055"
+          style={{
+            fontFamily: montserrat.style.fontFamily,
+            fontWeight: 700,
+            fontSize: 36,
+            color: 'rgba(255,234,158,1)',
+            lineHeight: '44px',
+            margin: 0,
+          }}
+        >
+          {displayName}
+        </h1>
 
-      {/* Department + Title — omitted entirely when both null */}
-      {(department_id ?? title) && (
-        /* mm:profile-dept-title */
-        <div className="flex flex-col items-center gap-1">
-          {department_id && (
-            <p
-              style={{
-                fontFamily: montserrat.style.fontFamily,
-                fontWeight: 400,
-                fontSize: 14,
-                color: 'rgba(255,255,255,0.6)',
-                lineHeight: '20px',
-                margin: 0,
-              }}
-            >
-              {department_id}
-            </p>
-          )}
-          {title && (
-            <p
-              style={{
-                fontFamily: montserrat.style.fontFamily,
-                fontWeight: 400,
-                fontSize: 14,
-                color: 'rgba(255,255,255,0.5)',
-                lineHeight: '20px',
-                margin: 0,
-              }}
-            >
-              {title}
-            </p>
-          )}
-        </div>
-      )}
+        {/* Department + Title — 362:5057: Montserrat 700 22px rgba(255,255,255,1) */}
+        {(department_id ?? title) && (
+          /* mm:profile-dept-title */
+          <div className="flex flex-col items-center" style={{ gap: 4 }}>
+            {department_id && (
+              <p
+                data-fig="362:5057"
+                style={{
+                  fontFamily: montserrat.style.fontFamily,
+                  fontWeight: 700,
+                  fontSize: 22,
+                  color: 'rgba(255,255,255,1)',
+                  lineHeight: '28px',
+                  margin: 0,
+                }}
+              >
+                {department_id}
+              </p>
+            )}
+            {title && (
+              <p
+                style={{
+                  fontFamily: montserrat.style.fontFamily,
+                  fontWeight: 400,
+                  fontSize: 16,
+                  color: 'rgba(255,255,255,0.7)',
+                  lineHeight: '24px',
+                  margin: 0,
+                }}
+              >
+                {title}
+              </p>
+            )}
+          </div>
+        )}
 
-      {/* Tier + stars — only when received ≥ 10 (tier non-null from Track B) */}
-      {hasTier && <TierBadge tier={tier} stars={stars} />}
+        {/* Tier badge — shown when received ≥ 10 */}
+        {tier && <TierBadge tier={tier} />}
+      </div>
     </section>
   )
 }

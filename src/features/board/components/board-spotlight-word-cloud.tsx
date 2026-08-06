@@ -104,7 +104,9 @@ export function BoardSpotlightWordCloud({
       ref={containerRef}
       className="relative w-full overflow-hidden"
       style={{
-        height: 300,
+        /* height=406px: box h=548 − top-pad(24) − top-bar+mb(46) − bottom-bar(72) = 406.
+           CANVAS_H=620 (layout space) stays ≥ 406 so word positions are unchanged; viewport just clips. */
+        height: 406,
         borderRadius: 12,
         background: 'transparent',
         cursor: 'grab',

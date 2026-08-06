@@ -57,8 +57,9 @@ export function CountdownScreen() {
       : realCountdown
 
   return (
-    // mm:countdown-root
+    // mm:countdown-root — Figma node 2268:35127: bg rgba(0,16,26,1) (#00101A), 1512×1077
     <div
+      data-fig="2268:35127"
       className="relative flex min-h-screen w-full overflow-hidden"
       style={{ background: '#00101A' }}
     >
@@ -77,7 +78,9 @@ export function CountdownScreen() {
       />
 
       {/* mm:bg-overlay — 18deg gradient, darkens left side where content sits */}
+      {/* Figma node 2268:35130: linear-gradient(18deg, #00101A 15.48%, rgba(0,18,29,0.46) 52.13%, rgba(0,19,32,0.00) 63.41%) */}
       <div
+        data-fig="2268:35130"
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{

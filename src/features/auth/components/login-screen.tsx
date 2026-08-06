@@ -59,9 +59,12 @@ export function LoginScreen({ error = false }: { error?: boolean }) {
               Figma: 451×200px, RGBA cream (#EEE9E2) on transparent.
               Asset: public/images/login/root-further.png (451×200px).
               Render at natural 451×200px — CẤM dựng lại bằng text/font.
+              data-fig-asset tags the image wrapper (662:14395 container), data-fig tags the img element via 2939:9548.
             */}
             {/* mm:root-further-wordmark */}
             <Image
+              data-fig="2939:9548"
+              data-fig-asset="root-further-wordmark"
               src="/images/login/root-further.png"
               alt={t('headingAlt')}
               width={451}
@@ -72,7 +75,10 @@ export function LoginScreen({ error = false }: { error?: boolean }) {
 
             {/* Frame 550: body text + login button (gap 24, pl 16) */}
             <div className={`${montserrat.className} flex flex-col gap-6 pl-4`}>
-              <p className="max-w-lg whitespace-pre-line text-xl font-bold leading-10 tracking-[0.5px]">
+              <p
+                data-fig="662:14753"
+                className="max-w-lg whitespace-pre-line text-xl font-bold leading-10 tracking-[0.5px]"
+              >
                 {`${t('intro1')}\n${t('intro2')}`}
               </p>
 
@@ -89,7 +95,10 @@ export function LoginScreen({ error = false }: { error?: boolean }) {
         </PageContainer>
       </main>
 
-      <footer className="relative z-10 w-full border-t border-[#2E3940] px-6 py-10 md:px-[90px]">
+      <footer
+        data-fig="662:14447"
+        className="relative z-10 w-full border-t border-[#2E3940] px-6 py-10 md:px-[90px]"
+      >
         <p className={`${montserratAlternates.className} text-center text-base font-bold leading-6`}>
           {t('footer')}
         </p>

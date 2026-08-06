@@ -8,7 +8,9 @@ interface RulesPanelHeaderProps {
 export function RulesPanelHeader({ title }: RulesPanelHeaderProps) {
   return (
     <div className="flex flex-col gap-4">
+      {/* Figma node 3204:6055 — Montserrat 700 45px/52lh #FFEA9E */}
       <h1
+        data-fig="3204:6055"
         className={`${montserrat.className} text-[45px] font-bold leading-[52px] tracking-[0px]`}
         style={{ color: '#FFEA9E' }}
       >

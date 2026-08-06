@@ -156,9 +156,9 @@ export function HashtagRow({ tags }: { tags: string[] }) {
   const overflow = tags.length - 5
   return (
     <div className="flex flex-wrap gap-2" role="list" aria-label="Hashtags">
-      {visible.map((tag) => (
+      {visible.map((tag, idx) => (
         <span
-          key={tag}
+          key={`${tag}-${idx}`}
           role="listitem"
           className="rounded-full px-3 py-1 text-xs font-bold"
           style={{
