@@ -32,7 +32,12 @@ function allow() {
  */
 /** Route → filename slug, e.g. "/awards" → "awards", "(feature: board)" → "board". */
 function slugOf(route) {
-  const m = String(route || '').match(/[a-z0-9][a-z0-9-]*/i)
+  const s = String(route || '')
+  // "(feature: board)" → "board" (routeFor labels feature files this way; without this
+  // the slug would collapse to "feature" and a per-screen PASS report would never match).
+  const feat = s.match(/feature:\s*([a-z0-9-]+)/i)
+  if (feat) return feat[1].toLowerCase()
+  const m = s.match(/[a-z0-9][a-z0-9-]*/i)
   return m ? m[0].toLowerCase() : ''
 }
 

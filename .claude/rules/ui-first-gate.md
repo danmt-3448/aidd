@@ -17,7 +17,8 @@ Thực trạng: UI + behavior FE lỗi nhiều, chưa xét tới BE/API. Nguyên
 - [ ] **Nets @1280**: không overflow ngang / đè-cắt chữ; density (số item) khớp Figma (`get_frame_node_tree`).
 - [ ] **Pixel/band-diff = overlay tham khảo** (soi bố cục bằng mắt) — KHÔNG quyết verdict.
 - [ ] Không guess visual value — vẫn lấy màu/spacing/size/font từ MoMorph MCP làm mốc (không bịa)
-- [ ] **Chỉ chấm 1440 + 1280** — BỎ 768/375.
+- [ ] **Property-diff chấm 1440 + 1280** — BỎ 768/375.
+- [ ] **1920 no-break** — chụp thêm ở 1920, assert KHÔNG vỡ (no overflow ngang, section không zoom/lệch, không đè-cắt chữ). KHÔNG so property-diff ở 1920.
 
 **B. Behavior / logic với MOCK DATA — BẤT KHẢ NHÂN NHƯỢNG (sai 1 mục = FAIL)**
 - [ ] Validation form (client-side) chạy đúng
@@ -56,15 +57,18 @@ Không dùng skill riêng — chỉ 1 quy ước file + 1 query param:
 4. **Kích thước/tỉ lệ** element theo Figma; **không đè/cắt** chữ; chấm **cả trang tới footer**.
 5. **Verdict bằng screenshot thật** (fullPage), không tin report "DONE" của subagent.
 
-## Breakpoint policy (BẮT BUỘC — chỉ chấm desktop 1440 + 1280)
+## Breakpoint policy (BẮT BUỘC — property-diff 1440 + 1280, no-break 1920)
 
-Chỉ chấm 2 viewport desktop, theo thứ tự ưu tiên. **BỎ 768/375** (không còn là checkpoint gate).
+Property-diff (số) chấm ở **1440 (chính) + 1280 (phụ)**. Thêm **1920 chỉ để soi "không vỡ"** (KHÔNG property-diff). **BỎ 768/375.**
 
 | Viewport | Ưu tiên | Yêu cầu |
 |---|---|---|
 | **1440px** | **1 (chính)** | **CHUẨN desktop — property-diff PASS** (style-assert exit 0, số khớp get_node) |
 | **1280px** | **2 (phụ)** | Desktop hẹp — property-diff PASS + KHÔNG overflow ngang / vỡ layout / đè-cắt chữ. |
+| **1920px** | **3 (no-break)** | **CHỈ soi "không vỡ" — KHÔNG so property-diff.** Không overflow ngang (`scrollWidth==clientWidth`); section không zoom/giãn méo; content không lệch trục so bố cục 1440; không đè-cắt chữ. Design vẫn chuẩn 1440 (fixed-artboard → **cho phép** dark side-fill / `max-width` center trên màn to). **Vỡ = FAIL.** |
 | ~~768 / 375~~ | — | **BỎ** — không chấm ở gate. |
+
+> **Vì sao thêm 1920:** design là artboard **fixed 1440** → mọi màn có rủi ro vỡ ở màn to (artwork `object-cover` zoom, banner full-bleed lệch content đã cap 1440, element `width` cố định > viewport). Gate cũ chỉ 1440/1280 nên lớp lỗi này lọt (đã dính ở board KV banner — feathers tràn sau wordmark, mất tương phản ở >1440). 1920 CHỈ assert "không vỡ", KHÔNG so số — tránh false-FAIL vì Figma không có artboard 1920. Ưu tiên vẫn là 1440.
 
 ## Parallel-but-gated (không chặn cứng BE)
 

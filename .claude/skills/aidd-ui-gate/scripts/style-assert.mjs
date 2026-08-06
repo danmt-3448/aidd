@@ -101,7 +101,12 @@ function weight(v) {
   return WEIGHT_NAMES[s] ?? (Number.isFinite(+s) ? +s : null)
 }
 
-const COLOR_PROPS = new Set(['color', 'bg', 'backgroundColor', 'borderColor', 'iconFill', 'fill', 'stroke'])
+const COLOR_PROPS = new Set([
+  'color', 'bg', 'backgroundColor', 'iconFill', 'fill', 'stroke',
+  // border colors: getComputedStyle serializes per-side (borderTopColor…) as rgb();
+  // compare them as colors (rgb vs rgba parse-equal) instead of raw string-compare.
+  'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor',
+])
 const PX_PROPS = new Set([
   'fontSize', 'lineHeight', 'letterSpacing',
   'paddingTop', 'paddingLeft', 'paddingRight', 'paddingBottom',

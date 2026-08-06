@@ -74,9 +74,14 @@ Không resolve được screenId → **hỏi user**, KHÔNG đoán. Không có r
 - **overflow/overlap @1280:** `scrollWidth>clientWidth` = FAIL; bbox 2 item cùng nhóm giao nhau = FAIL (đè/cắt chữ).
 - **density:** đếm DOM item vs số con list trong `get_frame_node_tree` — dưới ngưỡng = FAIL "mock thưa"; assert section bắt buộc tồn tại (vd `footer`).
 
+**3b-2. No-break @1920 (BẮT BUỘC — KHÔNG so property-diff):** `browser_resize(1920,960)` → navigate lại `{route}?ui_state=full` → `browser_evaluate`:
+- `scrollWidth == clientWidth` (no horizontal overflow) — lệch = **FAIL**.
+- Section chính (banner/hero, feed, sidebar, footer) KHÔNG zoom/giãn méo; content KHÔNG lệch trục so bố cục 1440 (lỗi hay gặp: hero full-bleed trong khi content đã cap `max-w-[1440px]` → lệch/nền artwork zoom); KHÔNG đè-cắt chữ.
+- Design fixed-1440 → **cho phép** dark side-fill / `max-width` center trên >1440; chỉ FAIL khi thật sự VỠ. **KHÔNG** chạy `style-assert` ở 1920 (Figma không có artboard 1920). `browser_take_screenshot` để soi mắt. Nhớ `browser_resize` về 1440 sau khi xong.
+
 **3c. Pixel/band overlay (OPT-IN — KHÔNG quyết verdict):** soi bố cục tổng bằng mắt. `pixel-diff.mjs [--bands manifest]`, downscale ref 1512→1440 (**không upscale actual**). In ratio/band cho người xem, KHÔNG exit-fail gate.
 
-**Ngưỡng nhóm A:** PASS khi **property-diff (3a) exit 0** ở cả 1440 + 1280 **VÀ** nets (3b) không FAIL. `style-assert` exit 1/2 → FAIL/BLOCKED. Pixel/band (3c) chỉ ghi tham khảo. Report: bảng `key|prop|code|design|verdict` + nets + (tuỳ chọn) overlay ratio.
+**Ngưỡng nhóm A:** PASS khi **property-diff (3a) exit 0** ở cả 1440 + 1280 **VÀ** nets (3b) không FAIL **VÀ** no-break (3b-2) @1920 không vỡ. `style-assert` exit 1/2 → FAIL/BLOCKED. 1920 vỡ (overflow/zoom/lệch/đè-cắt) → FAIL. Pixel/band (3c) chỉ ghi tham khảo. Report: bảng `key|prop|code|design|verdict` + nets + no-break@1920 + (tuỳ chọn) overlay ratio.
 
 ### 4. Behavior checklist với MOCK DATA (nhóm B — bỏ nếu `--visual-only`)
 Lấy test cases làm checklist (KHÔNG viết code test):
@@ -100,6 +105,7 @@ Ghi report vào `plans/reports/ui-gate-{date}-{screen-slug}.md`:
 - **`style-assert` verdict: {PASS|FAIL|coverage-error}** · elements={N} (min {N_min}) · checks={M} · failed={K}
 - FAIL rows: {key | prop | code | design} — localize element/prop sai
 - Nets (3b): overflow/overlap @1280 · density vs get_frame_node_tree · section tồn tại: {FAIL nếu có}
+- No-break @1920 (3b-2): overflow ngang {none/FAIL} · section zoom/lệch/đè-cắt {none/FAIL} — KHÔNG so property-diff
 - Overlay tham khảo (3c, KHÔNG quyết verdict): pixel/band ratio {x.xx}% · diff: `plans/reports/_gate-ref/{screen}-*-diff.png`
 - Port đã verify: {vd 127.0.0.1:3001} · color-profile=srgb · font.ready=true
 
@@ -146,7 +152,7 @@ Ghi report vào `plans/reports/ui-gate-{date}-{screen-slug}.md`:
 
 ## Rules
 
-- Chỉ chấm **1440 (ưu tiên 1) + 1280 (ưu tiên 2)** — cả hai **pixel-perfect ≥ 99%** (pixel-diff ≤ 1%). **BỎ 768/375.**
+- Property-diff chấm **1440 (ưu tiên 1) + 1280 (ưu tiên 2)**. Thêm **1920 no-break** (chỉ soi không-vỡ, KHÔNG so property-diff). **BỎ 768/375.** Ưu tiên vẫn 1440.
 - **Nguồn design = MoMorph + Figma trực tiếp**, KHÔNG chỉ brief cũ. Xung đột: ảnh Figma > MoMorph extract > brief. Annotation/NOTE trên Figma là spec behavior/state — đưa vào checklist nhóm B.
 - Visual pixel-perfect ≥ 99% (chỉ tha AA/subpixel + vùng mask động); behavior KHÔNG nhân nhượng. Cả hai đều là cổng cứng.
 - Không có Figma reference cho viewport nhỏ → chỉ chấm responsive-ok, không FAIL vì "khác design".
