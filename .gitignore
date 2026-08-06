@@ -73,3 +73,8 @@ playwright-report/
 test-results/
 .playwright-mcp/
 e2e/.auth/
+
+# UI-gate screenshot artifacts (regenerable, binary — keep out of git)
+plans/reports/_gate-ref/
+*-actual.png
+*-verify.png
