@@ -68,6 +68,46 @@ function isUiFile(filePath) {
   return /\.(tsx|jsx|css)$/.test(rel)
 }
 
+const STYLE_TOKEN_RE = /(className|class\s*=|style\s*=|style\s*:)/
+
+/** Blank out string-literal CONTENTS + comments → leaves only structure/logic/JSX-tags. */
+function skeleton(s) {
+  return String(s || '')
+    .replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, '') // JSX comments {/* ... */}
+    .replace(/\/\*[\s\S]*?\*\//g, '') // block comments
+    .replace(/\/\/[^\n]*/g, '') // line comments
+    .replace(/"(?:[^"\\]|\\.)*"/g, '""') // double-quoted contents
+    .replace(/'(?:[^'\\]|\\.)*'/g, "''") // single-quoted contents
+    .replace(/`(?:[^`\\]|\\.)*`/g, '``') // template-literal contents
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+/**
+ * Does this edit actually touch VISUAL output (styles/layout/structure), i.e. something the
+ * property-diff gate measures? Conservative: returns TRUE (gate) unless the change is PROVABLY
+ * non-visual. Non-visual = only string-literal text / comments changed, with NO className|style
+ * token involved and NO structural (skeleton) change. This lets pure text-label / copy / comment
+ * edits through without a full visual re-gate, while still gating any className/style/JSX change.
+ * Whole-file Write or unknown shape → TRUE (cannot diff → conservative). [option A, 2026-08-11]
+ */
+function isVisualEdit(input) {
+  input = input || {}
+  const edits = Array.isArray(input.edits)
+    ? input.edits
+    : input.old_string != null || input.new_string != null
+      ? [{ old_string: input.old_string, new_string: input.new_string }]
+      : null
+  if (!edits || edits.length === 0) return true // Write/content or unknown → can't diff → visual
+  for (const e of edits) {
+    const o = e.old_string || ''
+    const n = e.new_string || ''
+    if (STYLE_TOKEN_RE.test(o) || STYLE_TOKEN_RE.test(n)) return true // className/style involved
+    if (skeleton(o) !== skeleton(n)) return true // structural/logic change outside strings+comments
+  }
+  return false // only text-literal / comment content changed, no style/structure → non-visual
+}
+
 /** Best-effort route guess from a UI file path, for the reminder text. */
 function routeFor(filePath) {
   const rel = String(filePath || '').replace(/\\/g, '/')
@@ -79,4 +119,4 @@ function routeFor(filePath) {
   return '<screen route>'
 }
 
-module.exports = { read, write, readStdin, isUiFile, routeFor, statePath, stateDir }
+module.exports = { read, write, readStdin, isUiFile, isVisualEdit, skeleton, routeFor, statePath, stateDir }
