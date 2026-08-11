@@ -29,8 +29,18 @@ export type ToggleHeartResult =
  * Raw error strings never reach the client.
  */
 function friendlyHeartError(code: string, msg: string): string {
-  // RLS WITH CHECK violation: anon sender trying to heart own kudo.
-  // Supabase surfaces RLS violations as PGRST116 (no rows) or 42501 (privilege).
+  // Codes raised by the toggle_heart RPC (20260811010000).
+  if (code === 'P0008') {
+    return 'Bạn không thể thả tim cho Kudo của chính mình.'
+  }
+  if (code === 'P0007') {
+    return 'Kudo không tồn tại.'
+  }
+  if (code === 'P0001') {
+    return 'Bạn cần đăng nhập để thả tim.'
+  }
+  // Backstop: RLS WITH CHECK on hearts_insert_own (42501 / "new row violates")
+  // and FK violation (23503) still map cleanly if the RPC is bypassed.
   if (code === '42501' || msg.toLowerCase().includes('new row violates')) {
     return 'Bạn không thể thả tim cho Kudo của chính mình.'
   }
@@ -40,42 +50,15 @@ function friendlyHeartError(code: string, msg: string): string {
   return 'Không thể thực hiện. Vui lòng thử lại.'
 }
 
-/**
- * Fetch the current heart count for a kudo from the `hearts` table.
- * This is a single aggregate query; calling it after the toggle gives the
- * authoritative server count.
- */
-async function fetchHeartCount(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  kudoId: string,
-): Promise<number> {
-  const { count, error } = await supabase
-    .from('hearts')
-    .select('*', { count: 'exact', head: true })
-    .eq('kudo_id', kudoId)
-
-  if (error) {
-    console.error('[fetchHeartCount]', error.message)
-    return 0
-  }
-  return count ?? 0
-}
-
 // ---------------------------------------------------------------------------
 // toggleHeart
 //
-// Inserts a heart if the caller has not yet liked this kudo, or deletes their
-// existing heart if they have. The operation is idempotent at the (user, kudo)
-// PK level: a double-like resolves to unliked, a double-unlike is a no-op.
-//
-// Self-heart guard: the phase-01 RLS `WITH CHECK` on `hearts_insert_own`
-// prevents a sender from hearting their own kudo. This action catches that
-// rejection and surfaces a friendly message — it does NOT re-implement the
-// guard with a client-side check.
-//
-// Special-day stamp: `is_special_day` is set to true when today's date has a
-// row in `special_day_config`; the ranking query uses this to apply the
-// hearts_multiplier when computing weighted highlight scores.
+// Delegates the whole like/unlike to the `toggle_heart` RPC (20260811010000):
+// one atomic transaction that toggles the heart, stamps special-day at insert,
+// enforces the self-heart guard, and returns the authoritative count. This
+// replaces the former SELECT-then-INSERT/DELETE path, which raced on a rapid
+// double-click (concurrent inserts → PK 23505). The RPC uses ON CONFLICT DO
+// NOTHING so a concurrent like resolves idempotently instead of erroring.
 // ---------------------------------------------------------------------------
 
 export async function toggleHeart(kudoId: string): Promise<ToggleHeartResult> {
@@ -87,7 +70,7 @@ export async function toggleHeart(kudoId: string): Promise<ToggleHeartResult> {
     }
   }
 
-  // 2. Auth guard
+  // 2. Auth guard (RPC also guards via P0001; this returns the friendly copy early)
   const supabase = await createClient()
   const {
     data: { user },
@@ -98,72 +81,15 @@ export async function toggleHeart(kudoId: string): Promise<ToggleHeartResult> {
     return { error: 'Bạn cần đăng nhập để thả tim.' }
   }
 
-  const uid = user.id
+  // 3. Atomic toggle in one round-trip.
+  const { data, error } = await supabase
+    .rpc('toggle_heart', { p_kudo_id: kudoId })
+    .single<{ liked: boolean; heart_count: number }>()
 
-  try {
-    // 3. Check if caller already liked this kudo.
-    const { data: existing, error: selectErr } = await supabase
-      .from('hearts')
-      .select('user_id')
-      .eq('user_id', uid)
-      .eq('kudo_id', kudoId)
-      .maybeSingle()
-
-    if (selectErr) {
-      console.error('[toggleHeart] select existing', selectErr.message)
-      return { error: 'Không thể kiểm tra trạng thái tim. Vui lòng thử lại.' }
-    }
-
-    if (existing) {
-      // 4a. Already liked → delete (unlike).
-      const { error: deleteErr } = await supabase
-        .from('hearts')
-        .delete()
-        .eq('user_id', uid)
-        .eq('kudo_id', kudoId)
-
-      if (deleteErr) {
-        console.error('[toggleHeart] delete', deleteErr.message)
-        return { error: 'Không thể bỏ tim. Vui lòng thử lại.' }
-      }
-
-      const heartCount = await fetchHeartCount(supabase, kudoId)
-      return { data: { liked: false, heartCount } }
-    }
-
-    // 4b. Not yet liked → insert with special-day stamp.
-    // Resolve today's special-day config (null if not a special day → is_special_day = false).
-    const today = new Date().toISOString().slice(0, 10)
-    const { data: sdRow, error: sdErr } = await supabase
-      .from('special_day_config')
-      .select('hearts_multiplier')
-      .eq('event_date', today)
-      .maybeSingle()
-
-    if (sdErr) {
-      // Non-fatal: log and proceed without special-day stamp.
-      console.warn('[toggleHeart] special_day_config fetch', sdErr.message)
-    }
-
-    const isSpecialDay = sdRow !== null
-
-    const { error: insertErr } = await supabase.from('hearts').insert({
-      user_id: uid,
-      kudo_id: kudoId,
-      is_special_day: isSpecialDay,
-    })
-
-    if (insertErr) {
-      console.error('[toggleHeart] insert', insertErr.code, insertErr.message)
-      return {
-        error: friendlyHeartError(insertErr.code ?? '', insertErr.message),
-      }
-    }
-
-    const heartCount = await fetchHeartCount(supabase, kudoId)
-    return { data: { liked: true, heartCount } }
-  } catch (err) {
-    console.error('[toggleHeart] unexpected', err)
-    return { error: 'Không thể thực hiện. Vui lòng thử lại.' }
+  if (error) {
+    console.error('[toggleHeart] rpc', error.code, error.message)
+    return { error: friendlyHeartError(error.code ?? '', error.message) }
   }
+
+  return { data: { liked: data.liked, heartCount: data.heart_count } }
 }

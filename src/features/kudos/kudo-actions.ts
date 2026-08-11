@@ -56,6 +56,7 @@ function friendlyRpcError(msg: string): string {
   if (msg.includes('P0002')) return 'Không thể gửi Kudo cho chính mình'
   if (msg.includes('P0003') || msg.includes('P0004')) return 'Hashtag không hợp lệ'
   if (msg.includes('P0005') || msg.includes('P0006')) return 'Tối đa 5 ảnh'
+  if (msg.includes('P0007')) return 'Người nhận không tồn tại'
   return 'Đã xảy ra lỗi. Vui lòng thử lại.'
 }
 
@@ -126,9 +127,20 @@ export async function createKudo(input: CreateKudoInput): Promise<CreateKudoResu
 
   if (error) {
     console.error('[createKudo] RPC error', error.message)
+    // Orphan-image cleanup: images were uploaded to Storage BEFORE this RPC.
+    // If the insert failed they would dangle — best-effort remove, never throw
+    // (a cleanup failure must not mask the original error).
+    if (imagePaths.length > 0) {
+      const { error: rmErr } = await supabase.storage
+        .from('kudo-images')
+        .remove(imagePaths)
+      if (rmErr) console.warn('[createKudo] orphan-image cleanup', rmErr.message)
+    }
+    // Route the receiver-not-found (P0007) error to the field; others to root.
+    const field = error.message.includes('P0007') ? 'receiverId' : '_root'
     return {
       ok: false,
-      errors: { _root: [friendlyRpcError(error.message)] },
+      errors: { [field]: [friendlyRpcError(error.message)] },
     }
   }
 
