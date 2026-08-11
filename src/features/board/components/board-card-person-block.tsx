@@ -40,6 +40,11 @@ export interface PersonBlockProps {
    * If undefined, the button is not rendered.
    */
   onSendKudo?: () => void
+  /**
+   * Profile UUID — passed to UserHoverCard so it can fetch real kudos stats
+   * via useUserHoverCard(). Pass null for anonymous senders.
+   */
+  profileId?: string | null
 }
 
 export function PersonBlock({
@@ -53,6 +58,7 @@ export function PersonBlock({
   onClick,
   lightMode = false,
   onSendKudo,
+  profileId,
 }: PersonBlockProps) {
   const deptColor = lightMode ? 'rgba(26,18,8,0.45)' : 'rgba(255,255,255,0.5)'
 
@@ -116,6 +122,7 @@ export function PersonBlock({
       tier={tier}
       onSendKudo={onSendKudo}
       lightMode={lightMode}
+      profileId={profileId ?? null}
     >
       {trigger}
     </UserHoverCard>

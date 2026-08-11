@@ -1,15 +1,15 @@
 /**
  * feed-card-tier-badge.tsx — pill badge showing kudo sender/receiver tier level.
  *
- * Tier mapping (from Figma MaZUn5xHXZ — rework pass 2, D2):
- *   1 = New Hero    — coral/orange pill  (MM_MEDIA_New Hero)
- *   2 = Rising Hero — amber pill          (MM_MEDIA_Rising Hero)
- *   3 = Legend Hero — gold pill           (MM_MEDIA_Legend Hero)
- *   4 = Super Hero  — violet/purple pill  (MM_MEDIA_Super Hero)
+ * Tier mapping (from spec kudo-card-tier-hover-spec-260811.md §1 — distinct senders):
+ *   1 = New Hero    — 1–4 distinct senders   (coral/orange pill)
+ *   2 = Rising Hero — 5–9 distinct senders   (amber pill)
+ *   3 = Super Hero  — 10–20 distinct senders (orange/red pill)
+ *   4 = Legend Hero — >20 distinct senders   (gold pill)
  *
  * Badge is a colored text pill with a custom tooltip on hover/focus.
  * Tooltip replaces the native `title` attr — accessible via aria-describedby.
- * Tooltip content: tier name + điều kiện từ Figma annotation "Hover danh hiệu".
+ * Tooltip content: tier name + VERBATIM description from spec §1.
  */
 
 'use client'
@@ -38,7 +38,8 @@ const TIER_CONFIG: Record<
     colorLight: '#E73928',
     bgLight: 'rgba(231,57,40,0.12)',
     borderLight: 'rgba(231,57,40,0.30)',
-    description: 'Gửi từ 1 đến 10 Kudos',
+    // VERBATIM from spec kudo-card-tier-hover-spec-260811.md §1
+    description: 'Có 1–4 người gửi Kudos cho bạn. Hành trình lan tỏa điều tốt đẹp bắt đầu – những lời cảm ơn và ghi nhận đầu đã tìm đến bạn.',
   },
   2: {
     label: 'Rising Hero',
@@ -48,10 +49,23 @@ const TIER_CONFIG: Record<
     colorLight: '#D97706',
     bgLight: 'rgba(251,191,36,0.15)',
     borderLight: 'rgba(217,119,6,0.35)',
-    description: 'Gửi từ 11 đến 50 Kudos',
+    // VERBATIM from spec kudo-card-tier-hover-spec-260811.md §1
+    description: 'Có 5-9 người gửi Kudos cho bạn. Hình ảnh bạn đang lớn dần trong trái tim đồng đội bằng sự tử tế và cống hiến của mình.',
   },
   3: {
-    // Dark card: pale gold #FFEA9E readable on navy. Light card: darker amber #92400E on cream.
+    // Tier 3 = Super Hero (10–20 distinct senders). Orange/red per Figma.
+    label: 'Super Hero',
+    bg: 'rgba(249,115,22,0.15)',
+    color: '#F97316',
+    border: 'rgba(249,115,22,0.35)',
+    colorLight: '#C2410C',
+    bgLight: 'rgba(249,115,22,0.12)',
+    borderLight: 'rgba(194,65,12,0.30)',
+    // VERBATIM from spec kudo-card-tier-hover-spec-260811.md §1
+    description: 'Có 10-20 người gửi Kudos cho bạn. Bạn đã trở thành biểu tượng được tin tưởng và yêu quý, người luôn sẵn sàng hỗ trợ và được nhiều đồng đội nhớ đến.',
+  },
+  4: {
+    // Tier 4 = Legend Hero (>20 distinct senders). Gold/pale-gold per Figma.
     label: 'Legend Hero',
     bg: 'rgba(255,234,158,0.18)',
     color: '#FFEA9E',
@@ -59,17 +73,8 @@ const TIER_CONFIG: Record<
     colorLight: '#92400E',
     bgLight: 'rgba(255,234,158,0.35)',
     borderLight: 'rgba(146,64,14,0.35)',
-    description: 'Gửi từ 51 đến 100 Kudos',
-  },
-  4: {
-    label: 'Super Hero',
-    bg: 'rgba(167,139,250,0.18)',
-    color: '#A78BFA',
-    border: 'rgba(167,139,250,0.4)',
-    colorLight: '#7C3AED',
-    bgLight: 'rgba(167,139,250,0.15)',
-    borderLight: 'rgba(124,58,237,0.35)',
-    description: 'Gửi trên 100 Kudos',
+    // VERBATIM from spec kudo-card-tier-hover-spec-260811.md §1
+    description: 'Có hơn 20 người gửi Kudos cho bạn. Bạn đã trở thành huyền thoại – người để lại dấu ấn khó quên trong tập thể bằng trái tim và hành động của mình.',
   },
 }
 
@@ -132,8 +137,8 @@ export function FeedCardTierBadge({ tier, lightMode = false }: FeedCardTierBadge
             background: 'rgba(30,26,46,0.96)',
             border: '1px solid rgba(255,234,158,0.2)',
             fontFamily: montserrat.style.fontFamily,
-            minWidth: 160,
-            whiteSpace: 'nowrap',
+            width: 220,
+            whiteSpace: 'normal',
           }}
         >
           <span
@@ -144,7 +149,7 @@ export function FeedCardTierBadge({ tier, lightMode = false }: FeedCardTierBadge
             {cfg.label}
           </span>
           <span
-            className="mt-0.5 block text-xs"
+            className="mt-0.5 block text-xs leading-4"
             style={{ color: 'rgba(255,255,255,0.7)' }}
           >
             {cfg.description}

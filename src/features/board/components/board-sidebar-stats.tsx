@@ -9,13 +9,13 @@
  *   Label: Montserrat 600 14px rgba(255,255,255,1) line-height 20px — fits 1 line, no wrap
  *   Value: Montserrat 700 24px rgba(255,234,158,1) line-height 32px
  *   Divider (D.1.5): rgba(46,57,64,1) — dark teal
- *   x2 badge: Montserrat 700 12px white text with black stroke
+ *   x2 badge: Montserrat 700 12px white text with black stroke — only when isSpecialDay
  *   Button (D.1.8): bg rgba(255,234,158,1) h-48px border-radius 8px padding 16px centered
  *
  * Icons per row (Figma mms_D.1.2–D.1.7):
  *   D.1.2 kudos received  → Inbox  (white, 16px)
  *   D.1.3 kudos sent      → Send   (white, 16px)
- *   D.1.4 hearts          → Flame  (orange #FF6B35, 16px) + x2 badge
+ *   D.1.4 hearts          → Flame  (orange #FF6B35, 16px) + x2 badge (special day only)
  *   D.1.6 secret box open → PackageOpen (white, 16px)
  *   D.1.7 secret box new  → Package    (white, 16px)
  *
@@ -27,17 +27,20 @@ import { Inbox, Send, Flame, PackageOpen, Package } from 'lucide-react'
 import { montserrat } from '@/features/auth/fonts'
 import type { BoardUserStats } from './board-types'
 import type { LucideIcon } from 'lucide-react'
+import { X2FlameBadge } from './board-x2-flame-badge'
 
 interface StatRowProps {
   icon: LucideIcon
   iconColor?: string
   label: string
   value: number
-  /** When true, renders the "x2" badge inline with the label */
+  /** When true, renders the "x2" badge inline with the label with a tooltip */
   showX2Badge?: boolean
+  /** Tooltip text for the x2 flame badge (spec §4) */
+  x2TooltipText?: string
 }
 
-function StatRow({ icon: Icon, iconColor = 'rgba(255,255,255,0.85)', label, value, showX2Badge }: StatRowProps) {
+function StatRow({ icon: Icon, iconColor = 'rgba(255,255,255,0.85)', label, value, showX2Badge, x2TooltipText }: StatRowProps) {
   return (
     <div
       className="flex items-center justify-between"
@@ -65,20 +68,7 @@ function StatRow({ icon: Icon, iconColor = 'rgba(255,255,255,0.85)', label, valu
           {label}
         </span>
         {showX2Badge && (
-          <span
-            style={{
-              fontFamily: montserrat.style.fontFamily,
-              fontWeight: 700,
-              fontSize: 12,
-              color: '#FFFFFF',
-              WebkitTextStroke: '0.5px #000000',
-              lineHeight: '16px',
-              flexShrink: 0,
-            }}
-            aria-label="nhân 2"
-          >
-            x2
-          </span>
+          <X2FlameBadge tooltipText={x2TooltipText ?? 'Ngày x2 tim – lan tỏa gấp đôi yêu thương!'} />
         )}
       </span>
 
@@ -115,6 +105,13 @@ export interface StatsCardProps {
 }
 
 export function StatsCard({ stats, onOpenSecretBox }: StatsCardProps) {
+  // Build x2 tooltip text per spec §4 — use real dates when available
+  const x2TooltipText = (() => {
+    const start = stats.specialDayStart ?? 'XX:XX ngày XX/12'
+    const end = stats.specialDayEnd ?? 'XX:XX ngày XX/12'
+    return `Ngày x2 tim – lan tỏa gấp đôi yêu thương! Từ ${start} đến ${end}, tất cả tim bạn nhận được đều được nhân đôi.`
+  })()
+
   return (
     /* mm:2940:13489 */
     <div
@@ -141,13 +138,14 @@ export function StatsCard({ stats, onOpenSecretBox }: StatsCardProps) {
         value={stats.kudosSent}
       />
       <Divider />
-      {/* mm:3241:14882 */}
+      {/* mm:3241:14882 — x2 badge shown only when special day is active */}
       <StatRow
         icon={Flame}
         iconColor="#FF6B35"
         label="Số tim đạt được:"
         value={stats.heartsReceived}
-        showX2Badge
+        showX2Badge={stats.isSpecialDay === true}
+        x2TooltipText={x2TooltipText}
       />
       <Divider />
       {/* mm:2940:13495 */}

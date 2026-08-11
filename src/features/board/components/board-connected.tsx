@@ -10,7 +10,7 @@
  * and renders from board-mock.ts. No side-effect channels fire in override mode.
  */
 
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { SiteHeader } from '@/components/site-header'
@@ -42,7 +42,6 @@ export interface BoardConnectedProps {
 export function BoardConnected({ uid, user, isAdmin, initialComposeOpen = false }: BoardConnectedProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   const uiOverride = useUiStateOverride()
   const isOverride = uiOverride !== null
@@ -131,19 +130,8 @@ export function BoardConnected({ uid, user, isAdmin, initialComposeOpen = false 
   useEffect(() => { if (!isOverride && deptListError) toast.error(deptListError) }, [isOverride, deptListError])
   useEffect(() => { if (toggleError) { toast.error(toggleError); clearError() } }, [toggleError, clearError])
 
-  // ── Infinite scroll (disabled in override mode) ───────────────────────────
-  useEffect(() => {
-    if (isOverride) return
-    const el = sentinelRef.current
-    if (!el) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) fetchNextPage()
-      },
-      { rootMargin: '200px' },
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
+  const handleLoadMore = useCallback(() => {
+    if (!isOverride && hasNextPage && !isFetchingNextPage) fetchNextPage()
   }, [isOverride, hasNextPage, isFetchingNextPage, fetchNextPage])
 
   const header = (
@@ -204,18 +192,16 @@ export function BoardConnected({ uid, user, isAdmin, initialComposeOpen = false 
         onOpenProfile={(id) => router.push('/profile?id=' + id)}
         onOpenSecretBox={() => router.push('/secret-box')}
         isLoading={resolved.feedLoading}
+        hasNextPage={!isOverride && hasNextPage}
+        isFetchingNextPage={!isOverride && isFetchingNextPage}
+        onLoadMore={handleLoadMore}
+        resolvedUserId={uid ?? undefined}
         initialComposeOpen={initialComposeOpen}
+        onEdit={() => {
+          // Edit-kudo modal is a follow-up feature — placeholder no-op.
+          // When the edit feature lands, open KudoEditModal here with the kudoId.
+        }}
       />
-
-      {!isOverride && <div ref={sentinelRef} aria-hidden style={{ height: 1 }} />}
-
-      {!isOverride && isFetchingNextPage && (
-        <div className="flex justify-center py-4" style={{ backgroundColor: 'rgba(0,16,26,1)' }}
-          aria-live="polite" aria-label="Đang tải thêm Kudos…">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-transparent"
-            style={{ borderTopColor: 'rgba(255,255,255,0.4)' }} />
-        </div>
-      )}
     </div>
   )
 }

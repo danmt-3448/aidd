@@ -46,6 +46,18 @@ export interface BoardFeedCardProps extends FeedCardProps {
    * "feed"      → All Kudos context (no extra border, 24px radius, 40px padding)
    */
   variant?: 'highlight' | 'feed'
+  /**
+   * The authenticated user's id. Used to compute isOwn so the pencil edit
+   * icon renders ONLY on the current user's own kudos. Pass undefined when uid
+   * is unavailable (anonymous / unauthenticated) — pencil is hidden.
+   */
+  currentUserId?: string
+  /**
+   * Called when the pencil icon is clicked on an own kudo.
+   * The parent (board-screen / board-connected) owns the edit-modal flow.
+   * Placeholder no-op is acceptable until the edit-kudo feature lands.
+   */
+  onEdit?: (kudoId: string) => void
 }
 
 export function BoardFeedCard({
@@ -71,9 +83,13 @@ export function BoardFeedCard({
   onCopyLink,
   onOpenProfile,
   variant = 'feed',
+  currentUserId,
+  onEdit,
 }: BoardFeedCardProps) {
   const isHighlight = variant === 'highlight'
   const t = useTranslations('board')
+  // Pencil is only shown when the viewer is the kudo sender (spec §2)
+  const isOwn = !!currentUserId && !!senderId && senderId === currentUserId
 
   return (
     <article
@@ -84,10 +100,12 @@ export function BoardFeedCard({
         border: isHighlight ? '4px solid #FFEA9E' : 'none',
         borderRadius: isHighlight ? 16 : 24,
         padding: isHighlight ? '24px 24px 16px 24px' : '40px 40px 16px 40px',
-        /* Feed variant: Figma node 3127:21871 h=749px. min-height ensures gate container
-           [data-fig='2940:13482'] reaches 3068px (4×749+3×24). Highlight variant is height-
-           constrained by the carousel slide wrapper and does not need a min-height here. */
-        minHeight: isHighlight ? undefined : 749,
+        /* Highlight variant fills the fixed 525px carousel slide (Figma node 2940:13465)
+           so every card is uniform height; content distributes top→bottom (person / message
+           / actions) via space-between. Feed variant hugs content — no forced height
+           (Figma 3127:21871 h=749 was a rich card; sparse cards are naturally shorter). */
+        height: isHighlight ? '100%' : undefined,
+        justifyContent: isHighlight ? 'space-between' : undefined,
       }}
       aria-label={`Kudo từ ${senderName} đến ${receiverName}`}
     >
@@ -104,6 +122,7 @@ export function BoardFeedCard({
           label={`Xem profile ${senderName}`}
           onClick={senderId !== null ? () => onOpenProfile(senderId) : undefined}
           lightMode
+          profileId={senderId}
         />
 
         {/* Paper-plane send icon — centered between 2 blocks, top-aligned */}
@@ -122,6 +141,7 @@ export function BoardFeedCard({
           label={`Xem profile ${receiverName}`}
           onClick={() => onOpenProfile(receiverId)}
           lightMode
+          profileId={receiverId}
         />
       </div>
 
@@ -133,10 +153,10 @@ export function BoardFeedCard({
         {formatCardDate(createdAt)}
       </span>
 
-      {/* Kudo title — centered + pencil icon on the right (visual only, no edit behavior) */}
+      {/* Kudo title — centered + pencil icon on the right (own kudo only) */}
       {kudoTitle && (
         <div className="flex items-center">
-          {/* Spacer to keep title visually centered */}
+          {/* Spacer to keep title visually centered when pencil is shown */}
           <span className="w-4 flex-shrink-0" aria-hidden />
           <p
             className="flex-1 text-center font-bold"
@@ -150,8 +170,18 @@ export function BoardFeedCard({
           >
             {kudoTitle}
           </p>
+          {/* Pencil renders ONLY when this kudo belongs to the current user (spec §2) */}
           <span className="flex w-4 flex-shrink-0 items-center justify-end">
-            <PencilIcon />
+            {isOwn && (
+              <button
+                type="button"
+                aria-label="Chỉnh sửa kudo"
+                className="transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
+                onClick={() => onEdit?.(id)}
+              >
+                <PencilIcon />
+              </button>
+            )}
           </span>
         </div>
       )}

@@ -42,8 +42,8 @@ export interface FeedCardProps {
    */
   receiverDepartment?: string
   /**
-   * Sender's tier level (1–4) based on total kudos sent count.
-   * 1 = New Hero, 2 = Rising Hero, 3 = Legend Hero, 4 = Super Hero (MM_MEDIA_Super Hero)
+   * Sender's tier level (1–4) based on distinct-sender count TO receiver.
+   * 1 = New Hero (1–4) · 2 = Rising Hero (5–9) · 3 = Super Hero (10–20) · 4 = Legend Hero (>20)
    * BE contract: kudos_public.sender_tier (smallint 1..4, nullable)
    */
   senderTier?: 1 | 2 | 3 | 4
@@ -78,6 +78,22 @@ export interface BoardUserStats {
    * BE contract: will be split from secretBoxCount in integration phase.
    */
   secretBoxUnopened?: number
+  /**
+   * Whether a special x2-hearts campaign is currently active.
+   * Drives the x2 badge and tooltip on the hearts stat row.
+   * When false/undefined the x2 badge is hidden.
+   */
+  isSpecialDay?: boolean
+  /**
+   * Display string for special day start, e.g. "08:00 ngày 28/12".
+   * Shown verbatim in the x2 flame tooltip.
+   */
+  specialDayStart?: string
+  /**
+   * Display string for special day end, e.g. "20:00 ngày 29/12".
+   * Shown verbatim in the x2 flame tooltip.
+   */
+  specialDayEnd?: string
 }
 
 /** One entry in the spotlight activity log (bottom-left of spotlight box). */

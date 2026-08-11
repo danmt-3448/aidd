@@ -1,8 +1,12 @@
 /**
  * feed-card-tier-badge.test.tsx
  *
- * Rework pass 2 (D2): badge is now a colored text pill, NOT stars.
- * Tests verify label text, pill text, and Tier 4 (Super Hero) from Figma.
+ * Corrected tier mapping per spec kudo-card-tier-hover-spec-260811.md §1
+ * (distinct senders to receiver):
+ *   1 = New Hero    (1–4 senders)
+ *   2 = Rising Hero (5–9 senders)
+ *   3 = Super Hero  (10–20 senders)  ← was Legend Hero (wrong)
+ *   4 = Legend Hero (>20 senders)    ← was Super Hero (wrong)
  */
 
 import { describe, it, expect } from 'vitest'
@@ -20,14 +24,14 @@ describe('FeedCardTierBadge', () => {
     expect(screen.getByText('Rising Hero')).toBeInTheDocument()
   })
 
-  it('tier 3 renders pill text "Legend Hero"', () => {
+  it('tier 3 renders pill text "Super Hero" (corrected from Legend Hero)', () => {
     render(<FeedCardTierBadge tier={3} />)
-    expect(screen.getByText('Legend Hero')).toBeInTheDocument()
+    expect(screen.getByText('Super Hero')).toBeInTheDocument()
   })
 
-  it('tier 4 renders pill text "Super Hero"', () => {
+  it('tier 4 renders pill text "Legend Hero" (corrected from Super Hero)', () => {
     render(<FeedCardTierBadge tier={4} />)
-    expect(screen.getByText('Super Hero')).toBeInTheDocument()
+    expect(screen.getByText('Legend Hero')).toBeInTheDocument()
   })
 
   it('tier 1 has accessible aria-label containing tier name', () => {
@@ -35,9 +39,9 @@ describe('FeedCardTierBadge', () => {
     expect(screen.getByLabelText(/Tier: New Hero/i)).toBeInTheDocument()
   })
 
-  it('tier 3 has accessible aria-label containing tier name', () => {
+  it('tier 3 has accessible aria-label "Tier: Super Hero" (corrected)', () => {
     render(<FeedCardTierBadge tier={3} />)
-    expect(screen.getByLabelText(/Tier: Legend Hero/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Tier: Super Hero/i)).toBeInTheDocument()
   })
 
   it('renders no SVG stars — pill is text only', () => {

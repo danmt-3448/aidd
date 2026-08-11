@@ -15,7 +15,8 @@ const BASE_CARD: FeedCardProps = {
   heartCount: 5,
   likedByMe: false,
   createdAt: '2026-08-04T08:00:00Z',
-  hashtags: ['#ThanhOm'],
+  // Tags stored WITHOUT leading '#' — HashtagRow prepends '#' when rendering
+  hashtags: ['ThanhOm'],
 }
 
 describe('BoardFeedCard', () => {
@@ -328,6 +329,7 @@ describe('BoardFeedCard', () => {
   })
 
   it('renders tier badge when receiverTier is provided', () => {
+    // Tier 3 = Super Hero per corrected spec (kudo-card-tier-hover-spec-260811.md §1)
     render(
       <BoardFeedCard
         {...BASE_CARD}
@@ -337,7 +339,7 @@ describe('BoardFeedCard', () => {
         onOpenProfile={vi.fn()}
       />,
     )
-    expect(screen.getByLabelText(/Tier: Legend Hero/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Tier: Super Hero/i)).toBeInTheDocument()
   })
 
   it('does not render image gallery when imageUrls is empty', () => {
@@ -366,16 +368,17 @@ describe('BoardFeedCard', () => {
   })
 
   it('truncates hashtags beyond 5 and shows overflow badge', () => {
+    // Tags stored WITHOUT '#' — HashtagRow prepends '#' when rendering.
     render(
       <BoardFeedCard
         {...BASE_CARD}
-        hashtags={['#A', '#B', '#C', '#D', '#E', '#F', '#G']}
+        hashtags={['A', 'B', 'C', 'D', 'E', 'F', 'G']}
         onToggleHeart={vi.fn()}
         onCopyLink={vi.fn()}
         onOpenProfile={vi.fn()}
       />,
     )
-    // First 5 shown
+    // First 5 shown with '#' prefix added by HashtagRow
     expect(screen.getByText('#A')).toBeInTheDocument()
     expect(screen.getByText('#E')).toBeInTheDocument()
     // 6th and 7th hidden; overflow badge "+2" shown

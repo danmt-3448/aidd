@@ -37,7 +37,7 @@ export const MOCK_FEED_CARDS: FeedCardProps[] = [
     heartCount: 1000,
     likedByMe: false,
     createdAt: '2026-08-04T08:30:00Z',
-    hashtags: ['#ThanhOm', '#Teamwork', '#SunAnnualAwards'],
+    hashtags: ['ThanhOm', 'Teamwork', 'SunAnnualAwards'],
     kudoTitle: 'IDOL GIỚI TRẺ',
     senderDepartment: 'CEVC10',
     receiverDepartment: 'CEVC10',
@@ -58,7 +58,7 @@ export const MOCK_FEED_CARDS: FeedCardProps[] = [
     heartCount: 880,
     likedByMe: true,
     createdAt: '2026-08-04T09:15:00Z',
-    hashtags: ['#Mentor', '#KnowledgeSharing', '#ThanhOm'],
+    hashtags: ['Mentor', 'KnowledgeSharing', 'ThanhOm'],
     kudoTitle: 'NGƯỜI THẦY TỐT',
     senderDepartment: 'CEDN01',
     receiverDepartment: 'CEDN02',
@@ -79,7 +79,7 @@ export const MOCK_FEED_CARDS: FeedCardProps[] = [
     heartCount: 1560,
     likedByMe: false,
     createdAt: '2026-08-04T10:00:00Z',
-    hashtags: ['#CodeQuality', '#ThanhOm', '#Mentor'],
+    hashtags: ['CodeQuality', 'ThanhOm', 'Mentor'],
     kudoTitle: 'CODE MASTER',
     senderDepartment: 'CEVC10',
     receiverDepartment: 'CEDN03',
@@ -100,7 +100,7 @@ export const MOCK_FEED_CARDS: FeedCardProps[] = [
     heartCount: 640,
     likedByMe: false,
     createdAt: '2026-08-04T10:45:00Z',
-    hashtags: ['#Design', '#Teamwork', '#PixelPerfect'],
+    hashtags: ['Design', 'Teamwork', 'PixelPerfect'],
     kudoTitle: 'DESIGN STAR',
     senderDepartment: 'CEDN04',
     receiverDepartment: 'CEDN05',
@@ -120,7 +120,7 @@ export const MOCK_FEED_CARDS: FeedCardProps[] = [
 export const MOCK_HIGHLIGHT_CARDS: FeedCardProps[] = MOCK_FEED_CARDS.slice(0, 4).map((c) => ({
   ...c,
   kudoTitle: 'IDOL GIỚI TRẺ',
-  hashtags: ['#Dedicated', '#Inspiring', '#Teamwork', '#SunAnnualAwards'],
+  hashtags: ['Dedicated', 'Inspiring', 'Teamwork', 'SunAnnualAwards'],
 }))
 
 // ── Hashtags derived from feed ───────────────────────────────────────────────

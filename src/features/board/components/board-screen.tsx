@@ -51,6 +51,16 @@ export interface BoardScreenProps {
   onOpenSecretBox: () => void
   /** Forwarded from resolved.feedLoading — spotlight shows spinner when true */
   isLoading?: boolean
+  /** Pagination for All Kudos feed — drives the in-container Load More button. */
+  hasNextPage?: boolean
+  isFetchingNextPage?: boolean
+  onLoadMore?: () => void
+  /**
+   * Resolved uid from server — passed to KudoComposeModal so the image uploader
+   * is never blocked by the async useCurrentUserId() resolution gap.
+   * Also threaded to feed/carousel so the pencil icon appears only on own kudos.
+   */
+  resolvedUserId?: string
   /**
    * Dev/test harness only — pre-open the KudoComposeModal on mount.
    * Passed as a prop so the query-param logic lives in the calling wrapper
@@ -58,6 +68,11 @@ export interface BoardScreenProps {
    * Defaults to false; ignored in production builds.
    */
   initialComposeOpen?: boolean
+  /**
+   * Called when the pencil edit icon is clicked on an own kudo.
+   * Placeholder no-op is fine until the edit-kudo feature lands.
+   */
+  onEdit?: (kudoId: string) => void
 }
 
 export function BoardScreen({
@@ -79,7 +94,12 @@ export function BoardScreen({
   onOpenProfile,
   onOpenSecretBox,
   isLoading = false,
+  hasNextPage = false,
+  isFetchingNextPage = false,
+  onLoadMore,
+  resolvedUserId,
   initialComposeOpen = false,
+  onEdit,
 }: BoardScreenProps) {
   const [composeOpen, setComposeOpen] = useState(initialComposeOpen)
   const [spotlightSearch, setSpotlightSearch] = useState('')
@@ -131,6 +151,8 @@ export function BoardScreen({
             onToggleHeart={onToggleHeart}
             onCopyLink={handleCopyLink}
             onOpenProfile={onOpenProfile}
+            currentUserId={resolvedUserId}
+            onEdit={onEdit}
           />
         </div>
 
@@ -154,9 +176,14 @@ export function BoardScreen({
           <div className="min-w-0 flex-1">
             <BoardAllKudosFeed
               cards={feed}
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              onLoadMore={onLoadMore}
               onToggleHeart={onToggleHeart}
               onCopyLink={handleCopyLink}
               onOpenProfile={onOpenProfile}
+              currentUserId={resolvedUserId}
+              onEdit={onEdit}
             />
           </div>
 
@@ -175,7 +202,10 @@ export function BoardScreen({
       <HomepageFooter />
 
       {composeOpen && (
-        <KudoComposeModal onClose={() => setComposeOpen(false)} />
+        <KudoComposeModal
+          onClose={() => setComposeOpen(false)}
+          resolvedUserId={resolvedUserId}
+        />
       )}
     </div>
   )
