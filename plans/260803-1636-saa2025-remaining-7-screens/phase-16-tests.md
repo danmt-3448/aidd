@@ -86,6 +86,12 @@ spec_source: momorph:8PJQswPZmU, momorph:zFYDgyj_pD, momorph:b1Filzi9i6, momorph
 ## Security Considerations
 - Tests are the enforcement proof for every § security invariant across phases 01/03/04/05/06.
 
+## Remaining e2e-debt (gộp từ 260811-0806, 2026-08-11)
+Phát hiện khi chạy e2e prod-build cho kudo-like API hardening. **Không phải bug sản phẩm** — spec e2e lệch môi trường. Chạy `next build && next start` + local Supabase + set `event_config.event_start_at` về quá khứ (kẻo pre-launch redirect countdown).
+- [ ] **`e2e/viet-kudo.spec.ts` ID-2..ID-33 fail** — spec mong `/kudos` render compose-modal inline, nhưng **prod `/kudos` redirect `/board`** (`src/app/kudos/page.tsx:31`). Fix: điều hướng `/board?modal=compose` (prod mở modal qua `initialComposeOpen`), hoặc chạy specs trên dev + xử lý Turbopack-hydration (memory `ui-gate-turbopack-headless-hydration`). Helper `openModal(page)` cần cập nhật.
+- [ ] **`e2e/board.spec.ts` TC-BOARD-02 (KV banner) fail** — UI-render, component `board-kv-banner.tsx` (đổi lần cuối `0e7a3f2`). Rà selector/điều kiện render.
+- Bằng chứng: `plans/260811-0806-kudo-like-api-hardening/reports/e2e-verdict-260811-ship.md` + `e2e-260811-board-vietkudo.log`. Like e2e (TC-BOARD-08/09) XANH — chỉ 2 nhóm trên đỏ.
+
 ## Next Steps
 - Green suite → Review + security audit (17).
 

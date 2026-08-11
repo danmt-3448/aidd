@@ -61,11 +61,16 @@ API cũ đã có nhưng "ko ổn". Audit + spec MoMorph đã xác định lỗ t
 - 07 integration+tests ở cuối (UI đã qua gate → integrate + test ngay).
 
 ## Definition of Done
-- toggle_heart: double-click không lỗi · self-like báo P-code thân thiện · 1 round-trip · count đúng.
-- Special-day: 1 nguồn multiplier · unlike trừ đúng weight (ranking query-time).
-- Realtime: user khác like → count cập nhật live (không cần reload).
-- create_kudo: receiver không tồn tại → P0007 thân thiện (không rò FK thô) · ảnh fail → cleanup.
-- Không rò lỗi Postgres thô · sender masking giữ nguyên · Unit + E2E pass.
+- toggle_heart: double-click không lỗi · self-like báo P-code thân thiện · 1 round-trip · count đúng. ✅
+- Special-day: 1 nguồn multiplier · unlike trừ đúng weight (ranking query-time). ✅
+- create_kudo: receiver không tồn tại → P0007 thân thiện (không rò FK thô) · ảnh fail → cleanup. ✅
+- Không rò lỗi Postgres thô · sender masking giữ nguyên · Unit pass (159/159) · like e2e xanh. ✅
+- ~~Realtime user khác like → count live~~ → đã có sẵn (feed channel INSERT+DELETE, verified).
+
+## Trạng thái đóng (2026-08-11)
+**Core 2 ticket DONE + pushed** (`668f2f2`). Verify: runtime SQL + unit 159/159 + like e2e xanh (`reports/e2e-verdict-260811-ship.md`).
+- **E2E-debt carve-out (KHÔNG thuộc plan này):** `viet-kudo.spec` (prod `/kudos`→`/board` redirect) + board `TC-BOARD-02` KV-banner đỏ — là test-harness/UI debt có sẵn, **đã GỘP sang `260803-1636` phase-16** (e2e-owner). Không phải diff của plan này.
+- **Còn lại (defer/optional, không chặn đóng):** P03 liked_by_me server-side (perf/privacy, defer) · P05 kudo detail (optional, chưa có plan khác) · confirm sender-vs-receiver (đang theo receiver).
 
 ## Handoff
 Validate: Plan Reviewer (`/tkm:predict-risks`). Execute: `/tkm:takumi plans/260811-0806-kudo-like-api-hardening/plan.md`.

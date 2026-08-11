@@ -13,7 +13,7 @@ Build the 7 spec-ready, unbuilt web pages. **MoMorph two-track:** Track A (UI, o
 fully parallel to Track B (backend/logic). Integration is the ONLY cross-track merge point.
 
 > **Trạng thái (2026-08-11):** Track A (UI 08–14) ✅ · Track B (01–07) ✅ · Integration (15) ✅ · Review (17) ✅.
-> `in_progress` **chỉ vì test-tail**: phase 16 (E2E — còn `homepage.spec` selector rewrite + re-enable profile skips) và
+> `in_progress` **chỉ vì test-tail**: phase 16 (E2E — còn `homepage.spec` selector rewrite + re-enable profile skips + `viet-kudo.spec` prod-redirect fix + board KV-banner TC-BOARD-02) và
 > phase 07b seed (planned). UI đã done — các màn PASS UI-First Gate ở `260806-0711-ui-pixel-parity-fix`.
 
 - **fileKey:** `9ypp4enmFmdK3YAFJLIu6C` · **Recon:** `plans/reports/check-progress-260803-1636-remaining-screens.md`
@@ -41,7 +41,7 @@ fully parallel to Track B (backend/logic). Integration is the ONLY cross-track m
 | 13 | [UI · Profile](phase-13-ui-profile.md) | A·UI | completed | — |
 | 14 | [UI · Secret box](phase-14-ui-secret-box.md) | A·UI | completed | — |
 | 15 | [Integration (UI ↔ backend)](phase-15-integration.md) | A+B | completed (all 7 screens wired: Homepage bell/admin/countdown+root`/`public · Live board feed/heart/spotlight/realtime · Profile self/other+404 guard. Board sidebar userStats/leaderboards deferred-honest→p05 follow-up) | 01–14 |
-| 16 | [Tests (Vitest + Playwright)](phase-16-tests.md) | test | mostly done (336 unit pass·tsc clean; E2E harness fixed=scoped public/authed/admin; board 14/14·profile core+404·countdown/login/awards/rules/secretbox green. Remaining: homepage.spec selector rewrite + re-enable profile skips post bug1/2 fix) | 15 |
+| 16 | [Tests (Vitest + Playwright)](phase-16-tests.md) | test | mostly done (336 unit pass·tsc clean; E2E harness scoped public/authed/admin; profile core+404·countdown/login/awards/rules/secretbox green. **Remaining e2e-debt:** homepage.spec selector rewrite · re-enable profile skips · **viet-kudo.spec prod-redirect fix** (`/kudos`→`/board`, dùng `?modal=compose` thay vì mong /kudos render modal) · **board TC-BOARD-02 KV-banner** render. Gộp từ 260811-0806 2026-08-11.) | 15 |
 | 17 | [Review + security audit + docs](phase-17-review-docs.md) | review | completed (Homepage·Live board·Profile all reviewed + findings fixed: C-1 board refuted[Next16 proxy], H1 profile cursor-injection, dicebear cfg, profile?id 404[zod .uuid→.guid]. Docs pending) | 16 |
 
 ## Key dependencies
