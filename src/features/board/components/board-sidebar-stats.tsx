@@ -145,7 +145,7 @@ export function StatsCard({ stats, onOpenSecretBox }: StatsCardProps) {
       <StatRow
         icon={Flame}
         iconColor="#FF6B35"
-        label="Số tim bạn nhận được:"
+        label="Số tim đạt được:"
         value={stats.heartsReceived}
         showX2Badge
       />

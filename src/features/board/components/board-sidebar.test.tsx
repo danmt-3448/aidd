@@ -39,7 +39,7 @@ describe('BoardSidebar', () => {
     )
     expect(screen.getByLabelText(/12 Số Kudos bạn nhận được/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/8 Số Kudos bạn đã gửi/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/47 Số tim bạn nhận được/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/47 Số tim đạt được/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/3 Số Secret Box bạn đã mở/i)).toBeInTheDocument()
   })
 

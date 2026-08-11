@@ -14,7 +14,7 @@
  * Rows:
  *   1. Số Kudos bạn nhận được:    (received)
  *   2. Số Kudos bạn đã gửi:      (sent — hidden when sent === null)
- *   3. Số tim bạn nhận được:     (hearts)
+ *   3. Số tim đạt được:          (hearts — tim mà kudo người dùng gửi nhận được)
  *   ── divider ──
  *   4. Số box đã mở:             (boxesOpened)
  *   5. Số box chưa mở:          (boxesRemaining) + disabled "Mở quà" button
@@ -124,9 +124,9 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
           />
         )}
 
-        {/* Row 3: Số tim bạn nhận được */}
+        {/* Row 3: Số tim đạt được (tim mà kudo người dùng GỬI nhận được — spec C.4.1) */}
         <StatRow
-          label="Số tim bạn nhận được:"
+          label="Số tim đạt được:"
           value={hearts}
           labelNodeId="I362:5078;256:6735"
           valueNodeId="I362:5078;256:6753"
