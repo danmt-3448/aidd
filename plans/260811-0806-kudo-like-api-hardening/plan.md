@@ -28,13 +28,20 @@ API cũ đã có nhưng "ko ổn". Audit + spec MoMorph đã xác định lỗ t
 
 | # | Phase | Track | Scope | Status | blockedBy |
 |---|-------|-------|-------|--------|-----------|
-| 01 | [toggle_heart RPC (atomic idempotent)](phase-01-toggle-heart-rpc.md) | B·Like | **core — bug thật (race)** | pending | — |
-| 02 | [Special-day weighted `hearts_received` (REAL FIX)](phase-02-special-day-multiplier.md) | B·Like | **core — bug thật (đếm phẳng)** | pending | 01 |
-| 03 | [`liked_by_me`/count server-side (privacy+perf)](phase-03-realtime-hearts-count.md) | B·Like | core (SHRUNK — realtime đã đúng) | pending | 01 |
-| 04 | [create_kudo: receiver check + orphan-image cleanup](phase-04-create-kudo-hardening.md) | B·Viết | **core — gap thật** | pending | — |
-| 05 | [get_kudo_detail RPC + /kudos/[id]](phase-05-kudo-detail.md) | B·adjacent | **OPTIONAL** | pending | 03 |
-| 06 | [Feed filter: hashtag + phòng ban (VERIFY-only)](phase-06-feed-filter.md) | B·adjacent | **VERIFY (đã wire) → likely CUT** | pending | 03 |
-| 07 | [Integration + tests (unit + e2e)](phase-07-integration-tests.md) | test | core | pending | 01–04 |
+| 01 | [toggle_heart RPC (atomic idempotent)](phase-01-toggle-heart-rpc.md) | B·Like | core — bug race | ✅ **DONE (runtime-verified)** | — |
+| 02 | [Special-day weighted `hearts_received`](phase-02-special-day-multiplier.md) | B·Like | core — bug đếm phẳng | ✅ **DONE (runtime-verified)** | 01 |
+| 03 | [`liked_by_me`/count server-side (privacy+perf)](phase-03-realtime-hearts-count.md) | B·Like | perf/privacy (KHÔNG phải correctness) | ⏸ **DEFERRED** | 01 |
+| 04 | [create_kudo: receiver check + orphan-image cleanup](phase-04-create-kudo-hardening.md) | B·Viết | core — gap | ✅ **DONE (runtime-verified)** | — |
+| 05 | [get_kudo_detail RPC + /kudos/[id]](phase-05-kudo-detail.md) | B·adjacent | **OPTIONAL** | pending (chờ user) | 03 |
+| 06 | [Feed filter: hashtag + phòng ban](phase-06-feed-filter.md) | B·adjacent | VERIFY (đã wire) | ✅ verified có sẵn → CUT | 03 |
+| 07 | [Integration + tests](phase-07-integration-tests.md) | test | unit only (no e2e) | ✅ unit 159/159 + tsc | 01–04 |
+
+## Flow thực tế khi implement (API ↔ FE) — cập nhật 2026-08-11
+**Điểm mấu chốt: 3 fix là SEAM backend mà FE đã gọi sẵn → KHÔNG sửa .tsx → KHÔNG đụng UI → không cần ui-gate.**
+- **P01** `toggle_heart` RPC ← `heart-actions.ts:toggleHeart` (return `{liked,heartCount}` giữ nguyên) ← `use-toggle-heart.ts` (FE, không đổi).
+- **P02** `profile_stats.hearts_received` weighted ← sidebar "Số tim nhận" D.1.4 đọc view (không đổi FE, số tự đúng).
+- **P04** `create_kudo` +P0007 ← `kudo-actions.ts:createKudo` (P0007→field `receiverId`, orphan cleanup bucket `kudo-images`) ← `use-create-kudo.ts` (FE, không đổi).
+- Migrations mới: `20260811010000` toggle_heart · `20260811020000` create_kudo receiver · `20260811030000` weighted hearts_received (+ `event_config.hearts_special_multiplier=2`).
 
 ## Correctness verify — "đã có" KHÔNG có nghĩa "đúng" (bằng chứng)
 | Mảnh đã có | Đúng? |
