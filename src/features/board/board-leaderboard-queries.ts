@@ -93,10 +93,13 @@ export async function getGiftLeaderboard(): Promise<GetGiftLeaderboardResult> {
 // Reads from kudos_public (sender masking preserved inside the RPC).
 // ---------------------------------------------------------------------------
 
+// .guid() accepts any 8-4-4-4-12 hex UUID (version-0 seed ids, v4 prod ids).
+// .uuid() in Zod v4 enforces RFC version/variant bytes and rejects seed UUIDs
+// like 'aaaaaaaa-0000-…'.
 const spotlightRpcSchema = z.object({
   hashtagId: z
     .string()
-    .uuid({ message: 'hashtagId phải là UUID hợp lệ' })
+    .guid({ message: 'hashtagId phải là UUID hợp lệ' })
     .nullable()
     .optional(),
 })

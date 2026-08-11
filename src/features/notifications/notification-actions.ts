@@ -34,14 +34,16 @@ export interface NotificationCursor {
 // Input schemas
 // ---------------------------------------------------------------------------
 
-const uuidSchema = z.string().uuid({ message: 'id phải là UUID hợp lệ' })
+// .guid() accepts any 8-4-4-4-12 hex UUID (version-0 seed ids, v4 prod ids).
+// .uuid() in Zod v4 enforces RFC version/variant bytes and rejects seed UUIDs.
+const uuidSchema = z.string().guid({ message: 'id phải là UUID hợp lệ' })
 
 const listSchema = z.object({
   limit: z.number().int().min(1).max(100).default(20),
   cursor: z
     .object({
       createdAt: z.string().datetime({ message: 'cursor.createdAt phải là ISO8601 hợp lệ' }),
-      id: z.string().uuid({ message: 'cursor.id phải là UUID hợp lệ' }),
+      id: z.string().guid({ message: 'cursor.id phải là UUID hợp lệ' }),
     })
     .nullable()
     .optional(),

@@ -54,15 +54,25 @@ describe('HomepageHero', () => {
       expect(screen.getByTestId('led-block-phút')).toHaveTextContent('05 PHÚT')
     })
 
-    it('ID-12: displays "Coming soon" label (MoMorph spec B1.2 spelling)', () => {
+    it('ID-12: displays "Coming soon" label when event has not started (done: false)', () => {
       render(
         <HomepageHero
-          countdown={{ days: 0, hours: 0, minutes: 0 }}
+          countdown={{ days: 0, hours: 0, minutes: 0, done: false }}
         />
       )
 
       const label = screen.getByText('Coming soon')
       expect(label).toBeInTheDocument()
+    })
+
+    it('ID-42: hides "Coming soon" label when event has started (done: true)', () => {
+      render(
+        <HomepageHero
+          countdown={{ days: 0, hours: 0, minutes: 0, done: true }}
+        />
+      )
+
+      expect(screen.queryByText('Coming soon')).not.toBeInTheDocument()
     })
 
     it('renders aria-label for timer with Vietnamese text', () => {

@@ -9,7 +9,11 @@
  *   Kudo title: center-aligned + PencilIcon on the right (visual only, no edit wiring).
  *   Content body: wrapped in a box with darker cream bg (#FFF4D6) + bold font-weight.
  *   Timestamp: "HH:MM - DD/MM/YYYY" format, gray, left-aligned.
- *   Footer: ❤ count (left) + Copy Link (right); "Xem chi tiết" removed (not in Figma feedback).
+ *   Footer: ❤ count (left) + Copy Link (right).
+ *
+ * Highlight variant additions (pass 4):
+ *   - Cards hug content (no fixed height / space-between stretch).
+ *   - "Xem chi tiết ↗" action appended after Copy Link (highlight only).
  *
  * Existing Figma-sourced tokens (MoMorph MCP D1/D2, unchanged):
  *   Card bg #FFF8E1 · highlight border 4px solid #FFEA9E · radius 16/24px
@@ -58,6 +62,12 @@ export interface BoardFeedCardProps extends FeedCardProps {
    * Placeholder no-op is acceptable until the edit-kudo feature lands.
    */
   onEdit?: (kudoId: string) => void
+  /**
+   * Highlight variant only — called when "Xem chi tiết ↗" is clicked.
+   * No-op / undefined is acceptable until a detail route lands; the button
+   * still renders so the Figma footer is complete.
+   */
+  onViewDetail?: (kudoId: string) => void
 }
 
 export function BoardFeedCard({
@@ -85,6 +95,7 @@ export function BoardFeedCard({
   variant = 'feed',
   currentUserId,
   onEdit,
+  onViewDetail,
 }: BoardFeedCardProps) {
   const isHighlight = variant === 'highlight'
   const t = useTranslations('board')
@@ -100,12 +111,9 @@ export function BoardFeedCard({
         border: isHighlight ? '4px solid #FFEA9E' : 'none',
         borderRadius: isHighlight ? 16 : 24,
         padding: isHighlight ? '24px 24px 16px 24px' : '40px 40px 16px 40px',
-        /* Highlight variant fills the fixed 525px carousel slide (Figma node 2940:13465)
-           so every card is uniform height; content distributes top→bottom (person / message
-           / actions) via space-between. Feed variant hugs content — no forced height
-           (Figma 3127:21871 h=749 was a rich card; sparse cards are naturally shorter). */
-        height: isHighlight ? '100%' : undefined,
-        justifyContent: isHighlight ? 'space-between' : undefined,
+        /* Cards hug content in both variants — Figma highlight cards are compact,
+           not stretched. The 525px fixed height was the tallest (gallery) card and
+           caused empty gaps on sparse cards. Feed variant was always hug-content. */
       }}
       aria-label={`Kudo từ ${senderName} đến ${receiverName}`}
     >
@@ -212,7 +220,7 @@ export function BoardFeedCard({
       {/* Hashtag chips — max 5, overflow badge */}
       <HashtagRow tags={hashtags} />
 
-      {/* Action row — heart (left) + copy link (right) per Figma feedback */}
+      {/* Action row — heart (left) + copy link + optional "Xem chi tiết" (right) */}
       <div className="flex items-center gap-4 pt-1">
         {/* Heart + count — number bold black, heart red per Figma feedback */}
         <button
@@ -251,6 +259,38 @@ export function BoardFeedCard({
           <LinkIcon />
           <span>{t('copyLink')}</span>
         </button>
+
+        {/* "Xem chi tiết ↗" — Figma highlight footer action (highlight variant only).
+            No detail route yet; onViewDetail is a no-op placeholder until route lands. */}
+        {isHighlight && (
+          <button
+            type="button"
+            onClick={() => onViewDetail?.(id)}
+            aria-label="Xem chi tiết kudo"
+            className="flex items-center gap-1 transition-opacity hover:opacity-70"
+            style={{
+              color: '#92400E',
+              fontFamily: montserrat.style.fontFamily,
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            <span>Xem chi tiết</span>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="M7 17L17 7M17 7H7M17 7v10" />
+            </svg>
+          </button>
+        )}
       </div>
     </article>
   )

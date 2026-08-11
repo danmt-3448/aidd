@@ -83,3 +83,7 @@ plans/reports/_gate-ref/**/*.jpg
 plans/reports/_gate-ref/**/*.jpeg
 *-actual.png
 *-verify.png
+
+# UI-gate/screenshot evidence PNGs (regenerable, heavy) — keep reports, not binaries
+plans/**/evidence/screenshots/
+plans/reports/_gate-ref/*.png

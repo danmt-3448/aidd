@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   createKudoSchema,
+  updateKudoSchema,
   contentHtmlSchema,
   hashtagIdsSchema,
   imagePathsSchema,
@@ -284,5 +285,106 @@ describe('countContentChars', () => {
 
   it('returns 0 for tags-only HTML', () => {
     expect(countContentChars('<p><br></p>')).toBe(0)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// updateKudoSchema — happy path + failure paths
+// ---------------------------------------------------------------------------
+
+const VALID_UUID_UPDATE = '550e8400-e29b-41d4-a716-446655440000'
+const VALID_UUID_TAG_U  = '6ba7b810-9dad-41d4-80b4-00c04fd430c8'
+
+const VALID_UPDATE_INPUT = {
+  kudoId:      VALID_UUID_UPDATE,
+  contentHtml: '<p>Updated content</p>',
+  danhHieu:    'Người cải tiến tiên phong',
+  hashtagIds:  [VALID_UUID_TAG_U],
+  imagePaths:  [],
+}
+
+describe('updateKudoSchema — valid input', () => {
+  it('accepts a complete valid update input', () => {
+    const result = updateKudoSchema.safeParse(VALID_UPDATE_INPUT)
+    expect(result.success).toBe(true)
+  })
+
+  it('defaults imagePaths to [] when omitted', () => {
+    const { imagePaths: _, ...withoutImages } = VALID_UPDATE_INPUT
+    const result = updateKudoSchema.safeParse(withoutImages)
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.imagePaths).toEqual([])
+  })
+
+  it('accepts up to 5 hashtag IDs', () => {
+    const ids = Array.from({ length: 5 }, (_, i) =>
+      `00000000-0000-0000-0000-00000000000${i + 1}`,
+    )
+    const result = updateKudoSchema.safeParse({ ...VALID_UPDATE_INPUT, hashtagIds: ids })
+    expect(result.success).toBe(true)
+  })
+})
+
+describe('updateKudoSchema — invalid input', () => {
+  it('rejects missing kudoId', () => {
+    const { kudoId: _, ...rest } = VALID_UPDATE_INPUT
+    const result = updateKudoSchema.safeParse(rest)
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects non-UUID kudoId', () => {
+    const result = updateKudoSchema.safeParse({ ...VALID_UPDATE_INPUT, kudoId: 'not-a-uuid' })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects empty contentHtml', () => {
+    const result = updateKudoSchema.safeParse({ ...VALID_UPDATE_INPUT, contentHtml: '' })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects empty danhHieu', () => {
+    const result = updateKudoSchema.safeParse({ ...VALID_UPDATE_INPUT, danhHieu: '' })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects zero hashtags', () => {
+    const result = updateKudoSchema.safeParse({ ...VALID_UPDATE_INPUT, hashtagIds: [] })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects more than 5 hashtags', () => {
+    const ids = Array.from({ length: 6 }, (_, i) =>
+      `00000000-0000-0000-0000-00000000000${i + 1}`,
+    )
+    const result = updateKudoSchema.safeParse({ ...VALID_UPDATE_INPUT, hashtagIds: ids })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects more than 5 image paths', () => {
+    const paths = Array.from({ length: 6 }, (_, i) => `path/img-${i}.jpg`)
+    const result = updateKudoSchema.safeParse({ ...VALID_UPDATE_INPUT, imagePaths: paths })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects danhHieu over 200 characters', () => {
+    const result = updateKudoSchema.safeParse({
+      ...VALID_UPDATE_INPUT,
+      danhHieu: 'x'.repeat(201),
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('note: update schema has no receiverId field (receiver cannot change on edit)', () => {
+    // Passing receiverId is silently stripped by Zod (unknown key) — it does NOT
+    // cause a parse failure (strict mode not enabled on this schema by design).
+    const result = updateKudoSchema.safeParse({
+      ...VALID_UPDATE_INPUT,
+      receiverId: VALID_UUID_TAG_U,
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      // @ts-expect-error — receiverId is not in the schema output type
+      expect(result.data.receiverId).toBeUndefined()
+    }
   })
 })

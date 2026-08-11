@@ -17,13 +17,34 @@ export interface BoardKudoRow {
   senderId: string | null
   senderName: string
   senderAvatarUrl: string | null
+  /** Sender's department short name (e.g. "CEVC10"). Null when anonymous. */
+  senderDepartment: string | null
+  /**
+   * Sender's tier (1–4) by distinct-sender count to the sender.
+   * null when anonymous or sender has no received kudos yet.
+   */
+  senderTier: 1 | 2 | 3 | 4 | null
   receiverId: string
   receiverName: string
   receiverAvatarUrl: string | null
+  /** Receiver's department short name (e.g. "CEVC10"). */
+  receiverDepartment: string | null
+  /**
+   * Receiver's tier (1–4) by distinct-sender count to the receiver.
+   * null when receiver has 0 distinct senders.
+   */
+  receiverTier: 1 | 2 | 3 | 4 | null
   contentHtml: string
   createdAt: string
   heartCount: number
   likedByMe: boolean
+  /** Hashtag display names attached to this kudo. Empty array when none. */
+  hashtags: string[]
+  /**
+   * Kudo title / danh hiệu, e.g. "IDOL GIỚI TRẺ".
+   * Null when not set (legacy kudos before the danh_hieu column was added).
+   */
+  kudoTitle: string | null
 }
 
 /**
@@ -51,7 +72,10 @@ export interface BoardCursor {
 // Input schemas
 // ---------------------------------------------------------------------------
 
-const uuidSchema = z.string().uuid({ message: 'id phải là UUID hợp lệ' })
+// .guid() accepts any 8-4-4-4-12 hex UUID (version-0 seed ids, v4 prod ids).
+// .uuid() in Zod v4 enforces RFC version/variant bytes and rejects seed UUIDs
+// like 'dddddddd-0000-…'. Profile queries use the same pattern.
+const uuidSchema = z.string().guid({ message: 'id phải là UUID hợp lệ' })
 
 const listBoardKudosSchema = z.object({
   cursor: z
@@ -122,6 +146,8 @@ export async function getHighlightKudos(): Promise<HighlightKudosResult> {
     // Replaces the former 2000-row select + JS sort.
     // The RPC applies the same anonymous-sender mask as kudos_public and
     // computes liked_by_me using auth.uid() inside the security-definer function.
+    // Migration 20260811090000 added: sender_department, sender_tier,
+    // receiver_department, receiver_tier, danh_hieu, hashtags (text[]).
     type RpcRow = {
       id: string
       receiver_id: string | null
@@ -131,11 +157,17 @@ export async function getHighlightKudos(): Promise<HighlightKudosResult> {
       sender_id: string | null
       sender_name: string | null
       sender_avatar_url: string | null
+      sender_department: string | null
+      sender_tier: number | null
       receiver_name: string | null
       receiver_avatar_url: string | null
+      receiver_department: string | null
+      receiver_tier: number | null
       heart_count: number
       weighted_score: number
       liked_by_me: boolean
+      danh_hieu: string | null
+      hashtags: string[] | null
     }
 
     const { data: rows, error } = await supabase.rpc('get_highlight_kudos', {
@@ -148,18 +180,29 @@ export async function getHighlightKudos(): Promise<HighlightKudosResult> {
       return { error: 'Không thể tải nổi bật. Vui lòng thử lại.' }
     }
 
+    const toTier = (v: number | null): 1 | 2 | 3 | 4 | null => {
+      if (v === 1 || v === 2 || v === 3 || v === 4) return v
+      return null
+    }
+
     const top5: BoardKudoRow[] = ((rows ?? []) as RpcRow[]).map((r) => ({
       id: r.id,
       senderId: r.sender_id,
       senderName: r.sender_name ?? 'Ẩn danh',
       senderAvatarUrl: r.sender_avatar_url,
+      senderDepartment: r.sender_department,
+      senderTier: toTier(r.sender_tier),
       receiverId: r.receiver_id ?? '',
       receiverName: r.receiver_name ?? '',
       receiverAvatarUrl: r.receiver_avatar_url,
+      receiverDepartment: r.receiver_department,
+      receiverTier: toTier(r.receiver_tier),
       contentHtml: r.content_html,
       createdAt: r.created_at,
       heartCount: Number(r.heart_count),
       likedByMe: r.liked_by_me,
+      hashtags: Array.isArray(r.hashtags) ? r.hashtags : [],
+      kudoTitle: r.danh_hieu,
     }))
 
     return { data: top5 }
@@ -226,18 +269,24 @@ export async function listBoardKudos(
     //   OR (created_at = cursor.createdAt AND id < cursor.id)
 
     type HeartRow = { user_id: string; is_special_day: boolean }
+    type HashtagJoinRow = { hashtag_id: string; hashtags: { name: string } | null }
     type RawRow = {
       id: string
       sender_id: string | null
       sender_name: string | null
       sender_avatar_url: string | null
+      sender_department: string | null
+      sender_tier: number | null
       receiver_id: string | null
       receiver_name: string | null
       receiver_avatar_url: string | null
+      receiver_department: string | null
+      receiver_tier: number | null
       content_html: string
       created_at: string
+      danh_hieu: string | null
       hearts: HeartRow[]
-      kudo_hashtags?: unknown
+      kudo_hashtags?: HashtagJoinRow[]
       profiles?: unknown
     }
 
@@ -273,10 +322,11 @@ export async function listBoardKudos(
       let q = supabase
         .from('kudos_public')
         .select(
-          `id, sender_id, sender_name, sender_avatar_url,
-           receiver_id, receiver_name, receiver_avatar_url, content_html, created_at,
+          `id, sender_id, sender_name, sender_avatar_url, sender_department, sender_tier,
+           receiver_id, receiver_name, receiver_avatar_url, receiver_department, receiver_tier,
+           content_html, created_at, danh_hieu,
            hearts(user_id, is_special_day),
-           kudo_hashtags!inner(hashtag_id)`,
+           kudo_hashtags!inner(hashtag_id, hashtags(name))`,
         )
         .eq('kudo_hashtags.hashtag_id', hashtagId)
 
@@ -301,9 +351,11 @@ export async function listBoardKudos(
       let q = supabase
         .from('kudos_public')
         .select(
-          `id, sender_id, sender_name, sender_avatar_url,
-           receiver_id, receiver_name, receiver_avatar_url, content_html, created_at,
-           hearts(user_id, is_special_day)`,
+          `id, sender_id, sender_name, sender_avatar_url, sender_department, sender_tier,
+           receiver_id, receiver_name, receiver_avatar_url, receiver_department, receiver_tier,
+           content_html, created_at, danh_hieu,
+           hearts(user_id, is_special_day),
+           kudo_hashtags(hashtag_id, hashtags(name))`,
         )
 
       if (receiverIds !== null) {
@@ -334,20 +386,38 @@ export async function listBoardKudos(
 
     const mapped: BoardKudoRow[] = rows.map((r) => {
       const hearts: HeartRow[] = Array.isArray(r.hearts) ? r.hearts : []
+      const hashtagJoins: HashtagJoinRow[] = Array.isArray(r.kudo_hashtags) ? r.kudo_hashtags : []
+      const hashtags = hashtagJoins
+        .map((h) => h.hashtags?.name)
+        .filter((name): name is string => typeof name === 'string' && name.length > 0)
+
+      // Tier values arrive as smallint (1|2|3|4) or null from the view.
+      // Cast to the union type; any out-of-range DB value is normalised to null.
+      const toTier = (v: number | null): 1 | 2 | 3 | 4 | null => {
+        if (v === 1 || v === 2 || v === 3 || v === 4) return v
+        return null
+      }
+
       return {
         id: r.id,
         senderId: r.sender_id,
         senderName: r.sender_name ?? 'Ẩn danh',
         senderAvatarUrl: r.sender_avatar_url,
+        senderDepartment: r.sender_department,
+        senderTier: toTier(r.sender_tier),
         receiverId: r.receiver_id ?? '',
         receiverName: r.receiver_name ?? '',
         receiverAvatarUrl: r.receiver_avatar_url,
+        receiverDepartment: r.receiver_department,
+        receiverTier: toTier(r.receiver_tier),
         contentHtml: r.content_html,
         createdAt: r.created_at,
         heartCount: hearts.length,
         likedByMe: uid
           ? hearts.some((h) => h.user_id === uid)
           : false,
+        hashtags,
+        kudoTitle: r.danh_hieu,
       }
     })
 

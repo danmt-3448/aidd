@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { setEventStart, futureEventDate, pastEventDate } from './support/event-config'
 
 const TEST_USER = 'nguyen.van.an@sun-asterisk.com'
 const TEST_PASSWORD = 'TestPass123!'
@@ -14,6 +15,28 @@ async function devLogin(page: import("@playwright/test").Page) {
   await page.getByRole('button', { name: /đăng nhập/i }).click()
   await page.waitForURL('/kudos')
 }
+
+// ── Event isolation ───────────────────────────────────────────────────────────
+//
+// event_config is a shared singleton row. These tests assert the pre-launch /
+// countdown state (timer ticks with a future event_start_at). Without isolation
+// the shared LIVE seed (past date) makes the timer read all-zeros and the
+// pre-launch gate stays off — these tests would fail.
+//
+// beforeAll:  set event_start_at 30 days into the future (pre-launch state ON).
+// afterAll:   restore to 1 day ago (LIVE) so board/profile/kudos suites keep working.
+//
+// Run countdown suite serially (test.describe.configure mode: 'serial') to avoid
+// racing the shared row when other suites run concurrently.
+test.describe.configure({ mode: 'serial' })
+
+test.beforeAll(async () => {
+  await setEventStart(futureEventDate(30))
+})
+
+test.afterAll(async () => {
+  await setEventStart(pastEventDate(1))
+})
 
 test.describe('Countdown Screen (CD-E2E)', () => {
   test('CD-E2E-01: unauth visit to /countdown is redirected to /login by the proxy guard', async ({ page }) => {

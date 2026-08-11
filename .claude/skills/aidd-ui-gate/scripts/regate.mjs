@@ -8,7 +8,7 @@
  * Prints a PASS/FAIL/HELD table. No per-run overrides needed — selmaps + vh live in the config
  * and nodemap/{screen}.selmap.json (auto-loaded by capture-code.mjs).
  *
- * Precondition: dev server up (npm run dev, http://localhost:3001).
+ * Precondition: dev server up (npm run dev, http://localhost:3001) + Supabase local seeded (npm run db:reset) + e2e/.auth/user.json present.
  * Usage: node .claude/skills/aidd-ui-gate/scripts/regate.mjs
  * Exit: 0 all measurable screens PASS · 1 any FAIL · 2 dev server down / config error.
  */
@@ -32,7 +32,7 @@ const out = mkdtempSync(join(tmpdir(), 'regate-'))
 // Dev server up? Hit the first screen route (follow redirects; bare / redirects to auth).
 const probeRoute = (cfg.screens[0]?.route || '/login')
 try {
-  execFileSync('curl', ['-sfL', '-o', '/dev/null', `${base}${probeRoute}?ui_state=full`], { timeout: 8000 })
+  execFileSync('curl', ['-sfL', '-o', '/dev/null', `${base}${probeRoute}`], { timeout: 8000 })
 } catch {
   console.error(`[regate] dev server DOWN at ${base}. Start it: npm run dev`)
   process.exit(2)

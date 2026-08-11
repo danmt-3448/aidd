@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev -p 3001",
+    "dev2": "next dev -p 3002",
     "build": "next build",
     "analyze": "ANALYZE=true next build --webpack",
     "start": "next start",
@@ -14,7 +15,8 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "seed:auth": "node --env-file=.env.local supabase/seed-auth-users.mjs",
-    "db:reset": "supabase db reset && npm run seed:auth"
+    "seed:demo": "psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -X -f supabase/seed-demo-data.sql",
+    "db:reset": "supabase db reset && npm run seed:auth && npm run seed:demo"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

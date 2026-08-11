@@ -4,8 +4,6 @@
  * BoardSpotlight — Figma mms_B.7 (frame 2940:14174, screen MaZUn5xHXZ).
  * mms_B.7.3 search top-left · mms_B.7.1 KUDOS center · mms_B.7.2 pan/zoom reset bottom-right.
  * Canvas 1819px wide (> box) — pan/zoom to explore. Activity log 6 lines bottom-left.
- * States via ?ui_state=full|empty|loading|error.
- *
  * Background: Figma artwork images 2940:14178 / 2940:14181 (cosmic nebula artwork).
  * Asset path: /images/board/spotlight-bg.png (exported via figma MCP get_screenshot).
  * Fallback: dark solid bg so content remains readable if asset not yet downloaded.

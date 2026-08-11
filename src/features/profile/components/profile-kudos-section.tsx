@@ -19,7 +19,7 @@
 
 import { useRef, useCallback } from 'react'
 import { montserrat } from '@/features/auth/fonts'
-import { BoardFeedCard } from '@/features/board/components/board-feed-card'
+import { KudoCard } from '@/features/kudos/components/kudo-card'
 import { ProfileDirectionDropdown } from './profile-direction-dropdown'
 import type { KudosDirection, ProfileFeedItem } from './profile-types'
 
@@ -162,7 +162,7 @@ export function ProfileKudosSection({
         >
           {feedItems.map((item) => (
             /* mm:feed-card-item */
-            <BoardFeedCard
+            <KudoCard
               key={item.id}
               {...item}
               onToggleHeart={onToggleHeart}

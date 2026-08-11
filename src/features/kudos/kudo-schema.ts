@@ -93,6 +93,21 @@ export const createKudoSchema = z
 export type CreateKudoInput = z.infer<typeof createKudoSchema>
 
 // ---------------------------------------------------------------------------
+// Update-kudo input schema
+// Receiver cannot change — only content, danh_hieu, hashtags, and images.
+// ---------------------------------------------------------------------------
+
+export const updateKudoSchema = z.object({
+  kudoId:      kudoIdSchema,
+  contentHtml: contentHtmlSchema,
+  danhHieu:    danhHieuSchema,
+  hashtagIds:  hashtagIdsSchema,
+  imagePaths:  imagePathsSchema,
+})
+
+export type UpdateKudoInput = z.infer<typeof updateKudoSchema>
+
+// ---------------------------------------------------------------------------
 // Helper: count plain-text characters for UI counter
 // ---------------------------------------------------------------------------
 

@@ -32,7 +32,7 @@ export function BoardKvBanner() {
        * on large monitors instead of the artwork zooming up and pushing the dark-left region
        * (which carries the wordmark's contrast) off-screen. At ≤1440 this is a no-op.
        */}
-      <div className="relative mx-auto h-full w-full max-w-[1440px]">
+      <div className="relative mx-auto h-full w-full">
         {/* KV artwork (feathers). Anchored LEFT so the artwork's dark-left stays under the
             wordmark when the stage is narrower than the 1440 image (e.g. 1280). */}
         <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>

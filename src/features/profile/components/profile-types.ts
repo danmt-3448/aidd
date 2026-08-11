@@ -68,6 +68,13 @@ export interface ProfileScreenProps {
   /** true → SELF mode (/profile); false → OTHER mode (/profile?id=xxx) */
   isSelf: boolean
 
+  /**
+   * The authenticated viewer's own uid — passed to KudoComposeModal so the
+   * image uploader is not blocked by the async useCurrentUserId() resolution gap.
+   * Optional for backward compat with mock fixtures that predate this field.
+   */
+  selfUid?: string
+
   /** Hero section data */
   header: ProfileHeaderProps
 

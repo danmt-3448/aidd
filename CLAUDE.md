@@ -120,15 +120,14 @@ Quy tắc: **skill trước, code sau** — không code ad-hoc. Takumi điều p
 /notifications  src/app/notifications/page.tsx — notification panel
 ```
 
-Route guard lives in `src/proxy.ts` (Next.js 16 — NOT `middleware.ts`). It runs session refresh → pre-launch gate → auth guard in that order. The `?ui_state=` query param bypasses auth entirely in dev (for UI-First Gate runs against mock data).
+Route guard lives in `src/proxy.ts` (Next.js 16 — NOT `middleware.ts`). It runs session refresh → pre-launch gate → auth guard in that order.
 
-## Mock / UI-State System
+## Verification on Real Seeded Data
 
-Every feature screen that has been gated supports `?ui_state=full|empty|error|loading`. In dev (`NODE_ENV !== 'production'`):
-- `proxy.ts` fast-paths requests carrying `?ui_state=` past auth, so the gate runner needs no live Supabase.
-- Each feature exposes `mocks/{screen}.mock.ts` exporting `mockFull`, `mockEmpty`, `mockError`.
-- The `useUiStateOverride()` hook (`src/lib/ui-state-override.ts`) reads the param client-side; `board-connected.tsx` uses it to swap in board mock data.
-- Mock data density must match Figma (e.g., board word-cloud ~45–50 names, full card list).
+The `?ui_state=` mock system has been removed. Verification (UI-First Gate + screenshot evidence) runs on **real seeded data with an authed session**:
+- Run `npm run db:reset` to reset the schema and seed demo data (includes `seed:auth`).
+- Auth storageState for Playwright: `e2e/.auth/user.json` (created by `npm run test:e2e` global-setup or `npx playwright test e2e/auth-check.spec.ts`).
+- Empty / error / loading states are verified via real scenarios (seed edge-case user, forced network failure) where possible; states not achievable without mock are documented as "not verifiable without scenario" in the gate report — not a hard-fail.
 
 ## Code Conventions
 
@@ -156,13 +155,12 @@ Next.js 16 uses `proxy.ts` (not `middleware.ts`). Execution order per request:
 1. `updateSession()` — refresh Supabase cookie session.
 2. Auth fast-path — logged-in on `/login` → `/`; unauthenticated on protected path → `/login` (no DB query on this branch).
 3. Pre-launch gate — reads `event_config.event_start_at` + `profiles.is_admin` in parallel; if pre-launch and not admin → `/countdown`. Fail-open (missing config never locks out).
-4. `?ui_state=` present in dev → bypass all of the above.
 
 ### Server Actions
 All server actions are `'use server'` files colocated with their feature (`*-actions.ts`). Pattern: `getUser()` auth guard → `safeParse()` Zod validation → DB call → return typed discriminated union `{ ok: true, ... } | { ok: false, errors: ... }`. Never throw. Never expose raw Postgres errors.
 
 ### Connected Component Pattern
-Each screen with real data has a `{screen}-connected.tsx` that owns data fetching. The inner presentational component takes typed props and works with mock data too. Example: `board-connected.tsx` → checks `useUiStateOverride()` → returns mock from `mocks/board.mock.ts` when `?ui_state=` is set, otherwise calls TanStack Query hooks.
+Each screen with real data has a `{screen}-connected.tsx` that owns data fetching. The inner presentational component takes typed props. Example: `board-connected.tsx` calls TanStack Query hooks and passes typed data down to the presentational layer.
 
 ### TanStack Query Hook Convention
 One file per query/mutation under `features/{feature}/use-*.ts`. `queryKey` shape: `[resource, ...params]`. Mount `<QueryProvider>` at page level (not root layout) — only pay for it where needed. `staleTime` set explicitly per query (60 s general, 5 m catalogs, 30 s autocomplete).
@@ -185,7 +183,7 @@ Match the scenario to the task (see the hands-on README):
 3. **UI only from design** → `/momorph-implement-design <MoMorph Screen URLs>`
 4. **Fix a bug on a screen** → `/tkm:fix-bug <description> <MoMorph Screen URL>`
 
-Rules: **never guess visual values** — MCP design data is authoritative. Fetch spec + test cases, resolve gaps via clarification, then build. UI (Track A) and backend/logic (Track B) run in parallel — **nhưng mỗi screen phải qua UI-First Gate (`/aidd-ui-gate`, 1440+1280 property-diff số khớp get_node + behavior mock đúng 100%) TRƯỚC khi integration/test/ship**. Xem `.claude/rules/ui-first-gate.md`.
+Rules: **never guess visual values** — MCP design data is authoritative. Fetch spec + test cases, resolve gaps via clarification, then build. UI (Track A) and backend/logic (Track B) run in parallel — **nhưng mỗi screen phải qua UI-First Gate (`/aidd-ui-gate`, 1440+1280 property-diff số khớp get_node + behavior trên data thật đúng 100%) TRƯỚC khi integration/test/ship**. Xem `.claude/rules/ui-first-gate.md`.
 
 ## Testing (UI-First — test SAU gate, KHÔNG test-first)
 
@@ -197,8 +195,8 @@ Rules: **never guess visual values** — MCP design data is authoritative. Fetch
 
 ## Definition of Done (theo thứ tự UI-First)
 
-1. **UI-First Gate PASS** — `/aidd-ui-gate`: 1440 + 1280 **property-diff số khớp `get_node`** (style-assert exit 0, asset/icon thật) + **behavior mock đúng 100%**. **Đây là cửa đầu tiên, chưa PASS thì các bước sau chưa được bắt đầu.**
-2. **Integration:** wire real BE data, thay hết mock.
+1. **UI-First Gate PASS** — `/aidd-ui-gate`: 1440 + 1280 **property-diff số khớp `get_node`** (style-assert exit 0, asset/icon thật) + **behavior trên real seeded data đúng 100%**. **Đây là cửa đầu tiên, chưa PASS thì các bước sau chưa được bắt đầu.**
+2. **Integration:** verify behavior với data thật (screen đã wire BE từ build — chỉ cần kiểm lại full flow).
 3. **Logic:** behaves exactly per the MoMorph screen spec (với data thật).
 4. **Quality:** Unit + E2E tests present and passing (viết SAU gate, không test-first).
 5. Reviewer agent runs after implementation.

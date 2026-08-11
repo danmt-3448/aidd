@@ -7,8 +7,11 @@ import { createClient } from '@/lib/supabase/server'
 // Input schema
 // ---------------------------------------------------------------------------
 
+// .guid() accepts any 8-4-4-4-12 hex UUID (version-0 seed ids, v4 prod ids).
+// .uuid() in Zod v4 enforces RFC version/variant bytes and rejects seed UUIDs
+// like 'dddddddd-0000-0000-…'. Profile queries use the same pattern.
 const toggleHeartSchema = z.object({
-  kudoId: z.string().uuid({ message: 'kudoId phải là UUID hợp lệ' }),
+  kudoId: z.string().guid({ message: 'kudoId phải là UUID hợp lệ' }),
 })
 
 // ---------------------------------------------------------------------------

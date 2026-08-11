@@ -11,13 +11,15 @@ export interface RecipientResult {
 /**
  * Full-text autocomplete on profiles.full_name.
  * Excludes the currently authenticated user.
- * Returns at most 10 matches.
+ *
+ * When `query` is empty (picker opened before typing), returns the first 8
+ * users alphabetically so the dropdown is not blank on first focus.
+ * Typed queries (non-empty) use ILIKE and return up to 10 matches.
  */
 export async function searchRecipients(
   query: string,
 ): Promise<RecipientResult[]> {
   const trimmed = query.trim()
-  if (trimmed.length === 0) return []
 
   const supabase = await createClient()
 
@@ -28,6 +30,24 @@ export async function searchRecipients(
 
   if (authError || !user) return []
 
+  if (trimmed.length === 0) {
+    // Empty focus — return first 8 users (alphabetical) as suggestions.
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .neq('id', user.id)
+      .order('full_name', { ascending: true })
+      .limit(8)
+
+    if (error) {
+      console.error('[searchRecipients] default list', error.message)
+      return []
+    }
+
+    return (data ?? []) as RecipientResult[]
+  }
+
+  // Typed query — ILIKE search.
   const { data, error } = await supabase
     .from('profiles')
     .select('id, full_name, avatar_url')

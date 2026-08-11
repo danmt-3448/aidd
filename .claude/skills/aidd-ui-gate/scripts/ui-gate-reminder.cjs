@@ -53,8 +53,8 @@ process.stdin.on('end', () => {
       '## ⚠️ UI-First Gate — BẮT BUỘC (auto-nudge)',
       `Prompt có tín hiệu feedback/thay đổi UI (khớp: ${hit}).`,
       'Nếu turn này SỬA UI bất kỳ screen nào, BẮT BUỘC chạy skill `/aidd-ui-gate ' + route + '` TRƯỚC khi báo done:',
-      '- Pixel-diff ≤ 1% ở 1440 + 1280 vs ảnh Figma (script `.claude/skills/aidd-ui-gate/scripts/pixel-diff.mjs`).',
-      '- Walk behavior checklist: 4 state `?ui_state=`, interactions, 0 console error.',
+      '- Property-diff exit 0 ở 1440 + 1280 vs Figma (style-assert.mjs) — authed session, real seeded data.',
+      '- Walk behavior checklist: verify data thật hiển thị đúng, interactions, 0 console error.',
       'Chấm bằng mắt/screenshot thủ công KHÔNG thay thế gate. Không kết luận done khi chưa chạy gate + báo kết quả. Xem `.claude/rules/ui-first-gate.md`.',
     ].join('\n'),
   )

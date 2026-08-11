@@ -12,13 +12,7 @@ import { SiteHeader } from '@/components/site-header'
  *   /profile            → SELF mode  (caller views their own profile)
  *   /profile?id={uuid}  → OTHER mode (caller views another user's profile)
  *
- * Dev-only: ?ui_state= present → skip Supabase entirely and render with a mock
- * identity so /aidd-ui-gate can screenshot /profile without local Supabase running.
- * In override mode we pass isSelf=true so the fixture's SELF layout (stats card +
- * full kudos list) is shown — that's the densest state to gate against Figma.
- * Mirrors the pattern in src/app/page.tsx (homepage bypass).
- *
- * Guard logic (production path only):
+ * Guard logic:
  *   1. parseProfileId validates the `id` param. Invalid/malformed → 404 (no DB hit).
  *   2. supabase.auth.getUser() resolves the session.
  *   3. Canonicalization: if mode=other AND id === caller's own uid → treat as self.
@@ -37,29 +31,7 @@ export default async function ProfilePage({
 }) {
   const params = await searchParams
 
-  // Dev-only UI-gate bypass: ?ui_state= present → skip Supabase entirely.
-  const uiState = params['ui_state']
-  const mockMode =
-    process.env.NODE_ENV !== 'production' && typeof uiState === 'string' && uiState.length > 0
-
-  if (mockMode) {
-    return (
-      <div style={{ background: '#00101A', minHeight: '100vh' }}>
-        <SiteHeader
-          user={{ name: 'Sunner' }}
-          unreadCount={0}
-          isAdmin={false}
-          activeNav={null}
-        />
-        {/* isSelf=true → SELF layout (stats + full feed) — densest fixture for gate */}
-        <ProfileConnected profileId="mock-profile-self-001" isSelf={true} />
-      </div>
-    )
-  }
-
-  // ── Production path ───────────────────────────────────────────────────────
   const routeResult = parseProfileId(params['id'])
-
   if (routeResult.mode === 'invalid') {
     notFound()
   }
@@ -106,7 +78,7 @@ export default async function ProfilePage({
         isAdmin={isAdmin}
         activeNav={null}
       />
-      <ProfileConnected profileId={profileId} isSelf={isSelf} />
+      <ProfileConnected profileId={profileId} isSelf={isSelf} selfUid={callerId ?? undefined} />
     </div>
   )
 }

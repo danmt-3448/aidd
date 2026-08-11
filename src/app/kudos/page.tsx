@@ -5,13 +5,9 @@
  * home for kudos; the compose trigger lives there).
  *
  * Dev-only (NODE_ENV !== 'production'):
- *   ?ui_state=  → render board with mock data for gate inspection.
- *   ?modal=compose → render board with KudoComposeModal pre-opened so the
- *     /aidd-ui-gate can screenshot the compose UI without manual interaction.
- *
- * The `initialComposeOpen` prop is passed to BoardScreen (via BoardConnected)
- * rather than embedding query-param logic inside the production component.
- * This is the pattern described in phase-02 spec (RT-13/Scope-7).
+ *   ?modal=compose → render the real board with KudoComposeModal pre-opened so
+ *   the UI-First Gate can screenshot the compose UI without manual interaction.
+ *   Uses a real authed session — no mock bypass.
  *
  * Uses Next.js redirect for production — no client JS, no flash of content.
  */
@@ -19,35 +15,22 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getIsAdmin } from '@/features/auth/get-is-admin'
-import { KudosDevWrapper } from '@/features/kudos/components/kudos-dev-wrapper'
+import { BoardConnected } from '@/features/board/components/board-connected'
 
 export default async function KudosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ ui_state?: string; modal?: string }>
+  searchParams: Promise<{ modal?: string }>
 }) {
   // Production: always redirect. No dev logic bleeds into prod.
   if (process.env.NODE_ENV === 'production') {
     redirect('/board')
   }
 
-  const { ui_state: uiState, modal } = await searchParams
+  const { modal } = await searchParams
   const initialComposeOpen = modal === 'compose'
-  const hasMockState = Boolean(uiState)
 
-  // Dev bypass: skip Supabase when either gate param is present.
-  if (hasMockState || initialComposeOpen) {
-    return (
-      <KudosDevWrapper
-        uid="mock-uid-kudos"
-        user={{ name: 'Sunner' }}
-        isAdmin={false}
-        initialComposeOpen={initialComposeOpen}
-      />
-    )
-  }
-
-  // Dev with real auth: resolve session then render board with compose pre-opened.
+  // Resolve real authed session — gate screenshots now use a real seeded session.
   const supabase = await createClient()
   const {
     data: { user },
@@ -68,7 +51,7 @@ export default async function KudosPage({
     : null
 
   return (
-    <KudosDevWrapper
+    <BoardConnected
       uid={user?.id ?? null}
       user={headerUser}
       isAdmin={isAdmin}

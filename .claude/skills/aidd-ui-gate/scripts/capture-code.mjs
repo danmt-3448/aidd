@@ -7,9 +7,9 @@
  * Design never changes; to re-gate on a new HEAD we only need to re-measure `code`.
  *
  * This reads the nodemap (selectors) + the map (per-key design prop set), navigates the
- * live dev server with --force-color-profile=srgb, waits fonts.ready, measures
- * getComputedStyle for exactly the props `design` specifies per key, and writes a fresh
- * map. style-assert.mjs is then run on the output = deterministic PASS/FAIL.
+ * live dev server (authed session, real seeded data) with --force-color-profile=srgb,
+ * waits fonts.ready, measures getComputedStyle for exactly the props `design` specifies
+ * per key, and writes a fresh map. style-assert.mjs is then run on the output = deterministic PASS/FAIL.
  *
  * Also records no-overflow (scrollWidth vs clientWidth) at the given viewport.
  *
@@ -66,7 +66,7 @@ page.on('console', (m) => {
 })
 page.on('pageerror', (e) => consoleErrors.push(`[pageerror] ${e.message}`))
 
-const url = `${base}${route}${route.includes('?') ? '&' : '?'}ui_state=full`
+const url = `${base}${route}`
 let status
 try {
   const resp = await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 })

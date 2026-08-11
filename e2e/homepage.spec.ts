@@ -12,6 +12,24 @@
  */
 
 import { test, expect } from '@playwright/test'
+import { setEventStart, pastEventDate } from './support/event-config'
+
+// ── Event isolation ───────────────────────────────────────────────────────────
+//
+// Homepage tests require the event to be LIVE (past date) so:
+//   - Unauthenticated visitors can reach / without the pre-launch gate redirecting
+//     them to /countdown (which only fires when event_start_at is in the future).
+//   - The countdown hero section shows done=true (timer zeroes), hiding "Coming soon".
+//
+// beforeAll:  restore LIVE state in case countdown.spec.ts left a FUTURE date.
+// afterAll:   no-op (LIVE is already the expected state for board/profile/kudos).
+//
+// Running serially guards against concurrent suites racing on the shared event_config row.
+test.describe.configure({ mode: 'serial' })
+
+test.beforeAll(async () => {
+  await setEventStart(pastEventDate(1))
+})
 
 test.describe('Homepage SAA — Public View', () => {
   test.beforeEach(async ({ page, context }) => {

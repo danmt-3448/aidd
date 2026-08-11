@@ -1,17 +1,7 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation'
 import { useCountdown } from '@/features/event/use-countdown'
-import type { UseCountdownReturn } from '@/features/event/use-countdown'
 import { CountdownDisplay } from './countdown-display'
-import { mockFull, mockDone, mockLoading } from '../mocks/countdown.mock'
-
-/** Maps ?ui_state= values to mock fixtures (dev only). */
-const UI_STATE_MOCKS: Record<string, UseCountdownReturn> = {
-  full: mockFull,
-  done: mockDone,
-  loading: mockLoading,
-}
 
 /**
  * Full-screen prelaunch Countdown page — SAA 2025 dark brand.
@@ -32,8 +22,6 @@ const UI_STATE_MOCKS: Record<string, UseCountdownReturn> = {
  *   - done: delegated to CountdownDisplay (event has started).
  *   - counting: delegated to CountdownDisplay (normal path).
  *
- * Dev: ?ui_state=full|done|loading overrides live data for UI-First Gate.
- *
  * Note: no header or footer in this screen per Figma artboard.
  *
  * Follow-up (out of scope here): app-wide nav-lock until event starts.
@@ -42,19 +30,7 @@ const UI_STATE_MOCKS: Record<string, UseCountdownReturn> = {
  */
 
 export function CountdownScreen() {
-  const searchParams = useSearchParams()
-  const realCountdown = useCountdown()
-
-  // In non-production, ?ui_state=full|done|loading overrides live data so
-  // the UI-First Gate can deterministically verify each render state.
-  const uiState =
-    process.env.NODE_ENV !== 'production'
-      ? (searchParams.get('ui_state') ?? null)
-      : null
-  const countdown: UseCountdownReturn =
-    uiState && uiState in UI_STATE_MOCKS
-      ? UI_STATE_MOCKS[uiState]
-      : realCountdown
+  const countdown = useCountdown()
 
   return (
     // mm:countdown-root — Figma node 2268:35127: bg rgba(0,16,26,1) (#00101A), 1512×1077

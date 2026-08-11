@@ -89,6 +89,7 @@ function ProfileKvBanner({ children }: { children: React.ReactNode }) {
 
 export function ProfileScreen({
   isSelf,
+  selfUid,
   header,
   stats,
   badges,
@@ -189,11 +190,18 @@ export function ProfileScreen({
         />
       </div>
 
-      {/* KudoComposeModal — OTHER mode only; recipient pre-filled by integration phase */}
+      {/* KudoComposeModal — OTHER mode only; recipient pre-filled from header data
+          (spec TC_WEB_PROFILE_FUN_007). recipientOpen stays false → no auto-pop. */}
       {!isSelf && isComposeOpen && (
         <KudoComposeModal
           isOpen={isComposeOpen}
           onClose={handleCloseCompose}
+          initialRecipient={{
+            id: header.id,
+            name: recipientName,
+            avatarUrl: header.avatar_url ?? undefined,
+          }}
+          resolvedUserId={selfUid}
         />
       )}
     </div>

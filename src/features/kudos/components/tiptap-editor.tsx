@@ -19,12 +19,19 @@ interface TiptapEditorProps {
   maxLength?: number
   /** Profiles available for @mention suggestion */
   mentionItems?: MentionItem[]
+  /**
+   * Pre-populate the editor with HTML content (edit mode).
+   * Consumed once on mount — changing it after mount has no effect.
+   * Keep stable (useMemo or a literal) to avoid thrashing the editor.
+   */
+  initialContent?: string
 }
 
 export function TiptapEditor({
   onChange,
   maxLength = 2000,
   mentionItems = [],
+  initialContent = '',
 }: TiptapEditorProps) {
   // Ref holds the latest mention list, read ONLY inside TipTap's deferred
   // suggestion callbacks (items/render/onKeyDown fire on user input, never
@@ -122,7 +129,7 @@ export function TiptapEditor({
         ],
       }),
     ],
-    content: '',
+    content: initialContent,
     onUpdate: ({ editor: ed }) => {
       const html = ed.getHTML()
       const count = ed.storage.characterCount.characters() as number
@@ -137,6 +144,17 @@ export function TiptapEditor({
       },
     },
   })
+
+  // In edit mode the editor mounts with pre-filled content but `onUpdate` does
+  // not fire on mount — so the parent's charCount stays 0 and the submit button
+  // stays disabled.  Fire once after the editor is ready to sync initial state.
+  useEffect(() => {
+    if (!editor || !initialContent) return
+    const count = editor.storage.characterCount.characters() as number
+    onChange(editor.getHTML(), count)
+    // Run only once after the editor instance is created (editor ref is stable).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor])
 
   const handleToolbarAction = useCallback(
     (action: ToolbarAction) => {

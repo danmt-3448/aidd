@@ -6,10 +6,12 @@
  * Active card: full opacity. Adjacent: opacity 0.5.
  * Dot active: gold #FFEA9E pill 24×10px. Arrows: 80×80 circle.
  *
- * Card height 525px — Figma node 2940:13465 (B.3_KUDO - Highlight): 528×525.
- * Side fade — Figma Frame 527 node 2940:13467: CSS gradient 400×525px,
- *   linear-gradient(270deg, #00101A 50%, rgba(255,255,255,0) 100%). NOT a PNG.
- * Section minHeight 743px = 525 card + ~218 overhead (eyebrow+title+filters+pagination).
+ * Card width 528px — Figma node 2940:13465 (B.3_KUDO - Highlight): 528 wide.
+ * Cards HUG content height (no fixed 525px) — Figma shows compact cards that
+ * fit their content; the 525px value was the rich/gallery card max, not a fixed height.
+ * Side fade — Figma Frame 527 node 2940:13467: CSS gradient, width 140px,
+ *   height matches the carousel viewport via position:absolute + top/bottom 0.
+ *   NOT a PNG. Colors: linear-gradient toward #00101A (dark bg).
  */
 
 import "swiper/css";
@@ -41,6 +43,8 @@ export interface BoardHighlightCarouselProps {
   currentUserId?: string;
   /** Called when the pencil edit icon is clicked on an own kudo */
   onEdit?: (kudoId: string) => void;
+  /** Called when "Xem chi tiết ↗" is clicked on a highlight card */
+  onViewDetail?: (kudoId: string) => void;
 }
 
 export function BoardHighlightCarousel({
@@ -56,6 +60,7 @@ export function BoardHighlightCarousel({
   onOpenProfile,
   currentUserId,
   onEdit,
+  onViewDetail,
 }: BoardHighlightCarouselProps) {
   const filtered = activeHashtag
     ? cards.filter((c) => c.hashtags?.includes(activeHashtag))
@@ -94,8 +99,7 @@ export function BoardHighlightCarousel({
   }
 
   return (
-    /* minHeight 743px: card height 525px (Figma 2940:13465) + overhead ~218px. */
-    <section data-fig="2940:13461" aria-label="Highlight Kudos" style={{ minHeight: 743 }}>
+    <section data-fig="2940:13461" aria-label="Highlight Kudos">
       <SectionEyebrow />
 
       {/* Title LEFT + filters RIGHT */}
@@ -158,15 +162,14 @@ export function BoardHighlightCarousel({
               aria-live="polite"
               aria-atomic
             >
-              {/* Left fade — Figma Frame 527 node 2940:13467: 400×525px CSS gradient.
-                  linear-gradient(270deg, #00101A 50%, rgba(255,255,255,0) 100%)
-                  Rotated 180deg → left edge fades in from dark background color. */}
+              {/* Left fade — Figma node 2940:13467: CSS gradient overlay on carousel edges.
+                  Height stretches via top/bottom:0 to always match the tallest card.
+                  Color #00101A = board dark background. */}
               <div
                 aria-hidden
-                className="swiper-box-shadow-left swiper-box-shadow pointer-events-none absolute left-0 top-0 z-10"
+                className="swiper-box-shadow-left swiper-box-shadow pointer-events-none absolute bottom-0 left-0 top-0 z-10"
                 style={{
                   width: 140,
-                  height: 525,
                   background:
                     "linear-gradient(90deg, #00101A 0%, rgba(0,16,26,0) 100%)",
                 }}
@@ -188,13 +191,11 @@ export function BoardHighlightCarousel({
                     key={card.id}
                     style={{ width: 528, flexShrink: 0 }}
                   >
-                    {/* height 525px — Figma node 2940:13465 (B.3_KUDO - Highlight): 528×525.
-                        All slides fixed to same height; content overflow clipped so every card
-                        is visually uniform regardless of text/image density. */}
-                    <div
-                      className="hl-slide relative overflow-hidden rounded-2xl"
-                      style={{ height: 525 }}
-                    >
+                    {/* No fixed height — cards hug their content per Figma.
+                        The 525px was the tallest (gallery) card; sparse cards
+                        were rendering with large empty gaps. overflow:hidden kept
+                        for safety on truncated text. */}
+                    <div className="hl-slide relative overflow-hidden rounded-2xl">
                       <BoardFeedCard
                         {...card}
                         variant="highlight"
@@ -203,19 +204,20 @@ export function BoardHighlightCarousel({
                         onOpenProfile={onOpenProfile}
                         currentUserId={currentUserId}
                         onEdit={onEdit}
+                        onViewDetail={onViewDetail}
                       />
                     </div>
                   </SwiperSlide>
                 ))}
               </Swiper>
 
-              {/* Right fade — same Figma node 2940:13467, mirrored direction. */}
+              {/* Right fade — same Figma node 2940:13467, mirrored direction.
+                  Height auto via bottom:0 same as left fade. */}
               <div
                 aria-hidden
-                className="swiper-box-shadow-right swiper-box-shadow pointer-events-none absolute right-0 top-0 z-10"
+                className="swiper-box-shadow-right swiper-box-shadow pointer-events-none absolute bottom-0 right-0 top-0 z-10"
                 style={{
                   width: 140,
-                  height: 525,
                   background:
                     "linear-gradient(270deg, #00101A 0%, rgba(0,16,26,0) 100%)",
                 }}

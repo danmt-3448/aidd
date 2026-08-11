@@ -39,12 +39,16 @@ export interface ProfileHeader {
  * A single kudo row as served to the profile feed.
  * Same shape as BoardKudoRow so cards are reusable across board and profile.
  * `senderId` is null when the kudo was sent anonymously.
+ * `receiverId` is always populated (receiver identity is public — only sender
+ * is masked for anonymous kudos). Used by sent-direction cards to navigate to
+ * the receiver's profile (spec GUI_006, board TC 630f42a3).
  */
 export interface ProfileKudoRow {
   id: string
   senderId: string | null
   senderName: string
   senderAvatarUrl: string | null
+  receiverId: string
   receiverName: string
   receiverAvatarUrl: string | null
   contentHtml: string
@@ -245,6 +249,7 @@ export async function listProfileKudos(
       sender_id: string | null
       sender_name: string | null
       sender_avatar_url: string | null
+      receiver_id: string
       receiver_name: string | null
       receiver_avatar_url: string | null
       content_html: string
@@ -260,7 +265,7 @@ export async function listProfileKudos(
       .from('kudos_public')
       .select(
         `id, sender_id, sender_name, sender_avatar_url,
-         receiver_name, receiver_avatar_url, content_html, created_at,
+         receiver_id, receiver_name, receiver_avatar_url, content_html, created_at,
          hearts(user_id, is_special_day)`,
       )
       .eq(filterColumn, profileId)
@@ -290,6 +295,7 @@ export async function listProfileKudos(
         senderId: r.sender_id,
         senderName: r.sender_name ?? 'Ẩn danh',
         senderAvatarUrl: r.sender_avatar_url,
+        receiverId: r.receiver_id,
         receiverName: r.receiver_name ?? '',
         receiverAvatarUrl: r.receiver_avatar_url,
         contentHtml: r.content_html,

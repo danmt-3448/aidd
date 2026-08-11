@@ -1,8 +1,22 @@
 import { defineConfig, devices } from '@playwright/test'
 import path from 'path'
+import fs from 'fs'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+// Load .env.local into process.env for the config + worker processes.
+// Needed by e2e/support/event-config.ts (SUPABASE_SERVICE_ROLE_KEY) and the
+// Supabase URL. Zero-dep parser — only sets keys not already in the shell env.
+const envLocalPath = path.resolve(__dirname, '.env.local')
+if (fs.existsSync(envLocalPath)) {
+  for (const line of fs.readFileSync(envLocalPath, 'utf8').split('\n')) {
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/)
+    if (m && process.env[m[1]] === undefined) {
+      process.env[m[1]] = m[2].replace(/^["']|["']$/g, '')
+    }
+  }
+}
 
 const authFile = 'e2e/.auth/user.json'
 const adminFile = 'e2e/.auth/admin.json'

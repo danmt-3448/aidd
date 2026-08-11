@@ -2,7 +2,10 @@
 
 import sanitizeHtml from 'sanitize-html'
 import { createClient } from '@/lib/supabase/server'
-import { createKudoSchema, type CreateKudoInput } from './kudo-schema'
+import {
+  createKudoSchema, type CreateKudoInput,
+  updateKudoSchema, type UpdateKudoInput,
+} from './kudo-schema'
 
 // ---------------------------------------------------------------------------
 // sanitize-html allowlist for content_html (Tiptap output)
@@ -145,4 +148,152 @@ export async function createKudo(input: CreateKudoInput): Promise<CreateKudoResu
   }
 
   return { ok: true, kudoId: data as string }
+}
+
+// ---------------------------------------------------------------------------
+// updateKudo — edit own kudo (sender only)
+// ---------------------------------------------------------------------------
+
+export type UpdateKudoSuccess = { ok: true }
+export type UpdateKudoFailure = { ok: false; errors: Record<string, string[]> }
+export type UpdateKudoResult  = UpdateKudoSuccess | UpdateKudoFailure
+
+function friendlyUpdateError(msg: string): string {
+  if (msg.includes('P0001')) return 'Bạn cần đăng nhập để sửa Kudo'
+  if (msg.includes('P0009')) return 'Bạn chỉ sửa được Kudo của mình'
+  if (msg.includes('P0003') || msg.includes('P0004')) return 'Hashtag không hợp lệ'
+  if (msg.includes('P0005')) return 'Tối đa 5 ảnh'
+  return 'Đã xảy ra lỗi. Vui lòng thử lại.'
+}
+
+export async function updateKudo(input: UpdateKudoInput): Promise<UpdateKudoResult> {
+  // 1. Auth guard
+  const supabase = await createClient()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    return {
+      ok: false,
+      errors: { _root: ['Bạn cần đăng nhập để sửa Kudo'] },
+    }
+  }
+
+  // 2. Zod validation
+  const parsed = updateKudoSchema.safeParse(input)
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string[]> = {}
+    for (const [field, messages] of Object.entries(
+      parsed.error.flatten().fieldErrors,
+    )) {
+      fieldErrors[field] = messages as string[]
+    }
+    return { ok: false, errors: fieldErrors }
+  }
+
+  const { kudoId, contentHtml, danhHieu, hashtagIds, imagePaths } = parsed.data
+
+  // 3. Sanitize HTML server-side (stored-XSS prevention)
+  const safeHtml = sanitize(contentHtml)
+
+  // 4. Call atomic RPC (updates kudos + replaces kudo_hashtags + kudo_images in 1 tx)
+  const { error } = await supabase.rpc('update_kudo', {
+    p_kudo_id:      kudoId,
+    p_content_html: safeHtml,
+    p_danh_hieu:    danhHieu,
+    p_hashtag_ids:  hashtagIds,
+    p_image_paths:  imagePaths,
+  })
+
+  if (error) {
+    console.error('[updateKudo] RPC error', error.message)
+    return {
+      ok: false,
+      errors: { _root: [friendlyUpdateError(error.message)] },
+    }
+  }
+
+  return { ok: true }
+}
+
+// ---------------------------------------------------------------------------
+// getKudoForEdit — fetch an own kudo's editable fields (sender only)
+// ---------------------------------------------------------------------------
+
+export interface KudoEditData {
+  contentHtml: string
+  danhHieu: string
+  hashtagIds: string[]
+  imagePaths: string[]
+  receiverId: string
+  receiverName: string
+}
+
+export type GetKudoForEditResult =
+  | { ok: true; data: KudoEditData }
+  | { ok: false; error: string }
+
+export async function getKudoForEdit(kudoId: string): Promise<GetKudoForEditResult> {
+  if (!kudoId) return { ok: false, error: 'kudoId bắt buộc' }
+
+  const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    return { ok: false, error: 'Bạn cần đăng nhập để sửa Kudo' }
+  }
+
+  // Fetch the kudo row — RLS ensures only own row is visible; we also check
+  // sender_id explicitly so we can return a specific "not your kudo" message.
+  const { data: kudo, error: kudoErr } = await supabase
+    .from('kudos')
+    .select(`
+      id,
+      sender_id,
+      receiver_id,
+      content_html,
+      danh_hieu,
+      receiver:profiles!kudos_receiver_id_fkey (full_name)
+    `)
+    .eq('id', kudoId)
+    .eq('sender_id', user.id)
+    .single()
+
+  if (kudoErr || !kudo) {
+    return { ok: false, error: 'Không tìm thấy Kudo hoặc bạn không có quyền sửa' }
+  }
+
+  // Fetch hashtag IDs
+  const { data: hashtagRows } = await supabase
+    .from('kudo_hashtags')
+    .select('hashtag_id')
+    .eq('kudo_id', kudoId)
+
+  // Fetch image paths (ordered by sort_order)
+  const { data: imageRows } = await supabase
+    .from('kudo_images')
+    .select('storage_path')
+    .eq('kudo_id', kudoId)
+    .order('sort_order', { ascending: true })
+
+  // Receiver name comes from the join — profiles may return array or object
+  // depending on the Supabase JS client version. Normalise safely.
+  const receiverProfile = kudo.receiver
+  const receiverName = Array.isArray(receiverProfile)
+    ? (receiverProfile[0]?.full_name ?? '')
+    : ((receiverProfile as { full_name: string } | null)?.full_name ?? '')
+
+  return {
+    ok: true,
+    data: {
+      contentHtml: kudo.content_html ?? '',
+      danhHieu: kudo.danh_hieu ?? '',
+      hashtagIds: (hashtagRows ?? []).map((r) => r.hashtag_id),
+      imagePaths: (imageRows ?? []).map((r) => r.storage_path),
+      receiverId: kudo.receiver_id,
+      receiverName,
+    },
+  }
 }

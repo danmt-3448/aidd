@@ -49,6 +49,7 @@ export function HomepageScreen({ header, countdown }: HomepageScreenProps) {
   return (
     <div
       className="min-h-screen w-full"
+      style={{ background: '#00101A' }}
     >
       {/* Sticky header */}
       <HomepageHeader
@@ -86,7 +87,10 @@ export function HomepageScreen({ header, countdown }: HomepageScreenProps) {
 
       {/* Quick-action Kudo compose modal — mounted only when open */}
       {composeOpen && (
-        <KudoComposeModal onClose={() => setComposeOpen(false)} />
+        <KudoComposeModal
+          onClose={() => setComposeOpen(false)}
+          resolvedUserId={header.uid ?? undefined}
+        />
       )}
 
       {/* "Thể lệ" rules side-panel modal — opened in-place from the FAB */}

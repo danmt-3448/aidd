@@ -146,45 +146,47 @@ export function formatCardDate(iso: string): string {
 // ── HashtagRow ────────────────────────────────────────────────────────────────
 
 /**
- * HashtagRow — up to 5 hashtag chips with a "+N" overflow badge.
- * Extracted from board-feed-card.tsx to keep that file under 200 lines.
- * Colors from Figma (rework pass 2, confirmed): red bg + #B91C1C text.
+ * HashtagRow — inline red hashtag text with a leading "#" per token (Figma:
+ * B.4.3_Hashtag is a TEXT node, red, Montserrat 700, letterSpacing 0.5 — NOT
+ * pill chips). Tokens wrap; when more than 5, shows "+N" overflow badge.
+ *
+ * Tags passed in MUST NOT include the leading "#" — HashtagRow adds it.
+ * Example: tags=["ThanhOm"] renders "#ThanhOm".
  */
 export function HashtagRow({ tags }: { tags: string[] }) {
   if (tags.length === 0) return null
   const visible = tags.slice(0, 5)
   const overflow = tags.length - 5
   return (
-    <div className="flex flex-wrap gap-2" role="list" aria-label="Hashtags">
+    <p
+      className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-bold"
+      role="list"
+      aria-label="Hashtags"
+      style={{
+        color: '#B91C1C',
+        fontFamily: montserrat.style.fontFamily,
+        letterSpacing: '0.5px',
+        lineHeight: '24px',
+      }}
+    >
       {visible.map((tag, idx) => (
-        <span
-          key={`${tag}-${idx}`}
-          role="listitem"
-          className="rounded-full px-3 py-1 text-xs font-bold"
-          style={{
-            background: 'rgba(231,57,40,0.1)',
-            border: '1px solid rgba(231,57,40,0.25)',
-            color: '#B91C1C',
-            fontFamily: montserrat.style.fontFamily,
-          }}
-        >
-          {tag}
+        <span key={`${tag}-${idx}`} role="listitem">
+          #{tag}
         </span>
       ))}
       {overflow > 0 && (
         <span
-          className="rounded-full px-3 py-1 text-xs font-bold"
+          aria-label={`và ${overflow} hashtag khác`}
           style={{
-            background: 'rgba(26,18,8,0.06)',
-            border: '1px solid rgba(26,18,8,0.15)',
-            color: 'rgba(26,18,8,0.5)',
             fontFamily: montserrat.style.fontFamily,
+            fontSize: 11,
+            fontWeight: 700,
+            color: 'rgba(185,28,28,0.65)',
           }}
-          aria-label={`${overflow} hashtag nữa`}
         >
           +{overflow}
         </span>
       )}
-    </div>
+    </p>
   )
 }

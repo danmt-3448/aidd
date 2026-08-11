@@ -1,6 +1,6 @@
 ---
 name: aidd-ui-gate
-description: "Run the UI-First Gate for a screen — Playwright visual-diff vs Figma at 1440 (primary) + 1280 (secondary) + a mock-data behavior checklist — and emit a PASS/FAIL report. A screen must PASS this gate before integration (wiring real BE), before writing e2e/unit tests, and before ship. Use when user says 'chạy gate', 'kiểm UI màn X', 'ui gate', 'màn này pass design chưa', 'verify UI', or after building a screen's UI+behavior with mock data. Not for: building/coding UI (dùng momorph-implement-design) or full-project design audit (dùng check-progress --design) — skill này chỉ CHẤM một screen đã build."
+description: "Run the UI-First Gate for a screen — Playwright visual-diff vs Figma at 1440 (primary) + 1280 (secondary) + a real-data behavior checklist (authed session, real seeded data) — and emit a PASS/FAIL report. A screen must PASS this gate before integration (wiring real BE), before writing e2e/unit tests, and before ship. Use when user says 'chạy gate', 'kiểm UI màn X', 'ui gate', 'màn này pass design chưa', 'verify UI', or after building a screen's UI. Not for: building/coding UI (dùng momorph-implement-design) or full-project design audit (dùng check-progress --design) — skill này chỉ CHẤM một screen đã build."
 argument-hint: "<screen URL | route | screenId> [--behavior-only] [--visual-only]"
 metadata:
   author: aidd
@@ -25,7 +25,7 @@ Chốt chặn chất lượng UI theo `.claude/rules/ui-first-gate.md`. Một sc
 - `--behavior-only` — chỉ chạy nhóm B (behavior checklist), bỏ visual-diff.
 - `--visual-only` — chỉ chạy nhóm A (visual fidelity), bỏ behavior.
 
-**Precondition:** screen phải **render được ở route local với mock data** (FE đã build UI+behavior mock theo `fe-developer.md`) và **dev server sống** (`npm run dev`, http://localhost:3001). Chưa thỏa → xem Error Recovery.
+**Precondition:** screen phải **render được ở route local với authed session + real seeded data** (dev server sống, Supabase local UP + `npm run db:reset`, `e2e/.auth/user.json` tồn tại). Chưa thỏa → xem Error Recovery.
 
 ---
 
@@ -58,7 +58,7 @@ Không resolve được screenId → **hỏi user**, KHÔNG đoán. Không có r
 **Tiền đề:** mỗi màn có `plans/reports/_gate-ref/nodemap/{screen}.nodemap.json` map `nodeId ↔ selector ↔ kind` (build gắn `data-fig`/`data-fig-asset`/`data-fig-icon` — xem `.claude/roles/fe-developer.md`). **Không có nodemap / 0 tag → BLOCKED**, KHÔNG chấm bằng mắt.
 
 **3a. Property-diff (CỔNG CỨNG):**
-1. **Pin state + font:** `browser_navigate {route}?ui_state=full`, chờ `document.fonts.ready` rồi `document.fonts.check('700 16px Inter')` — false → **dừng, không kết luận** (font chưa load ⇒ mọi weight/size giả). Chụp/eval với `--force-color-profile=srgb` (màu xác định, chống lệch P3/sRGB).
+1. **Pin state + font:** `browser_navigate {route}` (authed session, real data), chờ `document.fonts.ready` rồi `document.fonts.check('700 16px Inter')` — false → **dừng, không kết luận** (font chưa load ⇒ mọi weight/size giả). Chụp/eval với `--force-color-profile=srgb` (màu xác định, chống lệch P3/sRGB).
 2. **Cross-check tag đúng node** (chống gắn nhầm nodeId): mỗi entry crop bbox node (`get_node.absoluteBoundingBox` trên `get_frame_image`) đặt cạnh `browser_take_screenshot` theo selector → xác nhận **cùng element** rồi mới tính số.
 3. **Đọc code — 1 lần `browser_evaluate`** quét mọi selector trong nodemap, trả `getComputedStyle`: `color, backgroundColor, opacity, fontWeight, fontSize, lineHeight, letterSpacing, paddingTop, paddingLeft, rowGap, columnGap, width, height, offsetHeight, borderTopLeftRadius, borderTopWidth+color` + `src`/`iconFill` cho asset/icon. **Dùng `rowGap`/`columnGap`, KHÔNG `gap`** (getComputedStyle trả `""`).
 4. **Đọc design:** `get_node(screenId, nodeId)` mỗi entry → fill (rgba), fontWeight, fontSize, padding, w/h, cornerRadius, border, opacity.
@@ -70,11 +70,11 @@ Không resolve được screenId → **hỏi user**, KHÔNG đoán. Không có r
    ```
    Màu so **rgba cả alpha** (opacity cha nhân vào) — KHÔNG drop-to-hex; ±1px size/spacing/line-height; weight tuyệt đối; asset phải `<img>/<svg>/<picture>`; icon fill khớp (null = FAIL, không WARN); `kind:'section'` so `offsetHeight` vs node height ±2px. **Exit 0=PASS · 1=FAIL** (localize element/prop) **· 2=coverage** (map rỗng / thiếu tag / element missing — **KHÔNG PASS câm**).
 
-**3b. Nets phụ (cùng state `?ui_state=full`, trong `browser_evaluate`):**
+**3b. Nets phụ (cùng authed route, trong `browser_evaluate`):**
 - **overflow/overlap @1280:** `scrollWidth>clientWidth` = FAIL; bbox 2 item cùng nhóm giao nhau = FAIL (đè/cắt chữ).
 - **density:** đếm DOM item vs số con list trong `get_frame_node_tree` — dưới ngưỡng = FAIL "mock thưa"; assert section bắt buộc tồn tại (vd `footer`).
 
-**3b-2. No-break @1920 (BẮT BUỘC — KHÔNG so property-diff):** `browser_resize(1920,960)` → navigate lại `{route}?ui_state=full` → `browser_evaluate`:
+**3b-2. No-break @1920 (BẮT BUỘC — KHÔNG so property-diff):** `browser_resize(1920,960)` → navigate lại `{route}` (authed) → `browser_evaluate`:
 - `scrollWidth == clientWidth` (no horizontal overflow) — lệch = **FAIL**.
 - Section chính (banner/hero, feed, sidebar, footer) KHÔNG zoom/giãn méo; content KHÔNG lệch trục so bố cục 1440 (lỗi hay gặp: hero full-bleed trong khi content đã cap `max-w-[1440px]` → lệch/nền artwork zoom); KHÔNG đè-cắt chữ.
 - Design fixed-1440 → **cho phép** dark side-fill / `max-width` center trên >1440; chỉ FAIL khi thật sự VỠ. **KHÔNG** chạy `style-assert` ở 1920 (Figma không có artboard 1920). `browser_take_screenshot` để soi mắt. Nhớ `browser_resize` về 1440 sau khi xong.
@@ -83,17 +83,16 @@ Không resolve được screenId → **hỏi user**, KHÔNG đoán. Không có r
 
 **Ngưỡng nhóm A:** PASS khi **property-diff (3a) exit 0** ở cả 1440 + 1280 **VÀ** nets (3b) không FAIL **VÀ** no-break (3b-2) @1920 không vỡ. `style-assert` exit 1/2 → FAIL/BLOCKED. 1920 vỡ (overflow/zoom/lệch/đè-cắt) → FAIL. Pixel/band (3c) chỉ ghi tham khảo. Report: bảng `key|prop|code|design|verdict` + nets + no-break@1920 + (tuỳ chọn) overlay ratio.
 
-### 4. Behavior checklist với MOCK DATA (nhóm B — bỏ nếu `--visual-only`)
+### 4. Behavior checklist trên REAL DATA (nhóm B — bỏ nếu `--visual-only`)
 Lấy test cases làm checklist (KHÔNG viết code test):
 - `mcp__momorph__get_frame_test_cases(screenId)` hoặc `download_test_cases`.
-Dùng Playwright MCP thao tác trên màn với mock data, tick từng mục. **Nhóm B phải đúng 100% — sai/nghi ngờ 1 mục = cả gate FAIL:**
+Dùng Playwright MCP thao tác trên màn với authed session + real seeded data, tick từng mục. **Nhóm B phải đúng 100% — sai/nghi ngờ 1 mục = cả gate FAIL:**
 - [ ] Validation form client-side đúng
 - [ ] Navigation / redirect đúng luồng
-- [ ] **4 state qua query param** — navigate `{route}?ui_state=full` → `empty` → `error` → `loading`, mỗi lần `browser_take_screenshot` + kiểm render đúng (full: có data; empty: empty-state UI; error: thông báo lỗi; loading: skeleton/spinner)
+- [ ] **Verify data đầy đủ** — `browser_take_screenshot` + kiểm screen hiển thị data thật (đúng mật độ Figma: word-cloud đủ tên, card đủ fields, list đủ items). Nếu seed thiếu → `npm run db:reset` / mở rộng `supabase/seed-demo-data.sql`.
+- [ ] **Empty / error / loading** (best-effort): navigate scenario thật nếu khả thi (user không có data, forced network error, seeded edge case). Nếu không ép được → ghi "not verifiable without scenario" trong report, KHÔNG auto-FAIL.
 - [ ] Interactive: click / hover / keyboard nav hoạt động
-- [ ] `browser_console_messages` — 0 error/warning (kiểm ở cả 4 state)
-
-> Route **không phản hồi `?ui_state=`** (mọi state ra như nhau) → FE chưa làm mock fixtures + toggle ⇒ **FAIL** (không kiểm được empty/error). Xem Mock fixtures convention trong `.claude/rules/ui-first-gate.md`.
+- [ ] `browser_console_messages` — 0 error/warning
 
 ### 5. Verdict + report
 Ghi report vào `plans/reports/ui-gate-{date}-{screen-slug}.md`:
@@ -109,7 +108,7 @@ Ghi report vào `plans/reports/ui-gate-{date}-{screen-slug}.md`:
 - Overlay tham khảo (3c, KHÔNG quyết verdict): pixel/band ratio {x.xx}% · diff: `plans/reports/_gate-ref/{screen}-*-diff.png`
 - Port đã verify: {vd 127.0.0.1:3001} · color-profile=srgb · font.ready=true
 
-## B. Behavior (mock data) — phải 100%
+## B. Behavior (real seeded data, authed) — phải 100%
 - [x]/[ ] từng mục checklist + note
 
 ## Verdict: PASS | FAIL | BLOCKED
@@ -135,13 +134,13 @@ Ghi report vào `plans/reports/ui-gate-{date}-{screen-slug}.md`:
 | pixelmatch/pngjs chưa cài | `npx pixelmatch`/`npx odiff-bin`; hoặc `npm i -D pixelmatch pngjs` (devDep). Script `scripts/pixel-diff.mjs` tự cài nếu thiếu. |
 | Pixel-diff > 1% nhưng do font-AA/subpixel (không phải drift thật) | Tăng mask vùng text động + xác nhận `includeAA:false`. Nếu vẫn cao mà model-visual (3b) thấy khớp → ghi ratio + lý do AA vào report, KHÔNG tự hạ chuẩn; escalate user quyết. |
 | Không resolve được `screenId` | Hỏi user (Step 1) — không đoán. |
-| Không có mock data ở route (màn trống) | BLOCKED — FE chưa hoàn tất behavior-mock, gửi lại fe-developer. |
+| Màn trống vì seed thiếu data | Chạy `npm run db:reset` để seed lại; hoặc mở rộng `supabase/seed-demo-data.sql`. KHÔNG tự chấm trên màn trắng. |
 
 ## Bài học bắt buộc (đúc từ thực chiến — đọc trước khi chấm)
 
 1. **Ảnh frame là chân lý, không phải token extract.** `list_design_items`/brief từng ghi SAI (card nền tối trong khi Figma nền kem; tier "sao" trong khi Figma "pill chữ"). Chấm theo `get_frame_image`; số chính xác lấy `get_node`. Extract mâu thuẫn ảnh → ảnh thắng. Brief chỉ là gợi ý — **khi xong phải update brief cho đúng**.
 2. **Logo/wordmark/artwork = ASSET ẢNH, export ra file thật.** Dùng `get_media_files`/`get_figma_image` → **verify `file` là PNG/SVG thật** (không phải XML "AccessDenied") → lưu `/public` → render `<Image>`. Signed URL hết hạn ~10 phút, tải ngay. **CẤM** dựng lại wordmark bằng `<h1>` text + font fallback (đã sai với "KUDOS").
-3. **Mock phải ĐỦ DENSITY như Figma** — "data không đủ sao giống được". Word-cloud ~45–50 tên (không phải 12), card có đủ ảnh gallery, leaderboard đủ 10. Thưa data = FAIL visual.
+3. **Seed data phải ĐỦ DENSITY như Figma** — "data không đủ sao giống được". Word-cloud ~45–50 tên (không phải 12), card có đủ ảnh gallery, leaderboard đủ 10. Thưa data = FAIL visual. Nếu thiếu → mở rộng `supabase/seed-demo-data.sql` rồi `npm run db:reset`.
 4. **Chấm CẢ TRANG** — `fullPage:true`, cuộn tới footer. Từng sót hẳn footer + đánh giá thiếu section.
 5. **Layout composition** — kiểm nhóm section (full-width vs 2-cột feed+sidebar), không chỉ từng component. Sidebar đặt sai chỗ = FAIL.
 6. **Kích thước/tỉ lệ** — box/section cao/rộng đúng tỉ lệ Figma (spotlight từng quá dài).
@@ -149,6 +148,13 @@ Ghi report vào `plans/reports/ui-gate-{date}-{screen-slug}.md`:
 8. **Verdict = bằng screenshot thật, KHÔNG tin report "DONE" của subagent.** Nhiều lần subagent báo xong nhưng vẫn lệch. Chạy gate thật rồi mới kết luận.
 9. **Control states theo test-cases** — carousel trang active + arrow disabled ở đầu/cuối; placeholder text CHÍNH XÁC; dropdown active/inactive; hover tooltip. Lấy từ `get_frame_test_cases`.
 10. **⚠️ Annotation trên Figma là spec ẨN — brief/MoMorph THIẾU.** Figma canvas hay có NOTE/callout vẽ cạnh artboard (vd *"Highlight chỉ hiện 1 KUDO ở Center, 2 bên để mở"*, `Dropdown Hashtag filter`, `Avatar info user`). MoMorph frame image crop mất → phải xem **Figma trực tiếp** (figma MCP / link / screenshot user gửi). Mỗi NOTE = 1 mục behavior/state cho nhóm B. **Nhưng đừng render nhãn annotation lên UI** — nó là chú thích, không phải nội dung.
+
+### 🔥 Bài học từ đợt Kudo card (2026-08-11) — nguyên nhân UI sai lặp nhiều vòng
+11. **ELEMENT-COMPLETENESS từ node tree — property-diff MÙ với element THIẾU HẲN.** property-diff chỉ chấm element ĐÃ TAG (`data-fig`); một element **vắng mặt hoàn toàn** (tier badge, dòng `dept · tier`, danh-hiệu row, gallery, "Xem chi tiết") thì KHÔNG có gì để diff → lọt. **Trước khi chấm: `get_frame_node_tree` component → liệt kê MỌI child** (person block=avatar+tên+dept+tier · danh-hiệu row+pencil · content · gallery · hashtag · footer=heart+copy+xem-chi-tiết) → **tag + assert TỪNG cái có trong DOM**. Thiếu 1 = **coverage FAIL**. (Card thiếu tier/dept/danh-hiệu cả buổi vì không ai enumerate node tree — component có prop nhưng chẳng ai check đủ element.)
+12. **Chấm trên DATA THẬT (seeded, authed).** Element render nhưng **DATA chưa wire** (feed query không trả `tier/department/danh_hieu`) → rỗng. Phải chấm **1 lượt trên seed data thật** (authed session) để lộ field chưa nối. "Component có" ≠ "data có".
+13. **Content-HUG vs FIXED-size — đừng ép height node rich thành cứng.** `get_node` trả height của card RICH (đủ gallery+content) = vd 525; card THƯA phải **hug content** (thấp hơn). Ép mọi card = 525 + `justify-between` → giãn rỗng, content trôi (đúng bug highlight card session này). Chỉ set cứng node THẬT SỰ fixed; còn lại `height:auto`. "Cùng 1 height" thường là do **cùng content**, không phải force-stretch.
+14. **ĐỪNG hoãn gate lặp lại (skip escape-hatch).** Skip chỉ cho: turn KHÔNG đụng UI, hoặc gate bất khả kháng (Docker/MCP chết). **Đã SỬA UI mà cứ skip "để sau" = drift lọt tới mắt user** (session này lặp 5+ vòng vì eyeball screenshot thay cho gate). Sửa UI → chạy gate NGAY. Eyeball KHÔNG thay gate.
+15. **Hashtag/chip style lấy từ node, không đoán.** Figma `B.4.3_Hashtag` là **TEXT đỏ có `#`**, không phải pill — 1 "rework pass" từng tự chế pill. Mọi style token (pill vs text, có `#` không) phải truy về `get_node`, không "confirmed" bằng trí nhớ.
 
 ## Rules
 

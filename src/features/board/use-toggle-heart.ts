@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toggleHeart, type ToggleHeartSuccess } from './heart-actions'
 import { boardFeedKeys } from './use-board-feed'
 import { highlightKeys } from './use-highlights'
+import { profileFeedKeys } from '@/features/profile/profile-feed-keys'
 import type { BoardKudoRow, BoardCursor } from './board-queries'
 
 // ---------------------------------------------------------------------------
@@ -165,6 +166,9 @@ export function useToggleHeart(): UseToggleHeartReturn {
       // Invalidate to reconcile optimistic state with server truth.
       void queryClient.invalidateQueries({ queryKey: highlightKeys.all })
       void queryClient.invalidateQueries({ queryKey: boardFeedKeys.all })
+      // Also invalidate the profile feed so heart counts update when toggled
+      // from the profile page (spec TC_WEB_PROFILE_FUN_014).
+      void queryClient.invalidateQueries({ queryKey: profileFeedKeys.all })
     },
   })
 

@@ -46,13 +46,19 @@ async function devLogin(
 }
 
 /**
- * Open the compose modal by clicking "Viết Kudo" on the /kudos page.
- * Returns a locator scoped to the dialog.
+ * Open the compose modal via the ?modal=compose query param.
+ *
+ * The /kudos page (no param) renders the board with modal CLOSED. The reliable
+ * dev entry is /kudos?modal=compose which pre-opens the compose modal server-side
+ * (see src/app/kudos/page.tsx: initialComposeOpen = modal === 'compose').
+ *
+ * The outer modal div carries role="dialog" aria-label="Viết Kudo"
+ * (see src/features/kudos/components/kudo-compose-modal.tsx line 232-233).
  */
 async function openModal(page: Page) {
-  await page.getByRole('button', { name: 'Viết Kudo' }).click()
+  await page.goto('/kudos?modal=compose')
   const dialog = page.getByRole('dialog', { name: 'Viết Kudo' })
-  await expect(dialog).toBeVisible()
+  await expect(dialog).toBeVisible({ timeout: 10_000 })
   return dialog
 }
 
@@ -129,9 +135,11 @@ test.describe('Viết Kudo — E2E (MoMorph ihQ26W78P2)', () => {
     await expect(page).toHaveURL('/kudos')
   })
 
-  test('ID-2: authenticated user sees "Viết Kudo" button on /kudos', async ({ page }) => {
+  test('ID-2: authenticated user sees the compose trigger on /kudos', async ({ page }) => {
     await devLogin(page)
-    const btn = page.getByRole('button', { name: 'Viết Kudo' })
+    // The /kudos route renders the board. The compose trigger is a pill button with
+    // aria-label "Viết lời cảm ơn và ghi nhận" (board-write-kudo-trigger.tsx).
+    const btn = page.getByRole('button', { name: /viết lời cảm ơn/i })
     await expect(btn).toBeVisible()
   })
 
@@ -593,8 +601,8 @@ test.describe('Viết Kudo — E2E (MoMorph ihQ26W78P2)', () => {
 
     // Modal should be gone
     await expect(page.getByRole('dialog', { name: 'Viết Kudo' })).not.toBeVisible()
-    // Back on /kudos page with the Viết Kudo button
-    await expect(page.getByRole('button', { name: 'Viết Kudo' })).toBeVisible()
+    // Board is still rendered — compose trigger pill should be visible
+    await expect(page.getByRole('button', { name: /viết lời cảm ơn/i })).toBeVisible()
   })
 
   // ── Submit Success ────────────────────────────────────────────────────────────

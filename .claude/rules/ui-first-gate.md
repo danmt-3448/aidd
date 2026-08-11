@@ -5,7 +5,7 @@
 
 Thực trạng: UI + behavior FE lỗi nhiều, chưa xét tới BE/API. Nguyên nhân workflow: build UI ∥ BE + wiring + viết test **cùng lúc** → bug UI trôi xuống hạ nguồn, test viết trên UI chưa đúng → phải sửa lại nhiều lần, tốn token.
 
-**Nguyên tắc:** mỗi screen phải **qua UI-First Gate** trước khi được integrate (wire real data), test (e2e/unit), hoặc ship. UI đúng design + behavior đúng với mock data là **ưu tiên số 1**.
+**Nguyên tắc:** mỗi screen phải **qua UI-First Gate** trước khi được integrate (wire real data), test (e2e/unit), hoặc ship. UI đúng design + behavior đúng với data thật (seeded, authed) là **ưu tiên số 1**.
 
 ---
 
@@ -20,24 +20,15 @@ Thực trạng: UI + behavior FE lỗi nhiều, chưa xét tới BE/API. Nguyên
 - [ ] **Property-diff chấm 1440 + 1280** — BỎ 768/375.
 - [ ] **1920 no-break** — chụp thêm ở 1920, assert KHÔNG vỡ (no overflow ngang, section không zoom/lệch, không đè-cắt chữ). KHÔNG so property-diff ở 1920.
 
-**B. Behavior / logic với MOCK DATA — BẤT KHẢ NHÂN NHƯỢNG (sai 1 mục = FAIL)**
+**B. Behavior / logic trên REAL SEEDED DATA (authed session) — BẤT KHẢ NHÂN NHƯỢNG (sai 1 mục = FAIL)**
 - [ ] Validation form (client-side) chạy đúng
 - [ ] Navigation / redirect đúng luồng
-- [ ] **4 state qua `?ui_state=`**: `full` / `empty` / `error` / `loading` đều render đúng (xem convention dưới)
+- [ ] **Verify behavior trên data thật** (`npm run db:reset` + seed, authed session via `e2e/.auth/user.json`): screen hiển thị đúng với data thật (full content, đúng mật độ Figma).
+- [ ] **Empty / error / loading** (best-effort): verify nếu có thể ép bằng real scenario (vd user thật không có data, forced network error, seeded edge case). Nếu không thể ép mà không có mock → ghi rõ "not verifiable without scenario" — **KHÔNG là hard-fail** miễn là có lý do rõ ràng.
 - [ ] Interactive elements hoạt động (click, hover, keyboard nav)
 - [ ] Không console error/warning
 
 > **A (visual) = property-diff SỐ khớp `get_node` (cổng cứng) + asset/icon thật + nets. B (behavior) là 100% — không nhân nhượng.** Chỉ khi A `style-assert` exit 0 ở cả 1440+1280 VÀ B đúng hết → screen mới "qua gate". Đo bằng `.claude/skills/aidd-ui-gate/scripts/style-assert.mjs`; pixel/band (`pixel-diff.mjs`) chỉ là overlay tham khảo.
-
-### Mock fixtures convention (để gate ép được state — deterministic)
-
-Không dùng skill riêng — chỉ 1 quy ước file + 1 query param:
-- Mỗi màn: `src/features/{feature}/mocks/{screen}.mock.ts` export `mockFull` / `mockEmpty` / `mockError`. Content `mockFull` lấy từ Figma, không bịa.
-- Mock hook đọc **`?ui_state=full|empty|error|loading`** (chỉ khi `NODE_ENV !== 'production'`, mặc định `full`) → trả fixture tương ứng (`loading` = giả delay).
-- Gate navigate route với từng `?ui_state=` → chấm từng state. Không có toggle → empty/error không kiểm được ⇒ FE chưa hoàn tất nhóm B ⇒ FAIL.
-
-### Mock phải đủ DENSITY như Figma (BẮT BUỘC)
-"Data không đủ sao giống được." `mockFull` phải tái tạo **đúng mật độ/nội dung** design, không chỉ vài item mẫu: list dày như Figma (vd word-cloud ~45–50 tên), card có đủ ảnh gallery, bảng đủ số dòng. Content lấy từ Figma (get_frame_image + node), không bịa. Thưa data → gate FAIL visual (nhìn không giống).
 
 ## ⛔ CẤM TỰ CHẾ VISUAL VALUE (BẮT BUỘC — áp cho cả agent lẫn subagent)
 
@@ -56,6 +47,10 @@ Không dùng skill riêng — chỉ 1 quy ước file + 1 query param:
 3. **Layout composition** phải khớp: section nào full-width, section nào chia 2-cột (feed+sidebar) — nhóm sai = sai.
 4. **Kích thước/tỉ lệ** element theo Figma; **không đè/cắt** chữ; chấm **cả trang tới footer**.
 5. **Verdict bằng screenshot thật** (fullPage), không tin report "DONE" của subagent.
+6. **BUILD component = enumerate FULL node tree TRƯỚC.** Trước khi code 1 card/component: `get_frame_node_tree` → liệt kê **mọi child element** (vd card: avatar+tên+**dept+tier badge** · **danh-hiệu row+pencil** · content · gallery · **hashtag** · footer heart+copy+xem-chi-tiết) → build + **wire data thật cho TỪNG cái**. property-diff MÙ với element THIẾU HẲN (không tag thì không diff) → element vắng lọt gate. (Bug 2026-08-11: card thiếu tier/dept/danh-hiệu nhiều vòng vì build từ spec một phần, data không nối.)
+7. **"Component có" ≠ "data có".** Element render rỗng vì query BE chưa trả field (tier/dept/danh_hieu). Luôn verify 1 lượt trên **data thật** (seeded + authed) — real data phơi ra field chưa wire, không như mock tự set field che lỗ hổng.
+8. **Content-HUG mặc định; chỉ FIXED khi node thật sự fixed.** `get_node` height của card RICH (đủ gallery) KHÔNG phải height cứng cho mọi card — card thưa phải hug (thấp hơn). Ép fixed + `justify-between` → giãn rỗng. "Cùng height" thường do **cùng content**, không phải force-stretch.
+9. **ĐỪNG hoãn gate.** Sửa UI xong → chạy `/aidd-ui-gate` NGAY, không skip "để sau". Eyeball screenshot KHÔNG thay gate — drift sẽ lọt tới mắt user (đã lặp 5+ vòng).
 
 ## Breakpoint policy (BẮT BUỘC — property-diff 1440 + 1280, no-break 1920)
 
@@ -75,8 +70,8 @@ Property-diff (số) chấm ở **1440 (chính) + 1280 (phụ)**. Thêm **1920 c
 BE build song song với UI là **được phép** (không phải nguyên nhân bug UI) và tiết kiệm token hơn so với chặn cứng. Gate chặn ở **cửa integration**, không chặn ở cửa viết code BE:
 
 ```
-Track A: UI + behavior (mock data)  ─┐
-Track B: BE + mock contracts        ─┤  ← 2 track CHẠY SONG SONG (không block nhau)
+Track A: UI + behavior (real seeded data) ─┐
+Track B: BE + contracts               ─┤  ← 2 track CHẠY SONG SONG (không block nhau)
                                       │
                     ┌─────────── UI-First Gate ───────────┐
                     │  /aidd-ui-gate → PASS?               │  ← chốt chặn Ở ĐÂY
@@ -101,7 +96,7 @@ Track B: BE + mock contracts        ─┤  ← 2 track CHẠY SONG SONG (không
 
 ## Enforcement
 
-- Skill **`/aidd-ui-gate <screen URL|route>`** chạy gate tự động: Playwright chụp **1440 (ưu tiên 1) + 1280 (ưu tiên 2)** → diff vs Figma reference (momorph MCP) + walk checklist behavior mock → xuất report PASS/FAIL vào `plans/reports/`.
+- Skill **`/aidd-ui-gate <screen URL|route>`** chạy gate tự động: Playwright chụp **1440 (ưu tiên 1) + 1280 (ưu tiên 2)** với authed session (real seeded data) → diff vs Figma reference (momorph MCP) + walk behavior checklist → xuất report PASS/FAIL vào `plans/reports/`.
 - Reviewer role dùng để verify gate: `.claude/roles/code-reviewer.md` (không tạo role mới).
 - FE Developer chịu trách nhiệm đưa screen qua gate trước khi handoff (xem `fe-developer.md`).
 - BE Developer KHÔNG integrate screen chưa qua gate (xem `be-developer.md`).

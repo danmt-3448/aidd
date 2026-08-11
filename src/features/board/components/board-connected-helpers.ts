@@ -5,24 +5,19 @@
  */
 
 import type { BoardKudoRow } from '../board-queries'
-import type { UiStateOverride } from '@/lib/ui-state-override'
 import type { FeedCardProps, SpotlightNode, BoardUserStats, LeaderboardEntry, SpotlightActivityEntry } from './board-types'
-import {
-  MOCK_FEED_CARDS,
-  MOCK_HIGHLIGHT_CARDS,
-  MOCK_HASHTAGS,
-  MOCK_SPOTLIGHT_NODES,
-  MOCK_TOTAL_KUDOS,
-  MOCK_USER_STATS,
-  MOCK_GIFT_LEADERBOARD,
-  MOCK_SPOTLIGHT_ACTIVITY,
-  MOCK_DEPARTMENTS,
-} from '../mocks/board.mock'
 
 /**
  * Maps a Track B BoardKudoRow to a Track A FeedCardProps.
- * hashtags is omitted — the board feed query does not join hashtag names.
- * Cards render without a chip rather than showing invented data.
+ * Includes tier, department, kudoTitle, and hashtags from the extended feed query.
+ *
+ * NOTE: senderDepartment / senderTier are null for anonymous kudos (masked by
+ * kudos_public). FeedCardProps marks those fields optional — FE renders nothing.
+ *
+ * Department limitation: only the short code (e.g. "CEVC10") is available from
+ * departments.name. Full org-path (e.g. "C&C Executive/C&C Line/HRD Unit/OPD Center")
+ * does not exist in the current DB schema. Hover card shows short name until a
+ * full_path column is added to the departments table.
  */
 export function mapKudoRowToFeedCard(row: BoardKudoRow): FeedCardProps {
   return {
@@ -30,13 +25,19 @@ export function mapKudoRowToFeedCard(row: BoardKudoRow): FeedCardProps {
     senderId: row.senderId,
     senderName: row.senderName,
     senderAvatarUrl: row.senderAvatarUrl,
+    senderDepartment: row.senderDepartment ?? undefined,
+    senderTier: row.senderTier ?? undefined,
     receiverId: row.receiverId,
     receiverName: row.receiverName,
     receiverAvatarUrl: row.receiverAvatarUrl,
+    receiverDepartment: row.receiverDepartment ?? undefined,
+    receiverTier: row.receiverTier ?? undefined,
     contentHtml: row.contentHtml,
     heartCount: row.heartCount,
     likedByMe: row.likedByMe,
     createdAt: row.createdAt,
+    hashtags: row.hashtags.length > 0 ? row.hashtags : undefined,
+    kudoTitle: row.kudoTitle ?? undefined,
   }
 }
 
@@ -56,125 +57,6 @@ export const ZERO_STATS: BoardUserStats = {
 }
 
 export const EMPTY_ACTIVITY: SpotlightActivityEntry[] = []
-
-// ---------------------------------------------------------------------------
-// Override resolvers — each returns mock/empty/undefined based on ui_state.
-// Called by BoardConnected; extracted here to keep that file under 200 lines.
-// ---------------------------------------------------------------------------
-
-interface RealBoardData {
-  feedRows: BoardKudoRow[]
-  highlightRows: BoardKudoRow[]
-  spotlightNodes: SpotlightNode[]
-  userStats: BoardUserStats
-  giftLeaderboard: LeaderboardEntry[]
-  hashtagNames: string[]
-  departmentNames: string[]
-  feedLoading: boolean
-  feedError: string | null
-}
-
-export interface ResolvedBoardData {
-  feed: FeedCardProps[]
-  highlights: FeedCardProps[]
-  spotlightNodes: SpotlightNode[]
-  spotlightActivity: SpotlightActivityEntry[]
-  totalKudos: number
-  userStats: BoardUserStats
-  giftLeaderboard: LeaderboardEntry[]
-  hashtagNames: string[]
-  departmentNames: string[]
-  feedLoading: boolean
-  feedError: string | null
-}
-
-export function resolveOverrideData(
-  override: UiStateOverride | null,
-  real: RealBoardData,
-): ResolvedBoardData {
-  if (override === null) {
-    const realFeed = real.feedRows.map(mapKudoRowToFeedCard)
-    const realHighlights = real.highlightRows.map(mapKudoRowToFeedCard)
-    const totalKudos = real.spotlightNodes.reduce((sum, n) => sum + n.kudoCount, 0)
-    return {
-      feed: realFeed,
-      highlights: realHighlights,
-      spotlightNodes: real.spotlightNodes,
-      spotlightActivity: EMPTY_ACTIVITY,
-      totalKudos,
-      userStats: real.userStats,
-      giftLeaderboard: real.giftLeaderboard,
-      hashtagNames: real.hashtagNames,
-      departmentNames: real.departmentNames,
-      feedLoading: real.feedLoading,
-      feedError: real.feedError,
-    }
-  }
-
-  if (override === 'full') {
-    return {
-      feed: MOCK_FEED_CARDS,
-      highlights: MOCK_HIGHLIGHT_CARDS,
-      spotlightNodes: MOCK_SPOTLIGHT_NODES,
-      spotlightActivity: MOCK_SPOTLIGHT_ACTIVITY,
-      // Always use the design-sourced value from Figma (388 KUDOS shown in design).
-      totalKudos: MOCK_TOTAL_KUDOS,
-      userStats: MOCK_USER_STATS,
-      giftLeaderboard: MOCK_GIFT_LEADERBOARD,
-      hashtagNames: MOCK_HASHTAGS,
-      departmentNames: MOCK_DEPARTMENTS,
-      feedLoading: false,
-      feedError: null,
-    }
-  }
-
-  if (override === 'loading') {
-    return {
-      feed: EMPTY_FEED,
-      highlights: EMPTY_FEED,
-      spotlightNodes: EMPTY_NODES,
-      spotlightActivity: EMPTY_ACTIVITY,
-      totalKudos: 0,
-      userStats: ZERO_STATS,
-      giftLeaderboard: EMPTY_LEADERBOARD,
-      hashtagNames: [],
-      departmentNames: [],
-      feedLoading: true,
-      feedError: null,
-    }
-  }
-
-  if (override === 'error') {
-    return {
-      feed: EMPTY_FEED,
-      highlights: EMPTY_FEED,
-      spotlightNodes: EMPTY_NODES,
-      spotlightActivity: EMPTY_ACTIVITY,
-      totalKudos: 0,
-      userStats: ZERO_STATS,
-      giftLeaderboard: EMPTY_LEADERBOARD,
-      hashtagNames: [],
-      departmentNames: [],
-      feedLoading: false,
-      feedError: 'Mock error state',
-    }
-  }
-
-  // override === 'empty'
-  return {
-    feed: EMPTY_FEED,
-    highlights: EMPTY_FEED,
-    spotlightNodes: EMPTY_NODES,
-    spotlightActivity: EMPTY_ACTIVITY,
-    totalKudos: 0,
-    userStats: ZERO_STATS,
-    giftLeaderboard: EMPTY_LEADERBOARD,
-    hashtagNames: [],
-    departmentNames: [],
-    feedLoading: false,
-    feedError: null,
-  }
-}
 
 // Department filter is implemented: see use-department-list.ts, board-department-queries.ts,
 // board-department-filter.tsx. The departments table (20260804040000) adds a departments

@@ -33,6 +33,8 @@ export interface HomepageCountdownProps {
   days: number;
   hours: number;
   minutes: number;
+  /** When true (event has started), hides the "Coming soon" label. Spec ID-42. */
+  done?: boolean;
 }
 
 interface HomepageHeroProps {
@@ -105,19 +107,22 @@ export function HomepageHero({
           {/* Countdown + event info */}
           <div className="flex flex-col" style={{ gap: 16 }}>
             {/* "Coming soon" label — Figma: nodeId 2167:9036 (mms_B1.2_Coming soon)
-                Montserrat 700 24px white rgba(255,255,255,1), line-height 32px */}
-            <p
-              className={montserrat.className}
-              data-fig="2167:9036"
-              style={{
-                fontSize: 24,
-                fontWeight: 700,
-                lineHeight: "32px",
-                color: "#FFFFFF",
-              }}
-            >
-              Coming soon
-            </p>
+                Montserrat 700 24px white rgba(255,255,255,1), line-height 32px.
+                Hidden once the event has started (done === true). Spec ID-42. */}
+            {!countdown.done && (
+              <p
+                className={montserrat.className}
+                data-fig="2167:9036"
+                style={{
+                  fontSize: 24,
+                  fontWeight: 700,
+                  lineHeight: "32px",
+                  color: "#FFFFFF",
+                }}
+              >
+                Coming soon
+              </p>
+            )}
 
             {/* 3-unit LED countdown row
                 flex-wrap: at 375px the 3 blocks wrap to 2 rows so nothing

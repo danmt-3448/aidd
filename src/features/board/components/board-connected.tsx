@@ -5,16 +5,15 @@
  * + BoardScreen. Receives server-resolved identity (uid/user/isAdmin) from
  * board/page.tsx and calls all Track B hooks. Surfaces errors via toasts.
  * Must be inside <QueryProvider> + <Toaster> (root providers.tsx).
- *
- * Dev-only: ?ui_state=full|empty|error|loading bypasses Supabase/realtime
- * and renders from board-mock.ts. No side-effect channels fire in override mode.
  */
 
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { SiteHeader } from '@/components/site-header'
 import { useUnreadCount } from '@/features/notifications/use-notifications'
+import { KudoComposeModal, type KudoInitialData } from '@/features/kudos/components/kudo-compose-modal'
+import { getKudoForEdit } from '@/features/kudos/kudo-actions'
 import { BoardScreen } from './board-screen'
 import { useBoardFeed } from '../use-board-feed'
 import { useHighlights } from '../use-highlights'
@@ -24,16 +23,15 @@ import { useBoardUserStats } from '../use-board-user-stats'
 import { useGiftLeaderboard } from '../use-board-leaderboards'
 import { useHashtagList } from '../use-hashtag-list'
 import { useDepartmentList } from '../use-department-list'
-import { useUiStateOverride } from '@/lib/ui-state-override'
-import { resolveOverrideData } from './board-connected-helpers'
+import { mapKudoRowToFeedCard, EMPTY_ACTIVITY } from './board-connected-helpers'
 
 export interface BoardConnectedProps {
   uid: string | null
   user: { name: string; avatarUrl?: string } | null
   isAdmin: boolean
   /**
-   * Dev/test harness only — pre-open the KudoComposeModal on mount.
-   * Injected by KudosDevWrapper (/kudos route) via ?modal=compose.
+   * Pre-open the KudoComposeModal on mount.
+   * Injected by /kudos route via ?modal=compose.
    * Passed straight through to BoardScreen as initialComposeOpen.
    */
   initialComposeOpen?: boolean
@@ -43,12 +41,13 @@ export function BoardConnected({ uid, user, isAdmin, initialComposeOpen = false 
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const uiOverride = useUiStateOverride()
-  const isOverride = uiOverride !== null
+  // ── Edit-kudo modal state ─────────────────────────────────────────────────
+  const [editKudoId, setEditKudoId] = useState<string | null>(null)
+  const [editInitialData, setEditInitialData] = useState<KudoInitialData | null>(null)
 
   const { count: unreadCount } = useUnreadCount(uid)
 
-  // ── Track B hooks (always called — Rules of Hooks) ────────────────────────
+  // ── Track B hooks ─────────────────────────────────────────────────────────
   const {
     allRows: feedRows,
     isLoading: feedLoading,
@@ -66,18 +65,12 @@ export function BoardConnected({ uid, user, isAdmin, initialComposeOpen = false 
   const { hashtags: hashtagList, nameToId: hashtagNameToId } = useHashtagList()
   const { departments: departmentList, nameToId: deptNameToId, error: deptListError } = useDepartmentList()
 
-  // ── Resolve data (override wins when active) ──────────────────────────────
-  const resolved = resolveOverrideData(uiOverride, {
-    feedRows,
-    highlightRows,
-    spotlightNodes,
-    userStats,
-    giftLeaderboard,
-    hashtagNames: hashtagList.map((h) => h.name),
-    departmentNames: departmentList.map((d) => d.name),
-    feedLoading,
-    feedError,
-  })
+  // ── Map rows ──────────────────────────────────────────────────────────────
+  const feed = feedRows.map(mapKudoRowToFeedCard)
+  const highlights = highlightRows.map(mapKudoRowToFeedCard)
+  const totalKudos = spotlightNodes.reduce((sum, n) => sum + n.kudoCount, 0)
+  const hashtagNames = hashtagList.map((h) => h.name)
+  const departmentNames = departmentList.map((d) => d.name)
 
   // ── Routing helpers ───────────────────────────────────────────────────────
   const activeHashtagId = searchParams.get('hashtag')
@@ -120,26 +113,35 @@ export function BoardConnected({ uid, user, isAdmin, initialComposeOpen = false 
     [router, searchParams, deptNameToId],
   )
 
-  // ── Error toasts (suppressed in override mode) ────────────────────────────
-  // Each error needs its own effect so React can track per-dependency changes.
-  useEffect(() => { if (!isOverride && feedError) toast.error(feedError) }, [isOverride, feedError])
-  useEffect(() => { if (!isOverride && highlightsError) toast.error(highlightsError) }, [isOverride, highlightsError])
-  useEffect(() => { if (!isOverride && spotlightError) toast.error(spotlightError) }, [isOverride, spotlightError])
-  useEffect(() => { if (!isOverride && statsError) toast.error(statsError) }, [isOverride, statsError])
-  useEffect(() => { if (!isOverride && giftError) toast.error(giftError) }, [isOverride, giftError])
-  useEffect(() => { if (!isOverride && deptListError) toast.error(deptListError) }, [isOverride, deptListError])
+  // ── Error toasts ──────────────────────────────────────────────────────────
+  useEffect(() => { if (feedError) toast.error(feedError) }, [feedError])
+  useEffect(() => { if (highlightsError) toast.error(highlightsError) }, [highlightsError])
+  useEffect(() => { if (spotlightError) toast.error(spotlightError) }, [spotlightError])
+  useEffect(() => { if (statsError) toast.error(statsError) }, [statsError])
+  useEffect(() => { if (giftError) toast.error(giftError) }, [giftError])
+  useEffect(() => { if (deptListError) toast.error(deptListError) }, [deptListError])
   useEffect(() => { if (toggleError) { toast.error(toggleError); clearError() } }, [toggleError, clearError])
 
   const handleLoadMore = useCallback(() => {
-    if (!isOverride && hasNextPage && !isFetchingNextPage) fetchNextPage()
-  }, [isOverride, hasNextPage, isFetchingNextPage, fetchNextPage])
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const handleEdit = useCallback(async (kudoId: string) => {
+    const result = await getKudoForEdit(kudoId)
+    if (!result.ok) {
+      toast.error(result.error)
+      return
+    }
+    setEditInitialData(result.data)
+    setEditKudoId(kudoId)
+  }, [])
 
   const header = (
     <SiteHeader user={user} unreadCount={unreadCount} uid={uid} isAdmin={isAdmin} activeNav="kudos" />
   )
 
   // Loading skeleton gate
-  if (resolved.feedLoading && resolved.feed.length === 0) {
+  if (feedLoading && feed.length === 0) {
     return (
       <div className="relative min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
         {header}
@@ -156,7 +158,7 @@ export function BoardConnected({ uid, user, isAdmin, initialComposeOpen = false 
   }
 
   // Error gate
-  if (resolved.feedError && resolved.feed.length === 0) {
+  if (feedError && feed.length === 0) {
     return (
       <div className="relative min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
         {header}
@@ -174,34 +176,44 @@ export function BoardConnected({ uid, user, isAdmin, initialComposeOpen = false 
     <div className="relative min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
       {header}
       <BoardScreen
-        highlights={resolved.highlights}
-        feed={resolved.feed}
-        hashtags={resolved.hashtagNames}
+        highlights={highlights}
+        feed={feed}
+        hashtags={hashtagNames}
         activeHashtag={activeHashtag}
-        departments={resolved.departmentNames}
+        departments={departmentNames}
         activeDepartment={activeDepartment}
-        spotlight={resolved.spotlightNodes}
-        spotlightActivity={resolved.spotlightActivity}
-        totalKudos={resolved.totalKudos}
-        userStats={resolved.userStats}
-        giftLeaderboard={resolved.giftLeaderboard}
+        spotlight={spotlightNodes}
+        spotlightActivity={EMPTY_ACTIVITY}
+        totalKudos={totalKudos}
+        userStats={userStats}
+        giftLeaderboard={giftLeaderboard}
         onHashtagChange={handleHashtagChange}
         onDepartmentChange={handleDepartmentChange}
-        onToggleHeart={(kudoId) => { if (!isOverride) toggle(kudoId) }}
+        onToggleHeart={(kudoId) => { toggle(kudoId) }}
         onCopyLink={() => { /* handled inside BoardScreen */ }}
         onOpenProfile={(id) => router.push('/profile?id=' + id)}
         onOpenSecretBox={() => router.push('/secret-box')}
-        isLoading={resolved.feedLoading}
-        hasNextPage={!isOverride && hasNextPage}
-        isFetchingNextPage={!isOverride && isFetchingNextPage}
+        isLoading={feedLoading}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
         onLoadMore={handleLoadMore}
         resolvedUserId={uid ?? undefined}
         initialComposeOpen={initialComposeOpen}
-        onEdit={() => {
-          // Edit-kudo modal is a follow-up feature — placeholder no-op.
-          // When the edit feature lands, open KudoEditModal here with the kudoId.
-        }}
+        onEdit={handleEdit}
       />
+
+      {/* Edit-kudo modal — mounts only when pencil is clicked on own kudo */}
+      {editKudoId && editInitialData && (
+        <KudoComposeModal
+          editKudoId={editKudoId}
+          editInitialData={editInitialData}
+          resolvedUserId={uid ?? undefined}
+          onClose={() => {
+            setEditKudoId(null)
+            setEditInitialData(null)
+          }}
+        />
+      )}
     </div>
   )
 }

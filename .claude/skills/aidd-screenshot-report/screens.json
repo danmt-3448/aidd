@@ -1,0 +1,80 @@
+{
+  "baseURL": "http://localhost:3001",
+  "viewport": { "width": 1440, "height": 1000 },
+  "authFiles": {
+    "user": "e2e/.auth/user.json",
+    "admin": "e2e/.auth/admin.json"
+  },
+  "screens": [
+    {
+      "name": "homepage",
+      "route": "/",
+      "mode": "fixed",
+      "states": ["full"],
+      "auth": "user",
+      "fullPage": true,
+      "waitMs": 2500,
+      "note": "real authed session; empty/error states require a seeded edge-case user"
+    },
+    {
+      "name": "board",
+      "route": "/board",
+      "mode": "fixed",
+      "states": ["full"],
+      "auth": "user",
+      "fullPage": true,
+      "waitMs": 3500,
+      "note": "real seeded data; empty state requires a user with no kudos (see seed-demo-data.sql)"
+    },
+    {
+      "name": "kudos-compose",
+      "route": "/kudos?modal=compose",
+      "mode": "element",
+      "element": "[role=dialog]",
+      "states": ["compose"],
+      "auth": "user",
+      "fullPage": false,
+      "waitMs": 3000
+    },
+    {
+      "name": "profile-self",
+      "route": "/profile",
+      "mode": "fixed",
+      "states": ["full"],
+      "auth": "user",
+      "fullPage": true,
+      "waitMs": 3000,
+      "note": "real seeded data; empty state requires seeding a user with no kudos"
+    },
+    {
+      "name": "profile-other",
+      "route": "/profile?id=11111111-0000-0000-0000-000000000003",
+      "mode": "fixed",
+      "states": ["full"],
+      "auth": "user",
+      "fullPage": true,
+      "waitMs": 3000,
+      "note": "real seeded data; empty/error N/A on other-profile (id-scoped)"
+    },
+    {
+      "name": "secret-box",
+      "route": "/secret-box",
+      "mode": "fixed",
+      "states": ["full"],
+      "auth": "user",
+      "fullPage": true,
+      "waitMs": 3000,
+      "note": "real seeded data; empty state requires seeding a user with 0 unopened boxes (see seed-demo-data.sql user #10)"
+    },
+    {
+      "name": "notifications",
+      "route": "/notifications",
+      "mode": "fixed",
+      "states": ["full"],
+      "auth": "user",
+      "fullPage": true,
+      "waitMs": 2500,
+      "note": "pending screen (F007 scope) — captured for completeness; empty state requires a user with no notifications"
+    }
+  ]
+}

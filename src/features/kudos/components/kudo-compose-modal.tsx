@@ -9,8 +9,6 @@ import { HashtagPicker, type HashtagItem } from './hashtag-picker'
 
 // Lazy-load TiptapEditor: ProseMirror + 7 @tiptap/* packages are heavy (~300 KB+).
 // Dynamic import with ssr:false splits them out of the initial /kudos bundle.
-// The modal is conditionally mounted ({modalOpen && <KudoComposeModal>}), so
-// TiptapEditor only loads when the compose modal actually opens.
 const TiptapEditor = dynamic(
   () => import('./tiptap-editor').then((m) => ({ default: m.TiptapEditor })),
   {
@@ -18,16 +16,9 @@ const TiptapEditor = dynamic(
     loading: () => (
       <div
         className="flex items-center justify-center"
-        style={{
-          border: '1px solid #998C5F',
-          borderRadius: '0 0 8px 8px',
-          minHeight: '200px',
-          background: '#FFF',
-        }}
+        style={{ border: '1px solid #998C5F', borderRadius: '0 0 8px 8px', minHeight: '200px', background: '#FFF' }}
       >
-        <span className="font-montserrat text-sm" style={{ color: '#999' }}>
-          Đang tải trình soạn thảo…
-        </span>
+        <span className="font-montserrat text-sm" style={{ color: '#999' }}>Đang tải trình soạn thảo…</span>
       </div>
     ),
   },
@@ -40,81 +31,140 @@ import { type MentionItem } from './tiptap-mention-list'
 import { useRecipientSearch } from '../hooks/use-recipient-search'
 import { useHashtags } from '../hooks/use-hashtags'
 import { useCreateKudo } from '../hooks/use-create-kudo'
+import { useUpdateKudo } from '../hooks/use-update-kudo'
 import { useCurrentUserId } from '../hooks/use-current-user-id'
 import { createClient } from '@/lib/supabase/client'
+import { KudoEditInitialData } from './kudo-edit-initial-data'
+
+// ---------------------------------------------------------------------------
+// Public types
+// ---------------------------------------------------------------------------
+
+/** Prefill shape passed from board-connected when opening in edit mode. */
+export interface KudoInitialData {
+  contentHtml: string
+  danhHieu: string
+  hashtagIds: string[]
+  imagePaths: string[]
+  receiverId: string
+  receiverName: string
+}
 
 interface KudoComposeModalProps {
   onClose: () => void
   isOpen?: boolean
+  /**
+   * Pre-fills the recipient field when the modal is opened from another user's
+   * profile page (spec TC_WEB_PROFILE_FUN_007). The dropdown is NOT auto-opened;
+   * the field remains editable. Defaults to null (no pre-fill).
+   */
+  initialRecipient?: RecipientItem | null
+  /**
+   * Optional resolved userId to pass directly instead of resolving via
+   * useCurrentUserId(). Avoids the async resolution gap that keeps the image
+   * uploader disabled until the hook settles.
+   */
+  resolvedUserId?: string
+  /**
+   * When set, the modal opens in EDIT mode:
+   * - Title changes to "Sửa Kudo"
+   * - Recipient is locked (read-only)
+   * - Fields are pre-filled from initialData
+   * - Submit calls useUpdateKudo instead of useCreateKudo
+   */
+  editKudoId?: string
+  /**
+   * Prefill data for edit mode. Required when editKudoId is set.
+   * Ignored when editKudoId is absent (create mode).
+   */
+  editInitialData?: KudoInitialData
 }
 
 const BUCKET = 'kudo-images'
 
-export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalProps) {
-  // ── stable kudoId for this compose session (state → safe to read in render) ──
-  const [kudoId] = useState(() => crypto.randomUUID())
+export function KudoComposeModal({
+  onClose,
+  isOpen = true,
+  initialRecipient,
+  resolvedUserId,
+  editKudoId,
+  editInitialData,
+}: KudoComposeModalProps) {
+  const isEditMode = Boolean(editKudoId)
+  const [kudoId] = useState(() => isEditMode ? (editKudoId as string) : crypto.randomUUID())
   const formKey = useId()
 
-  // ── current user (for storage path + self-exclusion) ────────────────────
-  const userId = useCurrentUserId()
+  const hookUserId = useCurrentUserId()
+  const userId = resolvedUserId ?? hookUserId
 
   // ── form state ──────────────────────────────────────────────────────────
-  const [recipient, setRecipient] = useState<RecipientItem | null>(null)
+  const [recipient, setRecipient] = useState<RecipientItem | null>(() => {
+    if (isEditMode && editInitialData) {
+      return { id: editInitialData.receiverId, name: editInitialData.receiverName }
+    }
+    return initialRecipient ?? null
+  })
   const [recipientOpen, setRecipientOpen] = useState(false)
   const [recipientSearch, setRecipientSearch] = useState('')
 
-  const [contentHtml, setContentHtml] = useState('')
+  const [contentHtml, setContentHtml] = useState(editInitialData?.contentHtml ?? '')
   const [contentCharCount, setContentCharCount] = useState(0)
 
   const [selectedHashtags, setSelectedHashtags] = useState<HashtagItem[]>([])
   const [hashtagLimitError, setHashtagLimitError] = useState<string | null>(null)
 
-  const [images, setImages] = useState<UploadedImage[]>([])
+  const [images, setImages] = useState<UploadedImage[]>(() => {
+    if (isEditMode && editInitialData?.imagePaths.length) {
+      return editInitialData.imagePaths.map((p) => ({
+        id: p,
+        storagePath: p,
+        previewUrl: '', // edit mode: no local preview URL needed; ImageUploader uses storagePath
+      }))
+    }
+    return []
+  })
 
-  const [danhHieu, setDanhHieu] = useState('')
-
+  const [danhHieu, setDanhHieu] = useState(editInitialData?.danhHieu ?? '')
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [anonymousAlias, setAnonymousAlias] = useState('')
 
   // ── Track B hooks ────────────────────────────────────────────────────────
-  const { data: recipientResults = [], isLoading: recipientsLoading } =
-    useRecipientSearch(recipientSearch)
-
+  const { data: recipientResults = [], isLoading: recipientsLoading } = useRecipientSearch(recipientSearch)
   const { data: hashtagCatalog = [] } = useHashtags()
+  const createHook = useCreateKudo()
+  const updateHook = useUpdateKudo()
+  const { submit, isPending, isSuccess, fieldErrors, rootError, reset } = isEditMode ? updateHook : createHook
 
-  const { submit, isPending, isSuccess, fieldErrors, rootError, reset } = useCreateKudo()
+  // ── Seed selectedHashtags from edit initial data once catalog loads ──────
+  useEffect(() => {
+    if (!isEditMode || !editInitialData || hashtagCatalog.length === 0) return
+    const preselected = hashtagCatalog
+      .filter((h) => editInitialData.hashtagIds.includes(h.id))
+      .map((h) => ({ id: h.id, label: h.name }))
+    setSelectedHashtags(preselected)
+    // Run once when catalog arrives — editInitialData is stable (object from parent render).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hashtagCatalog])
 
-  // ── Map Track B recipient results → Track A RecipientItem ────────────────
+  // ── Map results → component types ───────────────────────────────────────
   const recipientOptions: RecipientItem[] = recipientResults.map((r) => ({
-    id: r.id,
-    name: r.full_name,
-    avatarUrl: r.avatar_url ?? undefined,
+    id: r.id, name: r.full_name, avatarUrl: r.avatar_url ?? undefined,
   }))
+  const hashtagCatalogItems: HashtagItem[] = hashtagCatalog.map((h) => ({ id: h.id, label: h.name }))
+  const mentionItems: MentionItem[] = recipientResults.map((r) => ({ id: r.id, name: r.full_name }))
 
-  // ── Map Track B hashtag catalog → Track A HashtagItem ────────────────────
-  const hashtagCatalogItems: HashtagItem[] = hashtagCatalog.map((h) => ({
-    id: h.id,
-    label: h.name,
-  }))
-
-  // ── Mention items from recipient search results ───────────────────────────
-  const mentionItems: MentionItem[] = recipientResults.map((r) => ({
-    id: r.id,
-    name: r.full_name,
-  }))
-
-  // ── Submit disabled until required fields valid ───────────────────────────
+  // ── Submit gating ────────────────────────────────────────────────────────
   const hasContent = contentCharCount > 0
   const isSubmitDisabled =
     !recipient || !hasContent || selectedHashtags.length === 0 || danhHieu.trim().length === 0
 
-  // ── Success effect: toast + close + reset ────────────────────────────────
+  // ── Success effect ────────────────────────────────────────────────────────
   useEffect(() => {
     if (!isSuccess) return
-    toast.success('Đã gửi Kudo thành công')
+    toast.success(isEditMode ? 'Đã cập nhật Kudo' : 'Đã gửi Kudo thành công')
     reset()
     onClose()
-  }, [isSuccess, reset, onClose])
+  }, [isSuccess, isEditMode, reset, onClose])
 
   // ── Handlers ─────────────────────────────────────────────────────────────
   const handleContentChange = useCallback((html: string, count: number) => {
@@ -122,17 +172,11 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
     setContentCharCount(count)
   }, [])
 
-  const handleAddHashtag = useCallback(
-    (item: HashtagItem) => {
-      if (selectedHashtags.length >= 5) {
-        setHashtagLimitError('Tối đa 5 hashtag')
-        return
-      }
-      setHashtagLimitError(null)
-      setSelectedHashtags((prev) => [...prev, item])
-    },
-    [selectedHashtags.length],
-  )
+  const handleAddHashtag = useCallback((item: HashtagItem) => {
+    if (selectedHashtags.length >= 5) { setHashtagLimitError('Tối đa 5 hashtag'); return }
+    setHashtagLimitError(null)
+    setSelectedHashtags((prev) => [...prev, item])
+  }, [selectedHashtags.length])
 
   const handleRemoveHashtag = useCallback((id: string) => {
     setHashtagLimitError(null)
@@ -146,9 +190,7 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
   const handleRemoveImage = useCallback(async (id: string) => {
     const img = images.find((i) => i.id === id)
     setImages((prev) => prev.filter((i) => i.id !== id))
-    // Revoke object URL to free memory
     if (img?.previewUrl.startsWith('blob:')) URL.revokeObjectURL(img.previewUrl)
-    // Delete from Storage so orphaned uploads don't accumulate
     if (img?.storagePath) {
       const supabase = createClient()
       await supabase.storage.from(BUCKET).remove([img.storagePath])
@@ -156,52 +198,50 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
   }, [images])
 
   const handleCancel = useCallback(async () => {
-    // Remove any already-uploaded temp images before discarding
-    if (images.length > 0) {
-      const paths = images.map((i) => i.storagePath)
+    // Only remove images that were newly uploaded during THIS session (have a
+    // blob preview URL). Images that came from editInitialData already exist in
+    // storage — do not delete them on cancel.
+    const newImages = images.filter((i) => i.previewUrl.startsWith('blob:'))
+    if (newImages.length > 0) {
+      const paths = newImages.map((i) => i.storagePath)
       const supabase = createClient()
       await supabase.storage.from(BUCKET).remove(paths)
-      images.forEach((img) => {
-        if (img.previewUrl.startsWith('blob:')) URL.revokeObjectURL(img.previewUrl)
-      })
+      newImages.forEach((img) => URL.revokeObjectURL(img.previewUrl))
     }
     reset()
     onClose()
   }, [images, reset, onClose])
 
-  // ── Escape key closes modal ───────────────────────────────────────────────
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleCancel()
-    }
+    const handleKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') handleCancel() }
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [handleCancel])
 
   const handleSubmit = useCallback(() => {
     if (!recipient || isSubmitDisabled) return
-    submit({
-      kudoId: kudoId,
-      receiverId: recipient.id,
-      contentHtml,
-      hashtagIds: selectedHashtags.map((h) => h.id),
-      imagePaths: images.map((i) => i.storagePath),
-      isAnonymous,
-      anonymousName: isAnonymous && anonymousAlias.trim() ? anonymousAlias.trim() : undefined,
-      danhHieu: danhHieu.trim(),
-    })
-  }, [
-    kudoId,
-    recipient,
-    isSubmitDisabled,
-    submit,
-    contentHtml,
-    selectedHashtags,
-    images,
-    isAnonymous,
-    anonymousAlias,
-    danhHieu,
-  ])
+    if (isEditMode) {
+      updateHook.submit({
+        kudoId,
+        contentHtml,
+        hashtagIds: selectedHashtags.map((h) => h.id),
+        imagePaths: images.map((i) => i.storagePath),
+        danhHieu: danhHieu.trim(),
+      })
+    } else {
+      createHook.submit({
+        kudoId,
+        receiverId: recipient.id,
+        contentHtml,
+        hashtagIds: selectedHashtags.map((h) => h.id),
+        imagePaths: images.map((i) => i.storagePath),
+        isAnonymous,
+        anonymousName: isAnonymous && anonymousAlias.trim() ? anonymousAlias.trim() : undefined,
+        danhHieu: danhHieu.trim(),
+      })
+    }
+  }, [kudoId, recipient, isSubmitDisabled, isEditMode, updateHook, createHook,
+      contentHtml, selectedHashtags, images, isAnonymous, anonymousAlias, danhHieu])
 
   if (!isOpen) return null
 
@@ -210,60 +250,54 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
       className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto pt-[10px]"
       style={{ background: 'rgba(0,16,26,0.8)' }}
       data-fig="520:11646"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) handleCancel()
-      }}
+      onClick={(e) => { if (e.target === e.currentTarget) handleCancel() }}
       role="dialog"
       aria-modal="true"
-      aria-label="Viết Kudo"
+      aria-label={isEditMode ? 'Sửa Kudo' : 'Viết Kudo'}
     >
       <div
         key={formKey}
         data-fig="520:11647"
         className={`${montserrat.className} flex w-full max-w-[752px] flex-col gap-8 overflow-y-auto`}
-        style={{
-          background: 'rgba(255,248,225,1)',
-          borderRadius: '24px',
-          padding: '40px',
-          maxHeight: '90vh',
-        }}
+        style={{ background: 'rgba(255,248,225,1)', borderRadius: '24px', padding: '40px', maxHeight: '90vh' }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* A — Title: Figma mms_A: 32px/700/lh40/center, node I520:11647;520:9870 */}
+        {/* Title */}
         <h2
           data-fig="I520:11647;520:9870"
           className="w-full text-center font-montserrat text-[32px] font-bold leading-10 tracking-[0px]"
           style={{ color: '#00101A' }}
         >
-          Gửi lời cám ơn và ghi nhận đến đồng đội
+          {isEditMode ? 'Sửa Kudo' : 'Gửi lời cám ơn và ghi nhận đến đồng đội'}
         </h2>
 
-        {/* B — Recipient selector */}
-        <RecipientSelect
-          value={recipient}
-          options={recipientOptions}
-          isLoading={recipientsLoading}
-          onSelect={setRecipient}
-          searchQuery={recipientSearch}
-          onSearchChange={setRecipientSearch}
-          isOpen={recipientOpen}
-          onOpenChange={setRecipientOpen}
-          required
-          error={fieldErrors['receiverId']?.[0]}
-        />
+        {/* Recipient — locked in edit mode, editable in create mode */}
+        {isEditMode ? (
+          <KudoEditInitialData recipientName={recipient?.name ?? ''} />
+        ) : (
+          <RecipientSelect
+            value={recipient}
+            options={recipientOptions}
+            isLoading={recipientsLoading}
+            onSelect={setRecipient}
+            searchQuery={recipientSearch}
+            onSearchChange={setRecipientSearch}
+            isOpen={recipientOpen}
+            onOpenChange={setRecipientOpen}
+            required
+            error={fieldErrors['receiverId']?.[0]}
+          />
+        )}
 
-        {/* C — Danh hiệu (required honour-title, Figma ihQ26W78P2) */}
-        <DanhHieuInput
-          value={danhHieu}
-          onChange={setDanhHieu}
-          error={fieldErrors['danhHieu']?.[0]}
-        />
+        {/* Danh hiệu */}
+        <DanhHieuInput value={danhHieu} onChange={setDanhHieu} error={fieldErrors['danhHieu']?.[0]} />
 
-        {/* D+E — Tiptap rich-text editor */}
+        {/* Rich-text editor — prefill with initial content in edit mode */}
         <TiptapEditor
           onChange={handleContentChange}
           maxLength={2000}
           mentionItems={mentionItems}
+          initialContent={editInitialData?.contentHtml}
         />
         {fieldErrors['contentHtml'] && (
           <span className="font-montserrat text-xs font-bold" style={{ color: '#CF1322' }}>
@@ -271,7 +305,7 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
           </span>
         )}
 
-        {/* F — Hashtag picker */}
+        {/* Hashtag picker */}
         <HashtagPicker
           selected={selectedHashtags}
           catalog={hashtagCatalogItems}
@@ -282,7 +316,7 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
           limitError={hashtagLimitError ?? fieldErrors['hashtagIds']?.[0]}
         />
 
-        {/* G — Image uploader; disabled until auth resolves to prevent empty-uid storage paths */}
+        {/* Image uploader */}
         <ImageUploader
           images={images}
           kudoId={kudoId}
@@ -293,22 +327,22 @@ export function KudoComposeModal({ onClose, isOpen = true }: KudoComposeModalPro
           disabled={!userId}
         />
 
-        {/* G — Anonymous toggle */}
-        <AnonymousToggle
-          checked={isAnonymous}
-          onCheckedChange={setIsAnonymous}
-          aliasValue={anonymousAlias}
-          onAliasChange={setAnonymousAlias}
-        />
+        {/* Anonymous toggle — hidden in edit mode (anonymity cannot change) */}
+        {!isEditMode && (
+          <AnonymousToggle
+            checked={isAnonymous}
+            onCheckedChange={setIsAnonymous}
+            aliasValue={anonymousAlias}
+            onAliasChange={setAnonymousAlias}
+          />
+        )}
 
         {/* Root error */}
         {rootError && (
-          <p className="font-montserrat text-sm font-bold" style={{ color: '#CF1322' }}>
-            {rootError}
-          </p>
+          <p className="font-montserrat text-sm font-bold" style={{ color: '#CF1322' }}>{rootError}</p>
         )}
 
-        {/* H — Submit bar */}
+        {/* Submit bar */}
         <SubmitBar
           onCancel={handleCancel}
           onSubmit={handleSubmit}

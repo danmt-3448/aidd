@@ -3,18 +3,17 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { listProfileKudos } from './profile-queries'
 import type { ProfileKudoRow, ProfileCursor } from './profile-queries'
+import { profileFeedKeys } from './profile-feed-keys'
 // Reuse the board's heart toggle — no re-implementation.
 export { useToggleHeart } from '@/features/board/use-toggle-heart'
 
 // ---------------------------------------------------------------------------
-// Query key factory
+// Query key factory — defined in a leaf module to avoid circular imports
+// (use-toggle-heart imports profileFeedKeys; use-profile-feed re-exports it
+// so existing importers keep working without change).
 // ---------------------------------------------------------------------------
 
-export const profileFeedKeys = {
-  all: ['profile', 'feed'] as const,
-  list: (profileId: string, direction: 'received' | 'sent') =>
-    [...profileFeedKeys.all, profileId, direction] as const,
-}
+export { profileFeedKeys } from './profile-feed-keys'
 
 // ---------------------------------------------------------------------------
 // Return type
