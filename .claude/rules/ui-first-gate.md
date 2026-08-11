@@ -109,7 +109,10 @@ Track B: BE + mock contracts        ─┤  ← 2 track CHẠY SONG SONG (không
 ### Auto-enforcement bằng hooks (không phụ thuộc model nhớ)
 
 3 hook (đăng ký ở `.claude/settings.json`, script commit theo skill ở `.claude/skills/aidd-ui-gate/scripts/`):
-- **`ui-gate-track.cjs`** (PostToolUse Edit|Write|MultiEdit): fire khi **file UI thật bị sửa** (`.tsx/.jsx/.css` dưới `src/`, trừ test) — không phụ thuộc từ khoá prompt. Đánh dấu `uiTouchedAt` + nhắc mạnh.
+- **`ui-gate-track.cjs`** (PostToolUse Edit|Write|MultiEdit): fire khi **file UI bị sửa VISUAL** (`.tsx/.jsx/.css` dưới `src/`, trừ test) — không phụ thuộc từ khoá prompt. Đánh dấu `uiTouchedAt` + nhắc mạnh.
+  - **Chỉ chặn khi thật sự đụng visual** (`isVisualEdit()` trong `lib/ui-gate-state.cjs`, option A 2026-08-11): edit **provably non-visual** — chỉ đổi **text-literal / comment**, KHÔNG có token `className`/`style`, KHÔNG đổi cấu trúc (skeleton bằng nhau) — thì **KHÔNG stamp** (vd đổi label chữ, copy, comment). Vì property-diff đo *style*, không đo *nội dung chữ*.
+  - **Vẫn stamp (gate) khi:** đụng `className`/`style`, thay đổi cấu trúc JSX / logic / import, hoặc whole-file `Write` (không diff được → conservative). Nghi ngờ → nghiêng gate.
+  - Heuristic có selftest 11 case: `scripts/lib/ui-gate-visual-edit.selftest.cjs`.
 - **`ui-gate-mark-run.cjs`** (PreToolUse Skill): khi `/aidd-ui-gate` chạy → đánh dấu `gateRunAt`.
 - **`ui-gate-enforcer.cjs`** (Stop): **CHẶN kết thúc turn** nếu `uiTouchedAt > gateRunAt` (đã sửa UI mà chưa chạy gate sau đó). Session không đụng UI → không ảnh hưởng.
 - **Escape hatch** (khi gate thật sự không chạy được): `export TKM_SKIP_UI_GATE=1`, hoặc tạo `.claude/hooks/.logs/ui-gate-skip` (bỏ qua 1 lần). State per-session ở `.claude/hooks/.logs/ui-gate-<session>.json`.
