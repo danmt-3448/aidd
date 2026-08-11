@@ -1,0 +1,26 @@
+{
+  "screen": "notifications-dropdown",
+  "screenId": "gWBVcaSVIf",
+  "fileKey": "9ypp4enmFmdK3YAFJLIu6C",
+  "generatedAt": "2026-08-06",
+  "gateRegion": "panel",
+  "notes": "MoMorph has no processed node metadata for gWBVcaSVIf (design_status: in_progress, spec_status: none). Frame-level nodeId 589:9152 is a real Figma nodeId (confirmed in clarifications.md). Sub-element nodeIds (589:9152-title etc.) are positional slugs — HELD. Property-diff limited to panel container only. Visual values inferred from spec design_items, not from get_node.",
+  "heldItems": [
+    "589:9152-title — node style not available (MoMorph no metadata for gWBVcaSVIf)",
+    "589:9152-mark-all — node style not available",
+    "589:9152-view-all — node style not available",
+    "Exact bg color (#0A1929) — from spec description, not verified via get_node",
+    "Border rgba(255,255,255,0.12) — from spec description, not verified via get_node",
+    "Border radius 12px — from computed style"
+  ],
+  "elements": [
+    {
+      "key": "notif-panel",
+      "nodeId": "589:9152",
+      "selector": "[data-fig='589:9152']",
+      "kind": "style",
+      "description": "Notification dropdown panel root — known Figma frame node. Style values HELD pending MoMorph node sync.",
+      "file": "src/features/notifications/notification-panel-preview.tsx"
+    }
+  ]
+}

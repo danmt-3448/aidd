@@ -1,0 +1,96 @@
+{
+  "modal-overlay": {
+    "kind": "style",
+    "code": {
+      "backgroundColor": "rgba(0, 16, 26, 0.8)"
+    },
+    "design": {
+      "backgroundColor": "rgba(0, 16, 26, 0.8)"
+    }
+  },
+  "modal-container": {
+    "kind": "style",
+    "code": {
+      "backgroundColor": "rgb(255, 248, 225)",
+      "borderTopLeftRadius": "24px",
+      "paddingTop": "40px",
+      "paddingLeft": "40px",
+      "rowGap": "32px"
+    },
+    "design": {
+      "backgroundColor": "rgba(255, 248, 225, 1)",
+      "borderTopLeftRadius": "24px",
+      "paddingTop": "40px",
+      "paddingLeft": "40px",
+      "rowGap": "32px"
+    }
+  },
+  "modal-title": {
+    "kind": "style",
+    "code": {
+      "color": "rgb(0, 16, 26)",
+      "fontSize": "32px",
+      "fontWeight": "700",
+      "lineHeight": "40px"
+    },
+    "design": {
+      "color": "rgba(0, 16, 26, 1)",
+      "fontSize": "32px",
+      "fontWeight": "700",
+      "lineHeight": "40px"
+    }
+  },
+  "recipient-search-input": {
+    "kind": "style",
+    "code": {
+      "backgroundColor": "rgb(255, 255, 255)",
+      "borderTopWidth": "1px",
+      "borderTopLeftRadius": "8px",
+      "paddingTop": "16px",
+      "paddingLeft": "24px"
+    },
+    "design": {
+      "backgroundColor": "rgba(255, 255, 255, 1)",
+      "borderTopWidth": "1px",
+      "borderTopLeftRadius": "8px",
+      "paddingTop": "16px",
+      "paddingLeft": "24px"
+    }
+  },
+  "submit-button": {
+    "kind": "style",
+    "code": {
+      "backgroundColor": "rgb(255, 234, 158)",
+      "borderTopLeftRadius": "8px",
+      "paddingTop": "16px",
+      "paddingLeft": "16px",
+      "fontSize": "22px",
+      "fontWeight": "700"
+    },
+    "design": {
+      "backgroundColor": "rgba(255, 234, 158, 1)",
+      "borderTopLeftRadius": "8px",
+      "paddingTop": "16px",
+      "paddingLeft": "16px",
+      "fontSize": "22px",
+      "fontWeight": "700"
+    }
+  },
+  "cancel-button": {
+    "kind": "style",
+    "code": {
+      "backgroundColor": "rgba(255, 234, 158, 0.1)",
+      "borderTopWidth": "1px",
+      "borderTopLeftRadius": "4px",
+      "paddingTop": "16px",
+      "paddingLeft": "40px"
+    },
+    "design": {
+      "backgroundColor": "rgba(255, 234, 158, 0.1)",
+      "borderTopWidth": "1px",
+      "borderTopLeftRadius": "4px",
+      "paddingTop": "16px",
+      "paddingLeft": "40px"
+    }
+  }
+}

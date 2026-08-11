@@ -1,0 +1,18 @@
+{
+  "_held_note": "MoMorph returned no node metadata for screenId gWBVcaSVIf (get_node/get_frame_node_tree both returned 'Frame metadata does not contain node style information'). Design values cannot be sourced from get_node. Property-diff is HELD — BLOCKED pending MoMorph node sync for this frame. Behavior gate proceeds independently.",
+  "notif-panel": {
+    "kind": "style",
+    "code": {
+      "backgroundColor": "rgb(10, 25, 41)",
+      "borderTopLeftRadius": "12px",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgba(255, 255, 255, 0.12)",
+      "width": "360px",
+      "opacity": "1"
+    },
+    "design": {
+      "_held": true,
+      "_reason": "get_node unavailable for gWBVcaSVIf — MoMorph has no processed node metadata for this frame"
+    }
+  }
+}

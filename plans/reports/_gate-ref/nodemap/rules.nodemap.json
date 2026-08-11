@@ -1,0 +1,58 @@
+{
+  "screen": "rules",
+  "screenId": "b1Filzi9i6",
+  "fileKey": "9ypp4enmFmdK3YAFJLIu6C",
+  "generatedAt": "2026-08-06",
+  "gateRegion": "modal",
+  "notes": "Gate the modal panel region only — artboard is 1440x1796 presentation canvas. All nodeIds verified via get_node on screenId b1Filzi9i6.",
+  "elements": [
+    {
+      "key": "rules-panel-container",
+      "nodeId": "3204:6052",
+      "selector": "[data-fig='3204:6052']",
+      "kind": "style",
+      "description": "Rules panel container — Figma 3204:6052, bg rgba(0,7,12,1), width 553px, padding 24/40/40/40",
+      "file": "src/features/rules/components/rules-panel.tsx"
+    },
+    {
+      "key": "rules-title",
+      "nodeId": "3204:6055",
+      "selector": "[data-fig='3204:6055']",
+      "kind": "style",
+      "description": "Title 'Thể lệ' — Figma 3204:6055, Montserrat 700 45px/52lh color #FFEA9E",
+      "file": "src/features/rules/components/rules-panel-header.tsx"
+    },
+    {
+      "key": "rules-recipient-heading",
+      "nodeId": "3204:6132",
+      "selector": "[data-fig='3204:6132']",
+      "kind": "style",
+      "description": "Recipient section heading — Figma 3204:6132, Montserrat 700 22px/28lh color #FFEA9E",
+      "file": "src/features/rules/components/rules-panel.tsx"
+    },
+    {
+      "key": "rules-sender-heading",
+      "nodeId": "3204:6077",
+      "selector": "[data-fig='3204:6077']",
+      "kind": "style",
+      "description": "Sender section heading — Figma 3204:6077, Montserrat 700 22px/28lh color #FFEA9E",
+      "file": "src/features/rules/components/rules-panel.tsx"
+    },
+    {
+      "key": "rules-close-btn",
+      "nodeId": "3204:6093",
+      "selector": "[data-fig='3204:6093']",
+      "kind": "style",
+      "description": "Close button — Figma 3204:6093, border 1px #998C5F, bg rgba(255,234,158,0.10), borderRadius 4px, height 56px",
+      "file": "src/features/rules/components/rules-action-bar.tsx"
+    },
+    {
+      "key": "rules-write-kudos-btn",
+      "nodeId": "3204:6094",
+      "selector": "[data-fig='3204:6094']",
+      "kind": "style",
+      "description": "Write KUDOS button — Figma 3204:6094, bg rgba(255,234,158,1), height 56px, borderRadius 4px",
+      "file": "src/features/rules/components/rules-action-bar.tsx"
+    }
+  ]
+}

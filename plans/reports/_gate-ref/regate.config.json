@@ -1,0 +1,15 @@
+{
+  "base": "http://127.0.0.1:3001",
+  "note": "Push-button re-gate config for scripts/regate.mjs. selmap defaults to nodemap/{screen}.selmap.json when present. vh overrides viewport height for full-bleed min-h-screen roots (measure at artboard height, not viewport). held screens = client modals not mountable on Turbopack dev headless (need prod-build behavior pass).",
+  "screens": [
+    { "screen": "login", "route": "/login" },
+    { "screen": "homepage", "route": "/" },
+    { "screen": "awards", "route": "/awards" },
+    { "screen": "rules", "route": "/rules" },
+    { "screen": "profile", "route": "/profile" },
+    { "screen": "board", "route": "/board" },
+    { "screen": "countdown", "route": "/countdown", "vh": { "1440": 900, "1280": 800 } },
+    { "screen": "kudos", "route": "/kudos", "held": "Viết Kudo modal not mounted on Turbopack dev headless (/kudos renders board DOM) — prod-build behavior pass required" },
+    { "screen": "secret-box", "route": "/secret-box", "held": "mobile modal, no desktop artboard — behavior-only, needs prod-build hydration" }
+  ]
+}

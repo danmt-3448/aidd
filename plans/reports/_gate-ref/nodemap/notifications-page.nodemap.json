@@ -1,0 +1,24 @@
+{
+  "screen": "notifications-page",
+  "screenId": "6-1LRz3vqr",
+  "fileKey": "9ypp4enmFmdK3YAFJLIu6C",
+  "generatedAt": "2026-08-06",
+  "gateRegion": "full-page",
+  "notes": "MoMorph has no processed node metadata for 6-1LRz3vqr (design_status: in_progress, spec_status: none). Frame-level nodeId 589:9132 is a real Figma nodeId (confirmed in clarifications.md). Sub-element nodeIds are positional slugs — HELD. Property-diff is HELD pending MoMorph node sync.",
+  "heldItems": [
+    "589:9132-heading — node style not available (MoMorph no metadata for 6-1LRz3vqr)",
+    "Exact page bg (#00101A) — from code comment/implementation, not verified via get_node",
+    "Heading font-size 24px / color white — from implementation, not verified via get_node",
+    "Notification row border and row bg — from implementation, not verified via get_node"
+  ],
+  "elements": [
+    {
+      "key": "notif-page-root",
+      "nodeId": "589:9132",
+      "selector": "[data-fig='589:9132']",
+      "kind": "style",
+      "description": "Notifications full-page root — known Figma frame node. Style values HELD pending MoMorph node sync.",
+      "file": "src/features/notifications/notifications-connected.tsx"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "_comment": "Board screen nodemap — nodeId ↔ selector ↔ kind. Built 2026-08-06. Real Figma node IDs from MoMorph MCP get_node + orchestrator verified 2026-08-06.",
+  "_screen": "MaZUn5xHXZ",
+  "_artboard": "1440x5862",
+  "entries": [
+    {
+      "key": "kv-banner",
+      "nodeId": "2940:13432",
+      "selector": "[data-fig='2940:13432']",
+      "kind": "section",
+      "note": "KV Banner — h=512px"
+    },
+    {
+      "key": "highlight-section",
+      "nodeId": "2940:13461",
+      "selector": "[data-fig='2940:13461']",
+      "kind": "section",
+      "note": "B.2_HIGHLIGHT KUDOS section — total h=525px (eyebrow+title+carousel+pagination). Verified orchestrator get_node 2026-08-06."
+    },
+    {
+      "key": "spotlight-frame",
+      "nodeId": "2940:14174",
+      "selector": "[data-fig='2940:14174']",
+      "kind": "section",
+      "note": "B.7_Spotlight dark frame — w=1157px h=548px border=1px solid #998C5F radius=47.14px. data-fig moved from <section> to inner dark div 2026-08-06."
+    },
+    {
+      "key": "all-kudos-list",
+      "nodeId": "2940:13482",
+      "selector": "[data-fig='2940:13482']",
+      "kind": "section",
+      "note": "C.2_Danh sách lời cảm ơn — 4 feed cards, h=3068px (4×749+3×24). data-fig added to flex-col container in board-all-kudos-feed.tsx 2026-08-06."
+    },
+    {
+      "key": "bìa-content-frame",
+      "nodeId": "2940:13434",
+      "selector": "[data-fig='2940:13434']",
+      "kind": "section",
+      "note": "Full content frame 'Bìa' — was mislabeled as 'all-kudos feed'. board-all-kudos-feed.tsx <section> wrapper."
+    },
+    {
+      "key": "feed-card",
+      "nodeId": "3127:21871",
+      "selector": "[data-fig='3127:21871']",
+      "kind": "style",
+      "note": "Feed card article — bg #FFF8E1, radius 24px, padding 40px"
+    },
+    {
+      "key": "body-box",
+      "nodeId": "I3127:21871;662:11382",
+      "selector": "[data-fig='I3127:21871;662:11382']",
+      "kind": "style",
+      "note": "Content body box inside feed card"
+    },
+    {
+      "key": "kudos-logo",
+      "nodeId": "2940:13440",
+      "selector": "[data-fig-asset='kudos-logo']",
+      "kind": "asset",
+      "note": "KUDOS wordmark SVG 593x106"
+    }
+  ]
+}

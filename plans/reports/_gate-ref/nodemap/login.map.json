@@ -1,0 +1,138 @@
+{
+  "login-header": {
+    "kind": "section",
+    "code": {
+      "backgroundColor": "rgba(11, 15, 18, 0.8)",
+      "height": "80px",
+      "offsetHeight": 80,
+      "paddingLeft": "144px",
+      "paddingRight": "144px"
+    },
+    "design": {
+      "backgroundColor": "rgba(11, 15, 18, 0.800000011920929)",
+      "height": "80px",
+      "offsetHeight": 80,
+      "paddingLeft": "144px",
+      "paddingRight": "144px"
+    }
+  },
+  "login-header-logo": {
+    "kind": "asset",
+    "code": {
+      "tag": "IMG",
+      "src": "http://127.0.0.1:3001/_next/image?url=%2Fimages%2Flogin%2Fheader-logo.png&w=128&q=75",
+      "width": "52px",
+      "height": "48px"
+    },
+    "design": {
+      "src": "img",
+      "width": "52px",
+      "height": "48px"
+    }
+  },
+  "login-language-selector": {
+    "kind": "style",
+    "code": {
+      "height": "56px"
+    },
+    "design": {
+      "height": "56px"
+    }
+  },
+  "login-language-text": {
+    "kind": "style",
+    "code": {
+      "color": "rgb(255, 255, 255)",
+      "fontWeight": "700",
+      "fontSize": "16px",
+      "lineHeight": "24px"
+    },
+    "design": {
+      "color": "rgba(255, 255, 255, 1)",
+      "fontWeight": "700",
+      "fontSize": "16px",
+      "lineHeight": "24px"
+    }
+  },
+  "login-wordmark": {
+    "kind": "asset",
+    "code": {
+      "tag": "IMG",
+      "src": "http://127.0.0.1:3001/_next/image?url=%2Fimages%2Flogin%2Froot-further.png&w=1080&q=75",
+      "width": "451px",
+      "height": "200px"
+    },
+    "design": {
+      "src": "img",
+      "width": "451px",
+      "height": "200px"
+    }
+  },
+  "login-intro-text": {
+    "kind": "style",
+    "code": {
+      "color": "rgb(255, 255, 255)",
+      "fontWeight": "700",
+      "fontSize": "20px",
+      "lineHeight": "40px",
+      "letterSpacing": "0.5px"
+    },
+    "design": {
+      "color": "rgba(255, 255, 255, 1)",
+      "fontWeight": "700",
+      "fontSize": "20px",
+      "lineHeight": "40px",
+      "letterSpacing": "0.5px"
+    }
+  },
+  "login-google-button": {
+    "kind": "style",
+    "code": {
+      "backgroundColor": "rgb(255, 234, 158)",
+      "color": "rgb(0, 16, 26)",
+      "fontSize": "22px",
+      "fontWeight": "700",
+      "lineHeight": "28px",
+      "paddingTop": "16px",
+      "paddingLeft": "24px",
+      "paddingRight": "24px",
+      "paddingBottom": "16px",
+      "width": "305px",
+      "height": "60px",
+      "borderTopLeftRadius": "8px"
+    },
+    "design": {
+      "backgroundColor": "rgba(255, 234, 158, 1)",
+      "color": "rgba(0, 16, 26, 1)",
+      "fontSize": "22px",
+      "fontWeight": "700",
+      "lineHeight": "28px",
+      "paddingTop": "16px",
+      "paddingLeft": "24px",
+      "paddingRight": "24px",
+      "paddingBottom": "16px",
+      "width": "305px",
+      "height": "60px",
+      "borderTopLeftRadius": "8px"
+    }
+  },
+  "login-footer": {
+    "kind": "style",
+    "code": {
+      "paddingTop": "40px",
+      "paddingBottom": "40px",
+      "paddingLeft": "90px",
+      "paddingRight": "90px",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(46, 57, 64)"
+    },
+    "design": {
+      "paddingTop": "40px",
+      "paddingBottom": "40px",
+      "paddingLeft": "90px",
+      "paddingRight": "90px",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgba(46, 57, 64, 1)"
+    }
+  }
+}

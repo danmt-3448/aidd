@@ -1,0 +1,104 @@
+{
+  "screen": "kudos",
+  "screenId": "ihQ26W78P2",
+  "fileKey": "9ypp4enmFmdK3YAFJLIu6C",
+  "route": "/kudos?ui_state=full&modal=compose",
+  "viewport": 1440,
+  "note": "Modal-only gate. Board background is masked/excluded (owned by phase-07). Gate checks modal region elements only.",
+  "nodes": [
+    {
+      "key": "modal-container",
+      "nodeId": "520:11647",
+      "selector": "[data-fig='520:11647']",
+      "kind": "container",
+      "name": "Viết KUDO modal panel",
+      "design": {
+        "width": "752px",
+        "height": "1012px",
+        "backgroundColor": "rgba(255, 248, 225, 1)",
+        "borderRadius": "24px",
+        "paddingTop": "40px",
+        "paddingLeft": "40px",
+        "rowGap": "32px"
+      },
+      "absoluteBoundingBox": { "x": 357, "y": 10, "width": 752, "height": 1012 }
+    },
+    {
+      "key": "modal-title",
+      "nodeId": "I520:11647;520:9870",
+      "selector": "[data-fig='I520:11647;520:9870']",
+      "kind": "text",
+      "name": "Modal title text",
+      "design": {
+        "color": "rgba(0, 16, 26, 1)",
+        "fontSize": "32px",
+        "fontWeight": "700",
+        "lineHeight": "40px",
+        "letterSpacing": "0px",
+        "width": "672px"
+      },
+      "absoluteBoundingBox": { "x": 397, "y": 50, "width": 672, "height": 80 }
+    },
+    {
+      "key": "recipient-search-input",
+      "nodeId": "I520:11647;520:9873",
+      "selector": "[data-fig='I520:11647;520:9873']",
+      "kind": "input",
+      "name": "Recipient search input box",
+      "design": {
+        "backgroundColor": "rgba(255, 255, 255, 1)",
+        "borderTopWidth": "1px",
+        "borderTopColor": "rgba(153, 140, 95, 1)",
+        "borderRadius": "8px",
+        "paddingTop": "16px",
+        "paddingLeft": "24px"
+      },
+      "absoluteBoundingBox": { "x": 559, "y": 162, "width": 510, "height": 56 }
+    },
+    {
+      "key": "submit-button",
+      "nodeId": "I520:11647;520:9907",
+      "selector": "[data-fig='I520:11647;520:9907']",
+      "kind": "button",
+      "name": "Primary submit button",
+      "design": {
+        "backgroundColor": "rgba(255, 234, 158, 1)",
+        "borderRadius": "8px",
+        "paddingTop": "16px",
+        "paddingLeft": "16px",
+        "width": "502px",
+        "height": "60px"
+      },
+      "absoluteBoundingBox": { "x": 567, "y": 922, "width": 502, "height": 60 }
+    },
+    {
+      "key": "cancel-button",
+      "nodeId": "I520:11647;520:9906",
+      "selector": "[data-fig='I520:11647;520:9906']",
+      "kind": "button",
+      "name": "Cancel/secondary button",
+      "design": {
+        "backgroundColor": "rgba(255, 234, 158, 0.1)",
+        "borderTopWidth": "1px",
+        "borderTopColor": "rgba(153, 140, 95, 1)",
+        "borderRadius": "4px",
+        "paddingTop": "16px",
+        "paddingLeft": "40px"
+      },
+      "absoluteBoundingBox": { "x": 397, "y": 922, "width": 146, "height": 60 }
+    },
+    {
+      "key": "modal-overlay",
+      "nodeId": "520:11646",
+      "selector": "[data-fig='520:11646']",
+      "kind": "overlay",
+      "name": "Modal backdrop/mask",
+      "design": {
+        "backgroundColor": "rgba(0, 16, 26, 0.8)",
+        "width": "1440px",
+        "height": "1024px"
+      },
+      "absoluteBoundingBox": { "x": 0, "y": 0, "width": 1440, "height": 1024 }
+    }
+  ]
+}

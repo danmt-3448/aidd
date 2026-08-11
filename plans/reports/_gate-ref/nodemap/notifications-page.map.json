@@ -1,0 +1,14 @@
+{
+  "_held_note": "MoMorph returned no node metadata for screenId 6-1LRz3vqr. Design values cannot be sourced from get_node. Property-diff is HELD — BLOCKED pending MoMorph node sync. Behavior gate proceeds independently.",
+  "notif-page-root": {
+    "kind": "style",
+    "code": {
+      "backgroundColor": "rgb(0, 16, 26)",
+      "opacity": "1"
+    },
+    "design": {
+      "_held": true,
+      "_reason": "get_node unavailable for 6-1LRz3vqr — MoMorph has no processed node metadata for this frame"
+    }
+  }
+}

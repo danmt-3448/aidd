@@ -1,0 +1,72 @@
+{
+  "screen": "homepage",
+  "screenId": "i87tDx10uM",
+  "fileKey": "9ypp4enmFmdK3YAFJLIu6C",
+  "generatedAt": "2026-08-06",
+  "notes": "All nodeIds are real Figma node IDs from get_node(screenId='i87tDx10uM'). Design values sourced from actual get_node calls this session.",
+  "elements": [
+    {
+      "key": "homepage-coming-soon",
+      "nodeId": "2167:9036",
+      "selector": "[data-fig='2167:9036']",
+      "kind": "style",
+      "description": "mms_B1.2_Coming soon — TEXT node: fontSize 24px, fontWeight 700, color rgba(255,255,255,1)",
+      "file": "src/features/homepage/components/homepage-hero.tsx",
+      "get_node_call": "get_node(i87tDx10uM, 2167:9036)"
+    },
+    {
+      "key": "homepage-cta-awards",
+      "nodeId": "2167:9063",
+      "selector": "[data-fig='2167:9063']",
+      "kind": "style",
+      "description": "mms_B3.1_Button-IC About — INSTANCE: bg rgba(255,234,158,1), padding 16px 24px, radius 8px, fontSize 22px",
+      "file": "src/features/homepage/components/homepage-hero.tsx",
+      "get_node_call": "get_node(i87tDx10uM, 2167:9063)"
+    },
+    {
+      "key": "homepage-awards-h2",
+      "nodeId": "2167:9073",
+      "selector": "[data-fig='2167:9073']",
+      "kind": "style",
+      "description": "Hệ thống giải thưởng TEXT — fontSize 57px, fontWeight 700, color rgba(255,234,158,1), lineHeight 64px, letterSpacing -0.25px",
+      "file": "src/features/homepage/components/homepage-awards-grid.tsx",
+      "get_node_call": "get_node(i87tDx10uM, 2167:9073)"
+    },
+    {
+      "key": "homepage-awards-section",
+      "nodeId": "2167:9068",
+      "selector": "[data-fig='2167:9068']",
+      "kind": "style",
+      "description": "Hệ thống giải thưởng section FRAME — rowGap 80px (flex column). Height varies by content, not compared.",
+      "file": "src/features/homepage/components/homepage-awards-grid.tsx",
+      "get_node_call": "get_node(i87tDx10uM, 2167:9068)"
+    },
+    {
+      "key": "homepage-logo",
+      "nodeId": "2788:12911",
+      "selector": "[data-fig='2788:12911']",
+      "kind": "asset",
+      "description": "MM_MEDIA_Root Further Logo — must be <img> asset, 451×200px artboard, not text/CSS reconstruction",
+      "file": "src/features/homepage/components/homepage-hero.tsx",
+      "get_node_call": "get_node(i87tDx10uM, 2788:12911)"
+    },
+    {
+      "key": "kudos-section",
+      "nodeId": "335:12023",
+      "selector": "[data-fig='335:12023']",
+      "kind": "section",
+      "description": "KudosPromo section (mms_D1_Sunkudos on /awards; 3390:10349 on homepage — same component, same values). Height 500px.",
+      "file": "src/features/awards/components/kudos-promo.tsx",
+      "note": "data-fig tag uses awards componentId 335:12023; homepage instance is 3390:10349. Component is shared; design values identical (verified via get_node 3390:10349 on homepage)."
+    },
+    {
+      "key": "kudos-h2",
+      "nodeId": "I335:12023;313:8422",
+      "selector": "[data-fig='I335:12023;313:8422']",
+      "kind": "style",
+      "description": "Sun* Kudos H2 — fontSize 57px, fontWeight 700, color rgba(255,234,158,1), lineHeight 64px, letterSpacing -0.25px",
+      "file": "src/features/awards/components/kudos-promo.tsx",
+      "note": "Component instance path: awards 335:12023 → child 313:8422. Homepage path: I3390:10349;313:8422. Same values confirmed."
+    }
+  ]
+}

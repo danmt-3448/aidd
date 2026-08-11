@@ -74,7 +74,11 @@ test-results/
 .playwright-mcp/
 e2e/.auth/
 
-# UI-gate screenshot artifacts (regenerable, binary — keep out of git)
-plans/reports/_gate-ref/
+# UI-gate screenshot artifacts (regenerable, binary — keep out of git).
+# Keep the JSON reference data (nodemaps, maps, selmaps, regate config) tracked so the
+# property-diff re-gate is reproducible/push-button for the whole team.
+plans/reports/_gate-ref/**/*.png
+plans/reports/_gate-ref/**/*.jpg
+plans/reports/_gate-ref/**/*.jpeg
 *-actual.png
 *-verify.png
