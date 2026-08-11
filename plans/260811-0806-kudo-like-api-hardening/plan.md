@@ -2,10 +2,12 @@
 title: "Kudo + Like API hardening (Track B — backend only)"
 work_type: feature
 spec_waived: "Hardening APIs đã build cho 2 màn có sẵn spec MoMorph (Viết Kudo ihQ26W78P2 · Live Board MaZUn5xHXZ). Nguồn chân lý = MoMorph test-cases + implementation hiện tại. Không author feature spec mới."
-status: pending
+status: completed
 priority: P1
 branch: develop
 created: 2026-08-11
+completed: 2026-08-11
+completion_note: "Core P01/P02/P04 done + runtime+unit+like-e2e verified + pushed (668f2f2). E2e-debt (viet-kudo/KV-banner) folded into 260803-1636 phase-16. P03/P05 deferred/optional."
 blockedBy: []
 blocks: []
 origin: "Hardens backend built by 260731-0836-viet-kudo (create_kudo) + 260803-1636-saa2025-remaining-7-screens (hearts, board-queries) — both those phases completed."
