@@ -12,6 +12,10 @@ clarifications: plans/260803-1636-saa2025-remaining-7-screens/clarifications.md
 Build the 7 spec-ready, unbuilt web pages. **MoMorph two-track:** Track A (UI, one phase/screen) runs
 fully parallel to Track B (backend/logic). Integration is the ONLY cross-track merge point.
 
+> **Trạng thái (2026-08-11):** Track A (UI 08–14) ✅ · Track B (01–07) ✅ · Integration (15) ✅ · Review (17) ✅.
+> `in_progress` **chỉ vì test-tail**: phase 16 (E2E — còn `homepage.spec` selector rewrite + re-enable profile skips) và
+> phase 07b seed (planned). UI đã done — các màn PASS UI-First Gate ở `260806-0711-ui-pixel-parity-fix`.
+
 - **fileKey:** `9ypp4enmFmdK3YAFJLIu6C` · **Recon:** `plans/reports/check-progress-260803-1636-remaining-screens.md`
 - **Clarifications (authoritative):** `plans/260803-1636-saa2025-remaining-7-screens/clarifications.md`
 - **Reuse (do NOT rebuild):** auth guard `src/features/auth/guard-rules.ts`, `profiles` table, kudos model

@@ -3,7 +3,7 @@ title: "UI Parity Fix — property-diff gate (số) + band overlay + 11 màn"
 description: "Đổi cây thước gate: property-diff (getComputedStyle vs get_node) làm CỔNG CỨNG, band-diff hạ xuống overlay. Ép build gắn data-fig + export asset thật. Rồi fix UI 11 màn theo chuẩn mới."
 work_type: feature
 spec_waived: "UI-parity FIX + tooling gate trên màn đã build; design source = MoMorph frames + Figma nodes (đã có). Không author spec feature mới."
-status: pending
+status: in_progress
 priority: P1
 branch: develop
 created: 2026-08-06
@@ -53,20 +53,22 @@ Cả **build** (momorph-implement-design / fe-developer) lẫn **gate** dựa v�
 
 ## Phases
 
-| # | Phase | Track | blockedBy |
-|---|---|---|---|
-| 01 | [Band-diff mode (overlay lưới phụ)](phase-01-band-diff-tooling.md) | Tooling | — |
-| 01B | [Property-diff hard gate + style-assert.mjs](phase-01b-property-diff-gate.md) | Tooling | — |
-| 01C | [Build convention: data-fig + export asset thật](phase-01c-build-convention-data-fig.md) | Convention | — |
-| 02 | [Mock-fixture infra dùng chung](phase-02-mock-fixture-infra.md) | Infra | — |
-| 03 | [/awards — bàn hiệu chỉnh gate mới](phase-03-awards.md) | A | 01, 01B, 01C |
-| 04 | [Shared chrome (header/footer/card/tokens)](phase-04-shared-chrome.md) | A | 03 |
-| 05 | [/homepage](phase-05-homepage.md) | A | 02, 04 |
-| 06 | [/profile](phase-06-profile.md) | A | 02, 04 |
-| 07 | [/board](phase-07-board.md) | A | 02, 04 |
-| 08 | [/kudos](phase-08-kudos.md) | A | 02, 07 |
-| 09 | [/rules + /notifications — gỡ chặn](phase-09-rules-notifications.md) | A | 02, quyết định user |
-| 10 | [Re-gate toàn bộ + đóng](phase-10-final-sweep.md) | Verify | 03–09 |
+| # | Phase | Track | Status | blockedBy |
+|---|---|---|--------|---|
+| 01 | [Band-diff mode (overlay lưới phụ)](phase-01-band-diff-tooling.md) | Tooling | ✅ completed | — |
+| 01B | [Property-diff hard gate + style-assert.mjs](phase-01b-property-diff-gate.md) | Tooling | ✅ completed | — |
+| 01C | [Build convention: data-fig + export asset thật](phase-01c-build-convention-data-fig.md) | Convention | ✅ completed | — |
+| 02 | [Mock-fixture infra dùng chung](phase-02-mock-fixture-infra.md) | Infra | ✅ completed | — |
+| 03 | [/awards — bàn hiệu chỉnh gate mới](phase-03-awards.md) | A | ✅ PASS | 01, 01B, 01C |
+| 04 | [Shared chrome (header/footer/card/tokens)](phase-04-shared-chrome.md) | A | ✅ completed | 03 |
+| 05 | [/homepage](phase-05-homepage.md) | A | ✅ PASS | 02, 04 |
+| 06 | [/profile](phase-06-profile.md) | A | ✅ PASS | 02, 04 |
+| 07 | [/board](phase-07-board.md) | A | ✅ PASS (+1920 no-break fix) | 02, 04 |
+| 08 | [/kudos](phase-08-kudos.md) | A | ✅ PASS | 02, 07 |
+| 09 | [/rules + /notifications — gỡ chặn](phase-09-rules-notifications.md) | A | 🔶 rules ✅ PASS · notifications ×2 ⛔ BLOCKED (MoMorph node-metadata chưa sync) | 02, quyết định user |
+| 10 | [Re-gate toàn bộ + đóng](phase-10-final-sweep.md) | Verify | 🔄 9/11 màn PASS (login+countdown gated under 1920 rule); còn notifications ×2 + behavior-pass prod build | 03–09 |
+
+> **Trạng thái thực tế (2026-08-11):** 9/11 màn có Figma reference đã PASS property-diff @1440+1280 (+1920 no-break). Ref: `plans/reports/ui-gate-260806-2058-coverage-8-screens.md` + `...-1850-phases-05-10-summary.md`. **Còn lại để đóng plan:** (1) notifications dropdown+page — chặn ngoài, chờ MoMorph sync node-metadata (`gWBVcaSVIf`/`6-1LRz3vqr`); (2) behavior-pass interactive-click trên `next build && next start` (Turbopack headless không hydrate — property-diff/render/4-state đã verify).
 
 **Song song:** 01 ∥ 01B ∥ 01C ∥ 02 (khác file — xem ownership dưới). Sau 04: 05 ∥ 06 ∥ 07 ∥ 09. 08 sau 07.
 

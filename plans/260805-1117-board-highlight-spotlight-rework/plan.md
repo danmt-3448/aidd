@@ -1,11 +1,13 @@
 ---
+status: superseded
+superseded_by: 260806-0711-ui-pixel-parity-fix
 blockedBy: [260806-0711-ui-pixel-parity-fix]
 ---
 
 # Plan — Board /board full-page rework (Sun* Kudos)
 
-> **⚠️ Blocked (2026-08-06).** Chờ `plans/260806-0711-ui-pixel-parity-fix/` — band-diff phải có trước
-> mới đo được `/board` (app 8622px vs Figma 5862px, ratio toàn cục 23.33% không chỉ ra chỗ sai).
+> **✅ Superseded (2026-08-11).** `/board` đã build lại + PASS gate ở `260806-0711-ui-pixel-parity-fix`
+> phase-07 (property-diff exit 0 @1440+1280 + 1920 no-break fix). Plan này khép — giữ làm tham khảo phân tích.
 > **Phân tích Figma + `clarifications.md` ở plan này VẪN CÒN GIÁ TRỊ** — phase-07 của plan mới tham chiếu, không viết lại.
 
 **Screen:** Sun* Kudos (Live board) · MoMorph `MaZUn5xHXZ` · route `/board` · Figma frame 2940:13431
