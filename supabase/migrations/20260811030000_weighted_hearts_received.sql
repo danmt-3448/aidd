@@ -23,13 +23,16 @@ select
        else null end                                                                as sent,
   -- hearts_received: WEIGHTED — normal heart = 1, special-day heart = M.
   -- count(all) + special_count*(M-1) == normal*1 + special*M.
-  -- NB: keep bigint (count) — create-or-replace view forbids changing column type.
+  -- hearts_received = tim mà các kudo NGƯỜI DÙNG GỬI nhận được (spec C.4.1: "tài khoản
+  -- gửi kudo được cộng tim"; self-like bị cấm để chống tự-farm → tim thuộc về sender).
+  -- WEIGHTED: heart thường = 1, special-day = M. NB: keep bigint (count) —
+  -- create-or-replace view forbids changing column type.
   (select count(h.kudo_id)
         + count(h.kudo_id) filter (where h.is_special_day)
           * (coalesce((select hearts_special_multiplier from public.event_config limit 1), 1) - 1)
      from public.hearts h
      join public.kudos k on k.id = h.kudo_id
-     where k.receiver_id = p.id)                                                    as hearts_received,
+     where k.sender_id = p.id)                                                      as hearts_received,
   (select count(*) from public.secret_box_badges b where b.user_id = p.id)          as boxes_opened,
   coalesce(
     (select sb.unopened_box_count from public.secret_box sb where sb.user_id = p.id),

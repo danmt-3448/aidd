@@ -9,8 +9,10 @@ Spec `C.4.1 Hearts` (authoritative): mỗi like → tài khoản **+1 tim**; lik
 
 `profiles.hearts_received` (denormalized col) = dead (default 0, không trigger) — view đã bỏ qua nó, giữ nguyên.
 
-## Ai được cộng tim = RECEIVER (chốt)
-Label "Số tim bạn **NHẬN** được" + databaseNote "người **nhận** kudo" + code hiện tại → **receiver**. (Spec có vài dòng ghi "tài khoản gửi" — mâu thuẫn nội bộ của spec; display + dbNote + code đều là receiver → theo receiver. Flag cho user biết, không block.)
+## Ai được cộng tim = SENDER (chốt 2026-08-11, user xác nhận)
+**Tim cộng cho người GỬI kudo** (`k.sender_id = p.id`). Spec C.4.1 ghi rõ *"tài khoản gửi lời cảm ơn... được cộng 1 tim / +2 ngày đặc biệt"*. Bằng chứng logic: spec cấm **sender** tự thả tim kudo mình → chỉ có nghĩa chống tự-farm NẾU tim thuộc sender.
+> ⚠️ **Label lệch:** sidebar D.1.4 ghi "Số tim bạn NHẬN được" nhưng data giờ = tim mà kudo bạn GỬI nhận được. Đây là lỗi soạn label spec (dòng unlike cũng ghi "nhận"). Data đúng theo business rule; nếu cần, i18n label → "Số tim đạt được" (product quyết, không đổi code).
+> (Trước đó default nhầm receiver — đã sửa runtime-verified: sender +3/receiver 0.)
 
 ## Fix
 Sửa `hearts_received` thành **weighted sum** (thường 1, special M):

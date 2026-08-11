@@ -72,7 +72,8 @@ API cũ đã có nhưng "ko ổn". Audit + spec MoMorph đã xác định lỗ t
 ## Trạng thái đóng (2026-08-11)
 **Core 2 ticket DONE + pushed** (`668f2f2`). Verify: runtime SQL + unit 159/159 + like e2e xanh (`reports/e2e-verdict-260811-ship.md`).
 - **E2E-debt carve-out (KHÔNG thuộc plan này):** `viet-kudo.spec` (prod `/kudos`→`/board` redirect) + board `TC-BOARD-02` KV-banner đỏ — là test-harness/UI debt có sẵn, **đã GỘP sang `260803-1636` phase-16** (e2e-owner). Không phải diff của plan này.
-- **Còn lại (defer/optional, không chặn đóng):** P03 liked_by_me server-side (perf/privacy, defer) · P05 kudo detail (optional, chưa có plan khác) · confirm sender-vs-receiver (đang theo receiver).
+- **sender-vs-receiver: ĐÃ CHỐT = SENDER** (2026-08-11, user xác nhận + spec C.4.1 + logic self-like). Đã sửa `hearts_received` `k.receiver_id`→`k.sender_id`, runtime-verified (sender +3 / receiver 0 / unlike −2). ⚠️ label D.1.4 "Số tim bạn NHẬN được" lệch nghĩa — product quyết i18n, không đổi code.
+- **Còn lại (defer/optional):** P03 liked_by_me server-side (perf/privacy, defer) · P05 kudo detail (optional, chưa có plan khác).
 
 ## Handoff
 Validate: Plan Reviewer (`/tkm:predict-risks`). Execute: `/tkm:takumi plans/260811-0806-kudo-like-api-hardening/plan.md`.
