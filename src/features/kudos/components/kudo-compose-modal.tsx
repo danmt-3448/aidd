@@ -33,7 +33,7 @@ import { useHashtags } from '../hooks/use-hashtags'
 import { useCreateKudo } from '../hooks/use-create-kudo'
 import { useUpdateKudo } from '../hooks/use-update-kudo'
 import { useCurrentUserId } from '../hooks/use-current-user-id'
-import { createClient } from '@/lib/supabase/client'
+import { useKudoImageCleanup } from '../hooks/use-kudo-image-cleanup'
 import { KudoEditInitialData } from './kudo-edit-initial-data'
 
 // ---------------------------------------------------------------------------
@@ -79,8 +79,6 @@ interface KudoComposeModalProps {
    */
   editInitialData?: KudoInitialData
 }
-
-const BUCKET = 'kudo-images'
 
 export function KudoComposeModal({
   onClose,
@@ -135,6 +133,9 @@ export function KudoComposeModal({
   const updateHook = useUpdateKudo()
   const { submit, isPending, isSuccess, fieldErrors, rootError, reset } = isEditMode ? updateHook : createHook
 
+  // Orphan-safe Storage cleanup (deferred original delete + unmount safety net).
+  const { handleImageRemoved, finalizeOnSuccess, finalizeOnCancel } = useKudoImageCleanup(images)
+
   // ── Seed selectedHashtags from edit initial data once catalog loads ──────
   useEffect(() => {
     if (!isEditMode || !editInitialData || hashtagCatalog.length === 0) return
@@ -161,10 +162,12 @@ export function KudoComposeModal({
   // ── Success effect ────────────────────────────────────────────────────────
   useEffect(() => {
     if (!isSuccess) return
+    // RPC committed → flush deferred deletion of removed original images.
+    finalizeOnSuccess()
     toast.success(isEditMode ? 'Đã cập nhật Kudo' : 'Đã gửi Kudo thành công')
     reset()
     onClose()
-  }, [isSuccess, isEditMode, reset, onClose])
+  }, [isSuccess, isEditMode, reset, onClose, finalizeOnSuccess])
 
   // ── Handlers ─────────────────────────────────────────────────────────────
   const handleContentChange = useCallback((html: string, count: number) => {
@@ -190,27 +193,17 @@ export function KudoComposeModal({
   const handleRemoveImage = useCallback(async (id: string) => {
     const img = images.find((i) => i.id === id)
     setImages((prev) => prev.filter((i) => i.id !== id))
-    if (img?.previewUrl.startsWith('blob:')) URL.revokeObjectURL(img.previewUrl)
-    if (img?.storagePath) {
-      const supabase = createClient()
-      await supabase.storage.from(BUCKET).remove([img.storagePath])
-    }
-  }, [images])
+    // Blob (uncommitted) → deleted now; original (committed) → deferred until save.
+    if (img) await handleImageRemoved(img)
+  }, [images, handleImageRemoved])
 
   const handleCancel = useCallback(async () => {
-    // Only remove images that were newly uploaded during THIS session (have a
-    // blob preview URL). Images that came from editInitialData already exist in
-    // storage — do not delete them on cancel.
-    const newImages = images.filter((i) => i.previewUrl.startsWith('blob:'))
-    if (newImages.length > 0) {
-      const paths = newImages.map((i) => i.storagePath)
-      const supabase = createClient()
-      await supabase.storage.from(BUCKET).remove(paths)
-      newImages.forEach((img) => URL.revokeObjectURL(img.previewUrl))
-    }
+    // Remove uncommitted blob uploads from this session; original images stay in
+    // Storage (DB still references them until an actual update replaces them).
+    await finalizeOnCancel()
     reset()
     onClose()
-  }, [images, reset, onClose])
+  }, [finalizeOnCancel, reset, onClose])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') handleCancel() }
