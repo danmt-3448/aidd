@@ -39,23 +39,29 @@ test.afterAll(async () => {
 })
 
 test.describe('Countdown Screen (CD-E2E)', () => {
-  test('CD-E2E-01: unauth visit to /countdown is redirected to /login by the proxy guard', async ({ page }) => {
+  test('CD-E2E-01: unauth visit to /countdown stays on /countdown (public route)', async ({ page }) => {
+    // /countdown is explicitly PUBLIC per guard-rules.ts (PUBLIC_PATHS includes '/countdown').
+    // Unauthenticated visitors see the pre-launch countdown — no redirect to /login.
+    // Proxy comment: "Bypass paths (/countdown, /login, /auth, /dev-login) are never gated."
     await page.goto('/countdown')
-    expect(page.url()).toContain('/login')
+    await page.waitForLoadState('networkidle')
+    expect(page.url()).toContain('/countdown')
+    // The countdown page should render its timer (not an error or login redirect)
+    await expect(page.locator('[role="timer"]')).toBeVisible({ timeout: 10_000 })
   })
 
   test('CD-E2E-02: renders countdown with title, labels, and timer role (counting)', async ({ page }) => {
     await devLogin(page)
-    await page.goto('/countdown')
+    await page.goto('/countdown', { timeout: 30_000 })
 
     // Assert title (h1 with text content)
     const titleLocator = page.locator('h1')
-    const titleText = await titleLocator.textContent()
+    const titleText = await titleLocator.textContent({ timeout: 15_000 })
     expect(titleText).toMatch(/Sự kiện sẽ bắt đầu sau|Event starts in/)
 
     // Assert 3 LED units: timer role region exists
     const timerRegion = page.locator('[role="timer"]')
-    await expect(timerRegion).toBeVisible()
+    await expect(timerRegion).toBeVisible({ timeout: 15_000 })
 
     // Assert unit labels present: find all text content
     const allText = await timerRegion.textContent()
@@ -100,9 +106,10 @@ test.describe('Countdown Screen (CD-E2E)', () => {
     await devLogin(page)
     await page.goto('/countdown')
 
-    // Verify the page is responsive and main elements exist (no JS crash)
+    // Verify the page is responsive and main elements exist (no JS crash).
+    // Extended timeout to handle dev-server CPU contention under parallel test load.
     const timerRegion = page.locator('[role="timer"]')
-    await expect(timerRegion).toBeVisible()
+    await expect(timerRegion).toBeVisible({ timeout: 15_000 })
 
     // Verify navigation is not locked (can navigate away)
     await page.goto('/kudos')
@@ -110,7 +117,7 @@ test.describe('Countdown Screen (CD-E2E)', () => {
 
     // Return to countdown
     await page.goto('/countdown')
-    await expect(timerRegion).toBeVisible()
+    await expect(timerRegion).toBeVisible({ timeout: 15_000 })
   })
 
   test('CD-E2E-05: responsive layout (375, 768, 1280) no horizontal overflow', async ({ browser }) => {

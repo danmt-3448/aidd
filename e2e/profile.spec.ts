@@ -56,8 +56,9 @@ test.describe('Profile /profile (Self Profile)', () => {
     expect(text).toMatch(/\d+/)
   })
 
-  test('TC-PROFILE-SELF-04: shows "Nhận được" and "Đã gửi" options', async ({ page }) => {
-    // Profile uses a dropdown (button + listbox), not tabs
+  test('TC-PROFILE-SELF-04: shows "Đã nhận" and "Đã gửi" options', async ({ page }) => {
+    // Profile uses a dropdown (button + listbox), not tabs.
+    // Labels are "Đã nhận (N)" and "Đã gửi (M)" — profile-direction-dropdown.tsx lines 106-107.
     const directionButton = page.locator('button[aria-haspopup="listbox"]').first()
     await expect(directionButton).toBeVisible()
 
@@ -65,25 +66,28 @@ test.describe('Profile /profile (Self Profile)', () => {
     await directionButton.click()
     await page.waitForTimeout(200)
 
-    // Check for both options in the dropdown
-    const receivedOption = page.getByRole('option', { name: /nhận được|received/i })
-    const sentOption = page.getByRole('option', { name: /đã gửi|sent/i })
+    // Match the real labels: /Đã nhận/ and /Đã gửi/ (regex tolerates the "(N)" count suffix)
+    const receivedOption = page.getByRole('option', { name: /Đã nhận/i })
+    const sentOption = page.getByRole('option', { name: /Đã gửi/i })
     const receivedVisible = await receivedOption.isVisible().catch(() => false)
     const sentVisible = await sentOption.isVisible().catch(() => false)
     expect(receivedVisible && sentVisible).toBe(true)
   })
 
-  test('TC-PROFILE-SELF-05: clicking "Đã gửi" option', async ({ page }) => {
+  test('TC-PROFILE-SELF-05: clicking "Đã gửi" option updates trigger label', async ({ page }) => {
+    // Label is "Đã gửi (M)" — match with regex to tolerate the count suffix.
+    // After selection the dropdown CLOSES (handleSelect → setOpen(false)), so the
+    // <ul role="listbox"> unmounts — cannot read aria-selected on the vanished option.
+    // Assert the visible outcome instead: the trigger button now shows "Đã gửi".
     const directionButton = page.locator('button[aria-haspopup="listbox"]').first()
     await directionButton.click()
     await page.waitForTimeout(200)
 
-    const sentOption = page.getByRole('option', { name: /đã gửi|sent/i })
+    const sentOption = page.getByRole('option', { name: /Đã gửi/i })
     if (await sentOption.isVisible().catch(() => false)) {
       await sentOption.click()
-      await page.waitForTimeout(300)
-      const isSelected = await sentOption.getAttribute('aria-selected')
-      expect(isSelected === 'true').toBe(true)
+      // Dropdown closes; trigger button text updates to reflect the selection
+      await expect(directionButton).toContainText(/Đã gửi/)
     }
   })
 
@@ -172,14 +176,17 @@ test.describe('Profile /profile?id={uuid} (Other User Profile)', () => {
     await expect(writeButton).toBeVisible({ timeout: 5_000 })
   })
 
-  test('TC-PROFILE-OTHER-05: other user shows ONLY "Nhận được" option', async ({ page }) => {
-    // In OTHER mode, the dropdown should only show "Nhận được" (no "Đã gửi" option)
+  test('TC-PROFILE-OTHER-05: other user shows ONLY "Đã nhận" option (no "Đã gửi")', async ({ page }) => {
+    // In OTHER mode, only "Đã nhận (N)" is shown — "Đã gửi" is hidden (sentCount=null).
+    // Labels come from profile-direction-dropdown.tsx lines 106-107 / 166-178.
     const directionButton = page.locator('button[aria-haspopup="listbox"]').first()
     await directionButton.click()
     await page.waitForTimeout(200)
 
-    const sentOption = page.getByRole('option', { name: /đã gửi|sent/i })
-    const receivedOption = page.getByRole('option', { name: /nhận được|received/i })
+    // "Đã gửi" must NOT be visible in other-user mode
+    const sentOption = page.getByRole('option', { name: /Đã gửi/i })
+    // "Đã nhận" MUST be visible
+    const receivedOption = page.getByRole('option', { name: /Đã nhận/i })
     const sentVisible = await sentOption.isVisible().catch(() => false)
     const receivedVisible = await receivedOption.isVisible().catch(() => false)
 

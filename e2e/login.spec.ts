@@ -88,13 +88,17 @@ test.describe('Login Page', () => {
     await expect(dropdown).not.toBeVisible()
   })
 
-  test('should have sticky header on scroll', async ({ page }) => {
+  test('should have pinned header on scroll', async ({ page }) => {
+    // login-header.tsx uses `fixed inset-x-0 top-0` — not `sticky`.
+    // Both `position: fixed` and `position: sticky` keep the header visible on scroll;
+    // assert the actual CSS class values present in the implementation.
     await page.goto('/login')
 
     const header = page.locator('header')
     const headerClass = await header.getAttribute('class')
 
-    expect(headerClass).toContain('sticky')
+    // The header is fixed-position (stays at top while scrolling)
+    expect(headerClass).toContain('fixed')
     expect(headerClass).toContain('top-0')
   })
 

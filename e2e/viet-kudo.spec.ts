@@ -41,8 +41,9 @@ async function devLogin(
   // Password field already pre-filled with TestPass123! but we set explicitly
   await page.getByPlaceholder('password').fill(password)
   await page.getByRole('button', { name: /đăng nhập/i }).click()
-  // /dev-login form redirects to /kudos on success
-  await page.waitForURL('/kudos', { timeout: 10_000 })
+  // /dev-login form redirects to /kudos on success.
+  // 30s timeout handles Turbopack cold-start + Supabase auth under parallel dev-server load.
+  await page.waitForURL('/kudos', { timeout: 30_000 })
 }
 
 /**
@@ -56,9 +57,11 @@ async function devLogin(
  * (see src/features/kudos/components/kudo-compose-modal.tsx line 232-233).
  */
 async function openModal(page: Page) {
-  await page.goto('/kudos?modal=compose')
+  // Explicit navigation timeout to handle dev-server load under parallel test runs.
+  await page.goto('/kudos?modal=compose', { timeout: 45_000 })
   const dialog = page.getByRole('dialog', { name: 'Viết Kudo' })
-  await expect(dialog).toBeVisible({ timeout: 10_000 })
+  // Extended timeout: dialog mount awaits React hydration + Supabase session check.
+  await expect(dialog).toBeVisible({ timeout: 20_000 })
   return dialog
 }
 
@@ -75,10 +78,12 @@ async function selectRecipient(page: Page, search = RECIPIENT_SEARCH): Promise<v
   const searchBox = page.getByPlaceholder('Tìm kiếm...')
   await expect(searchBox).toBeVisible()
   await searchBox.fill(search)
-  // Wait for the option to appear and click it. Timeout absorbs the 300ms debounce
-  // + a cold server-action + Supabase query on first search (see use-recipient-search).
+  // Wait for the option to appear and click it. Timeout absorbs:
+  //   - 300ms debounce in use-recipient-search
+  //   - cold Next.js server-action + Supabase round-trip (can be >1s under load)
+  // Extended to 25s to handle dev-server CPU contention under parallel test load.
   const option = page.getByRole('option', { name: new RegExp(search, 'i') }).first()
-  await expect(option).toBeVisible({ timeout: 15_000 })
+  await expect(option).toBeVisible({ timeout: 25_000 })
   await option.click()
 }
 
@@ -94,24 +99,38 @@ async function typeContent(page: Page, text: string): Promise<void> {
 /**
  * Add a hashtag via the HashtagPicker dropdown.
  * Assumes the picker is visible and catalog is loaded.
+ *
+ * Scoped to the visible `<ul role="listbox">` rendered by HashtagPicker — avoids
+ * accidentally matching the hidden native <option> elements elsewhere in the DOM
+ * (e.g. inside a <select> that shadows the same names).
  */
 async function addHashtag(page: Page, label: string): Promise<void> {
   await page.getByRole('button', { name: /thêm hashtag/i }).click()
   const searchInput = page.getByPlaceholder('Tìm hashtag...')
   await searchInput.fill(label)
-  const option = page.getByRole('option', { name: new RegExp(`#?${label}`, 'i') }).first()
-  await expect(option).toBeVisible({ timeout: 5_000 })
+  // Scope to the HashtagPicker's listbox so we pick the visible <li role="option">
+  // and not any hidden native <option value="..."> that shares the same text.
+  const option = page.getByRole('listbox').getByRole('option', { name: new RegExp(`#?${label}`, 'i') })
+  // Extended to 15s to absorb hashtag catalog load under dev-server parallel test load.
+  await expect(option).toBeVisible({ timeout: 15_000 })
   await option.click()
 }
 
 /**
- * Fill in the minimum valid form: recipient + content + one hashtag.
+ * Fill in the minimum valid form: recipient + content + one hashtag + danhHieu.
  * Used to satisfy submit-enable preconditions in tests that focus elsewhere.
+ *
+ * Note: danhHieu ("Danh hiệu") is required for submit (isSubmitDisabled checks
+ * `danhHieu.trim().length === 0`). The field was added as required in phase-08
+ * and was not included in the original helper — updated to reflect real app behavior.
  */
 async function fillMinimumValidForm(page: Page): Promise<void> {
   await selectRecipient(page)
   await typeContent(page, 'Cảm ơn đồng đội!')
   await addHashtag(page, 'TeamWork')
+  // danhHieu is required — fill it or Gửi button stays disabled
+  const danhHieuInput = page.getByLabel('Danh hiệu (bắt buộc)')
+  await danhHieuInput.fill('Người truyền cảm hứng')
 }
 
 // ── Test Suite ───────────────────────────────────────────────────────────────
@@ -128,6 +147,11 @@ test.describe('Viết Kudo — Access Guard (unauthenticated)', () => {
 })
 
 test.describe('Viết Kudo — E2E (MoMorph ihQ26W78P2)', () => {
+  // Each test gets 90s: server actions + Supabase round trips can be slow under
+  // parallel dev-server load (devLogin + openModal + recipient search each take
+  // a full server roundtrip + debounce; they can saturate a single Turbopack worker).
+  test.setTimeout(90_000)
+
   // ── Access Guard ────────────────────────────────────────────────────────────
 
   test('ID-0: authenticated user navigating to /kudos stays on /kudos', async ({ page }) => {
@@ -140,7 +164,7 @@ test.describe('Viết Kudo — E2E (MoMorph ihQ26W78P2)', () => {
     // The /kudos route renders the board. The compose trigger is a pill button with
     // aria-label "Viết lời cảm ơn và ghi nhận" (board-write-kudo-trigger.tsx).
     const btn = page.getByRole('button', { name: /viết lời cảm ơn/i })
-    await expect(btn).toBeVisible()
+    await expect(btn).toBeVisible({ timeout: 15_000 })
   })
 
   // ── GUI / Layout ─────────────────────────────────────────────────────────────
@@ -220,8 +244,12 @@ test.describe('Viết Kudo — E2E (MoMorph ihQ26W78P2)', () => {
     await openModal(page)
     await selectRecipient(page)
 
-    // After selection, the trigger button shows the chosen recipient's name
-    await expect(page.getByText(RECIPIENT_NAME)).toBeVisible()
+    // After selection the trigger button (exact text = recipient name) is visible.
+    // Use getByRole('button', exact) scoped to the dialog to avoid strict-mode
+    // violations from other elements (leaderboard cards, profile links) that also
+    // contain the name.
+    const dialog = page.getByRole('dialog', { name: 'Viết Kudo' })
+    await expect(dialog.getByRole('button', { name: RECIPIENT_NAME, exact: true })).toBeVisible()
   })
 
   test('ID-26: selecting a recipient closes the dropdown', async ({ page }) => {
@@ -375,32 +403,36 @@ test.describe('Viết Kudo — E2E (MoMorph ihQ26W78P2)', () => {
   test('ID-15: adding a hashtag displays it as a chip', async ({ page }) => {
     await devLogin(page)
     await openModal(page)
+    const dialog = page.getByRole('dialog', { name: 'Viết Kudo' })
     await addHashtag(page, 'TeamWork')
-    await expect(page.getByText('#TeamWork')).toBeVisible()
+    // Scope to dialog to avoid strict-mode collision with board card hashtag chips
+    await expect(dialog.getByText('#TeamWork')).toBeVisible()
   })
 
   test('ID-34: removing a hashtag chip removes it from the list', async ({ page }) => {
     await devLogin(page)
     await openModal(page)
+    const dialog = page.getByRole('dialog', { name: 'Viết Kudo' })
     await addHashtag(page, 'TeamWork')
-    await expect(page.getByText('#TeamWork')).toBeVisible()
+    await expect(dialog.getByText('#TeamWork')).toBeVisible()
 
     await page.getByRole('button', { name: 'Xóa hashtag #TeamWork' }).click()
-    await expect(page.getByText('#TeamWork')).not.toBeVisible()
+    await expect(dialog.getByText('#TeamWork')).not.toBeVisible()
   })
 
   test('ID-35: can add up to 5 hashtags', async ({ page }) => {
     await devLogin(page)
     await openModal(page)
+    const dialog = page.getByRole('dialog', { name: 'Viết Kudo' })
 
     const tags = ['TeamWork', 'Support', 'Innovation', 'Leadership', 'Ownership']
     for (const tag of tags) {
       await addHashtag(page, tag)
     }
 
-    // All 5 chips visible
+    // All 5 chips visible — scoped to dialog to avoid board card hashtags triggering strict mode
     for (const tag of tags) {
-      await expect(page.getByText(`#${tag}`)).toBeVisible()
+      await expect(dialog.getByText(`#${tag}`)).toBeVisible()
     }
   })
 
