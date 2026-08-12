@@ -248,13 +248,13 @@ test.describe('Homepage SAA — Public View', () => {
 
     // Tablet: 2 columns
     await page.setViewportSize({ width: 768, height: 800 })
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
     classes = await gridDesktop.getAttribute('class')
     expect(classes).toContain('sm:grid-cols-2')
 
     // Mobile: 1 column
     await page.setViewportSize({ width: 375, height: 800 })
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
     classes = await gridDesktop.getAttribute('class')
     expect(classes).toContain('grid-cols-1')
   })
@@ -333,7 +333,7 @@ test.describe('Homepage SAA — Public View', () => {
 
     // Scroll down
     await page.evaluate(() => window.scrollBy(0, 500))
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
 
     // Header should still be at top (sticky)
     const newHeaderBox = await header.boundingBox()

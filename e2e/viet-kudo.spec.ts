@@ -141,7 +141,7 @@ test.describe('Viết Kudo — Access Guard (unauthenticated)', () => {
 
   test('ID-1: unauthenticated access to /kudos redirects to /login', async ({ page }) => {
     await page.goto('/kudos')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
     await expect(page).toHaveURL('/login', { timeout: 5_000 })
   })
 })

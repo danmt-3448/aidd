@@ -87,3 +87,9 @@ plans/reports/_gate-ref/**/*.jpeg
 # UI-gate/screenshot evidence PNGs (regenerable, heavy) — keep reports, not binaries
 plans/**/evidence/screenshots/
 plans/reports/_gate-ref/*.png
+
+# E2E debug screenshots (regenerable, countdown.spec writes here)
+e2e/__screenshots__/
+
+# UI-gate live-capture evidence (regenerable via gate-capture)
+plans/reports/_gate-ref/nodemap/*.live.*.json

@@ -59,7 +59,7 @@ test.describe('Login Page', () => {
     await enOption.click()
 
     // Wait for page refresh
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
 
     // Verify English content
     await expect(page.locator('text=Copyright © Sun* 2025')).toBeVisible()

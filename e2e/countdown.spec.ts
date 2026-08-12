@@ -44,7 +44,7 @@ test.describe('Countdown Screen (CD-E2E)', () => {
     // Unauthenticated visitors see the pre-launch countdown — no redirect to /login.
     // Proxy comment: "Bypass paths (/countdown, /login, /auth, /dev-login) are never gated."
     await page.goto('/countdown')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
     expect(page.url()).toContain('/countdown')
     // The countdown page should render its timer (not an error or login redirect)
     await expect(page.locator('[role="timer"]')).toBeVisible({ timeout: 10_000 })

@@ -65,7 +65,7 @@ async function authenticateUser(
 
   // Wait for post-login redirect to confirm session established
   await page.waitForURL(/\/(kudos|board|profile|awards)/, { timeout: 15_000 })
-  await page.waitForLoadState('networkidle')
+  await page.waitForLoadState('domcontentloaded')
 }
 
 export default globalSetup

@@ -35,7 +35,7 @@ const OTHER_USER_ID = '11111111-0000-0000-0000-000000000003'
 test.describe('Profile /profile (Self Profile)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/profile')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
   })
 
   test('TC-PROFILE-SELF-01: self profile page loads at /profile (HTTP 200)', async ({ page }) => {
@@ -146,7 +146,7 @@ test.describe('Profile /profile?id={uuid} (Other User Profile)', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to other user's profile — currently 404s (product bug, see above)
     await page.goto(`/profile?id=${OTHER_USER_ID}`)
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
   })
 
   test('TC-PROFILE-OTHER-01: /profile?id={uuid} returns 200 and renders other user profile', async ({ page }) => {

@@ -29,7 +29,7 @@ test.describe('Root path redirect', () => {
     // The authed project runs with user storageState, so we can't test true
     // unauthenticated state here. Verify the route is accessible and stays at /.
     await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
     // Should stay at / (no redirect to /login)
     await expect(page).toHaveURL('/')
     // Page should render some content (not blank)
@@ -46,7 +46,7 @@ test.describe('Root path redirect', () => {
   test('TC-REDIRECT-02: authenticated user can access /todo without redirect', async ({ page }) => {
     // storageState is loaded by the 'authed' project — browser starts with valid session
     await page.goto('/todo')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
     // Should stay on /todo (not redirected to /login)
     await expect(page).toHaveURL('/todo', { timeout: 5_000 })
     // Page renders content (not blank 404 or redirect loop)
