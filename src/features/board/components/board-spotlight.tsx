@@ -2,20 +2,22 @@
 
 /**
  * BoardSpotlight — Figma mms_B.7 (frame 2940:14174, screen MaZUn5xHXZ).
- * mms_B.7.3 search top-left · mms_B.7.1 KUDOS center · mms_B.7.2 pan/zoom reset bottom-right.
+ * mms_B.7.3 search top-left · mms_B.7.1 KUDOS center · controls bottom-right.
  * Canvas 1819px wide (> box) — pan/zoom to explore. Activity log 6 lines bottom-left.
- * Background: Figma artwork images 2940:14178 / 2940:14181 (cosmic nebula artwork).
- * Asset path: /images/board/spotlight-bg.png (exported via figma MCP get_screenshot).
- * Fallback: dark solid bg so content remains readable if asset not yet downloaded.
+ *
+ * Phase 02: search → dropdown match-picker → onOpenProfile(receiverId).
+ * Phase 03: ⤢ fullscreen toggle (useFullscreen) + pan/zoom reset; bg extracted to BoardSpotlightBg.
+ * Phase 04: nebula asset swap in BoardSpotlightBg.
  */
 
-import Image from 'next/image'
 import { useMemo, useRef } from 'react'
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 import { montserrat } from '@/features/auth/fonts'
+import { useFullscreen } from '../use-fullscreen'
 import { BoardSpotlightWordCloud, computeWordLayout } from './board-spotlight-word-cloud'
 import { BoardSpotlightSearch } from './board-spotlight-search'
 import { BoardSpotlightControls } from './board-spotlight-controls'
+import { BoardSpotlightBg } from './board-spotlight-bg'
 import { SectionEyebrow } from './board-section-eyebrow'
 import { ActivityLog } from './board-spotlight-activity'
 import type { SpotlightNode, SpotlightActivityEntry } from './board-types'
@@ -43,6 +45,7 @@ export function BoardSpotlight({
 }: BoardSpotlightProps) {
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null)
   const layout = useMemo(() => computeWordLayout(nodes), [nodes])
+  const { isFullscreen, toggle, ref: fullscreenRef, containerHeight } = useFullscreen()
 
   function handleReset() { transformRef.current?.resetTransform() }
 
@@ -67,11 +70,12 @@ export function BoardSpotlight({
 
       {/*
        * Dark box — Figma node 2940:14174 (B.7_Spotlight frame).
-       * Dimensions from orchestrator get_node: w=1157px h=548px border=1px solid #998C5F radius=47.14px.
-       * `data-fig` moved here so gate selector [data-fig='2940:14174'] matches this element directly.
-       * overflow-hidden clips the artwork + word-cloud canvas to the rounded frame.
+       * w=1157px h=548px border=1px solid #998C5F radius=47.14px.
+       * overflow-hidden clips artwork + word-cloud canvas to rounded frame.
+       * fullscreenRef attached here so useFullscreen targets this element.
        */}
       <div
+        ref={fullscreenRef}
         data-fig="2940:14174"
         className="relative overflow-hidden mx-auto"
         style={{
@@ -79,47 +83,27 @@ export function BoardSpotlight({
           border: '1px solid #998C5F',
           borderRadius: '47.14px',
           padding: '24px 24px 0 24px',
-          // Figma frame is 1157px wide inside the 1440 artboard's ~142px gutters.
-          // Responsive cap (not a fixed width) so it never overflows the narrower
-          // content column at 1280 — fixed 1157px caused horizontal page overflow there.
           width: '100%',
           maxWidth: 1157,
-          height: 548,
+          height: isFullscreen ? '100%' : 548,
+          minHeight: isFullscreen ? '100vh' : undefined,
         }}
       >
-        {/* Figma artwork (mms_B.7) — colourful feather art bleeds from the LEFT
-            over the dark base, fading into the dark toward the right where the
-            word-cloud names sit. Not a full-cover fill. */}
-        <div
-          className="pointer-events-none absolute inset-y-0 left-0 z-0"
-          style={{ width: '100%' }}
-          aria-hidden
-        >
-          <Image
-            src="/images/board/kv-background.png"
-            alt=""
-            fill
-            className="object-cover object-left-bottom"
-            priority
-            sizes="100vw"
-          />
-          {/* Fade the art into the dark base on the right + slight darken for contrast */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'linear-gradient(90deg, rgba(4,8,20,0.30) 0%, rgba(4,8,20,0.12) 40%, rgba(4,8,20,0.80) 82%, rgb(4,8,20) 100%)',
-            }}
-          />
-        </div>
+        <BoardSpotlightBg />
 
         {/* Top bar: search left — KUDOS count center — spacer right */}
         <div className="relative z-10 mb-3 flex items-center">
           <div className="flex-none">
-            <BoardSpotlightSearch value={search} onChange={handleSearchChange} />
+            <BoardSpotlightSearch
+              value={search}
+              onChange={handleSearchChange}
+              nodes={nodes}
+              onSelect={onOpenProfile}
+            />
           </div>
 
           <p
+            data-fig="3007:17482"
             className="flex-1 text-center"
             style={{
               fontFamily: montserrat.style.fontFamily,
@@ -157,19 +141,24 @@ export function BoardSpotlight({
               onOpenProfile={onOpenProfile}
               onOpenKudoDetail={onOpenKudoDetail}
               transformRef={transformRef}
+              fullscreenHeight={isFullscreen ? containerHeight : undefined}
             />
           )}
         </div>
 
-        {/* Bottom bar: activity log left + pan/zoom reset right */}
+        {/* Bottom bar: activity log left + controls right */}
         <div
-          className="relative z-10 flex items-end justify-between gap-4 pb-4 pt-3 max-w-content"
-          style={{ minHeight: 72, boxShadow: "inset 0 8px 8px -8px rgba(0, 0, 0, 0.25)" }}
+          className="relative z-10 flex items-end justify-between gap-4 pb-4 pt-3"
+          style={{ minHeight: 72, boxShadow: 'inset 0 8px 8px -8px rgba(0, 0, 0, 0.25)' }}
         >
           <div className="min-w-0 flex-1">
             <ActivityLog entries={activityLog} />
           </div>
-          <BoardSpotlightControls onReset={handleReset} />
+          <BoardSpotlightControls
+            onReset={handleReset}
+            toggle={toggle}
+            isFullscreen={isFullscreen}
+          />
         </div>
       </div>
     </section>

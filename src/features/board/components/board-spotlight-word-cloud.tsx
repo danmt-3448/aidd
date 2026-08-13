@@ -4,6 +4,9 @@
  * board-spotlight-word-cloud.tsx — pan/zoom word-cloud renderer.
  * Layout algorithm lives in board-spotlight-layout.ts (collision-aware, deterministic).
  * react-zoom-pan-pinch · search filter/highlight · hover tooltip · click→detail.
+ *
+ * Highlight color (#FFEA9E): Figma board gold accent from node 2940:14174 context.
+ * Tooltip extracted → board-spotlight-word-cloud-tooltip.tsx.
  */
 
 import { useRef, useState } from 'react'
@@ -11,38 +14,31 @@ import { TransformWrapper, TransformComponent, type ReactZoomPanPinchRef } from 
 import { montserrat } from '@/features/auth/fonts'
 import { CANVAS_W, CANVAS_H, type WordLayout } from './board-spotlight-layout'
 import type { SpotlightNode, SpotlightActivityEntry } from './board-types'
+import { WordCloudTooltip, type TooltipState } from './board-spotlight-word-cloud-tooltip'
 
 // Re-export so callers that previously imported from here still work
 export { computeWordLayout, type WordLayout } from './board-spotlight-layout'
+
+/** Highlight color for matched names — Figma board gold accent (node 2940:14174 context) */
+const HIGHLIGHT_COLOR = '#FFEA9E'
 
 /**
  * Text shadow scales with fontSize (13–44 px range from board-spotlight-layout.ts).
  * Larger = higher rank → heavier shadow = "floating higher" depth effect.
  */
 function wordShadow(fontSize: number): string {
-  const r = (fontSize - 13) / 31          // 0…1
-  const alpha = 0.55 + r * 0.35           // 0.55–0.90
-  const blur  = Math.round(6 + r * 16)    // 6–22 px
+  const r = (fontSize - 13) / 31
+  const alpha = 0.55 + r * 0.35
+  const blur  = Math.round(6 + r * 16)
   const layers = [`0 2px ${blur}px rgba(0,0,0,${alpha.toFixed(2)})`]
   if (r > 0.7) layers.push(`0 0 ${Math.round(r * 4) + 8}px rgba(0,0,0,${(alpha * 0.5).toFixed(2)})`)
   return layers.join(', ')
 }
 
-/** name → last kudo time (activity log has name, not id) */
 function buildActivityIndex(log: SpotlightActivityEntry[]): Record<string, string> {
   const idx: Record<string, string> = {}
   for (const e of log) idx[e.name] = e.time
   return idx
-}
-
-interface TooltipState {
-  visible: boolean
-  x: number
-  y: number
-  /** clamped so tooltip never overflows container — captured at pointer-enter time */
-  containerW: number
-  name: string
-  time: string | null
 }
 
 interface BoardSpotlightWordCloudProps {
@@ -53,6 +49,8 @@ interface BoardSpotlightWordCloudProps {
   onOpenKudoDetail?: (receiverId: string) => void
   /** Forwarded ref so parent can call resetTransform() */
   transformRef?: React.RefObject<ReactZoomPanPinchRef | null>
+  /** Fullscreen container height for scale refit (Phase 03 fallback) */
+  fullscreenHeight?: number
 }
 
 export function BoardSpotlightWordCloud({
@@ -62,6 +60,7 @@ export function BoardSpotlightWordCloud({
   onOpenProfile,
   onOpenKudoDetail,
   transformRef,
+  fullscreenHeight,
 }: BoardSpotlightWordCloudProps) {
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false, x: 0, y: 0, containerW: 800, name: '', time: null,
@@ -70,6 +69,13 @@ export function BoardSpotlightWordCloud({
   const containerRef = useRef<HTMLDivElement>(null)
   const activityIndex = buildActivityIndex(activityLog)
   const q = search.trim().toLowerCase()
+
+  // Phase 03 scale: fill fullscreen height preserving aspect ratio
+  const TOP_BAR_H = 50
+  const BOTTOM_BAR_H = 72
+  const scaleVal = fullscreenHeight
+    ? Math.min((fullscreenHeight - TOP_BAR_H - BOTTOM_BAR_H) / CANVAS_H, 1.5)
+    : 1
 
   if (layout.length === 0) {
     return (
@@ -104,12 +110,12 @@ export function BoardSpotlightWordCloud({
       ref={containerRef}
       className="relative w-full overflow-hidden"
       style={{
-        /* height=406px: box h=548 − top-pad(24) − top-bar+mb(46) − bottom-bar(72) = 406.
-           CANVAS_H=620 (layout space) stays ≥ 406 so word positions are unchanged; viewport just clips. */
         height: 406,
         borderRadius: 12,
         background: 'transparent',
         cursor: 'grab',
+        // zoom expands the layout box (unlike transform:scale which clips inside overflow-hidden ancestors)
+        zoom: scaleVal !== 1 ? scaleVal : undefined,
       }}
       aria-label="Word cloud — nhận nhiều kudos"
     >
@@ -135,6 +141,7 @@ export function BoardSpotlightWordCloud({
           >
             {layout.map(({ node, fontSize, colorOpacity, x, y }) => {
               const match = !q || node.name.toLowerCase().includes(q)
+              const nameColor = q && match ? HIGHLIGHT_COLOR : `rgba(255,255,255,${colorOpacity})`
               return (
                 <button
                   key={node.receiverId}
@@ -152,7 +159,7 @@ export function BoardSpotlightWordCloud({
                     fontWeight: 700,
                     fontSize,
                     lineHeight: 1.1,
-                    color: `rgba(255,255,255,${colorOpacity})`,
+                    color: nameColor,
                     textShadow: wordShadow(fontSize),
                     whiteSpace: 'nowrap',
                     cursor: 'pointer',
@@ -161,7 +168,7 @@ export function BoardSpotlightWordCloud({
                     padding: 0,
                     opacity: q ? (match ? 1 : 0.15) : 1,
                     transform: `scale(${match && q ? 1.08 : 1})`,
-                    transition: 'opacity 0.2s ease, transform 0.15s ease',
+                    transition: 'opacity 0.2s ease, transform 0.15s ease, color 0.15s ease',
                     transformOrigin: 'left center',
                   }}
                 >
@@ -173,30 +180,7 @@ export function BoardSpotlightWordCloud({
         </TransformComponent>
       </TransformWrapper>
 
-      {tooltip.visible && (
-        <div
-          role="tooltip"
-          aria-live="polite"
-          className="pointer-events-none absolute z-20 rounded-lg px-3 py-2 text-xs shadow-lg"
-          style={{
-            left: Math.min(tooltip.x + 12, tooltip.containerW - 160),
-            top: Math.max(tooltip.y - 40, 4),
-            background: 'rgba(10,20,35,0.92)',
-            border: '1px solid rgba(255,234,158,0.25)',
-            fontFamily: montserrat.style.fontFamily,
-            color: 'rgba(255,255,255,0.9)',
-            backdropFilter: 'blur(8px)',
-            maxWidth: 180,
-          }}
-        >
-          <p className="font-semibold" style={{ color: '#FFEA9E' }}>{tooltip.name}</p>
-          {tooltip.time && (
-            <p className="mt-0.5" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              Kudos lúc {tooltip.time}
-            </p>
-          )}
-        </div>
-      )}
+      <WordCloudTooltip tooltip={tooltip} />
     </div>
   )
 }

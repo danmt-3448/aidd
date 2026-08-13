@@ -23,7 +23,9 @@ import { useBoardUserStats } from '../use-board-user-stats'
 import { useGiftLeaderboard } from '../use-board-leaderboards'
 import { useHashtagList } from '../use-hashtag-list'
 import { useDepartmentList } from '../use-department-list'
-import { mapKudoRowToFeedCard, EMPTY_ACTIVITY } from './board-connected-helpers'
+import { mapKudoRowToFeedCard } from './board-connected-helpers'
+import { BoardLoadingGate, BoardErrorGate } from './board-connected-gates'
+import { useSpotlightActivity } from '../use-spotlight-activity'
 
 export interface BoardConnectedProps {
   uid: string | null
@@ -59,6 +61,7 @@ export function BoardConnected({ uid, user, isAdmin, initialComposeOpen = false 
 
   const { highlights: highlightRows, error: highlightsError } = useHighlights()
   const { nodes: spotlightNodes, error: spotlightError } = useSpotlight()
+  const { activity, error: activityError } = useSpotlightActivity()
   const { toggle, error: toggleError, clearError } = useToggleHeart()
   const { stats: userStats, error: statsError } = useBoardUserStats(uid)
   const { entries: giftLeaderboard, error: giftError } = useGiftLeaderboard()
@@ -117,6 +120,7 @@ export function BoardConnected({ uid, user, isAdmin, initialComposeOpen = false 
   useEffect(() => { if (feedError) toast.error(feedError) }, [feedError])
   useEffect(() => { if (highlightsError) toast.error(highlightsError) }, [highlightsError])
   useEffect(() => { if (spotlightError) toast.error(spotlightError) }, [spotlightError])
+  useEffect(() => { if (activityError) toast.error(activityError) }, [activityError])
   useEffect(() => { if (statsError) toast.error(statsError) }, [statsError])
   useEffect(() => { if (giftError) toast.error(giftError) }, [giftError])
   useEffect(() => { if (deptListError) toast.error(deptListError) }, [deptListError])
@@ -140,37 +144,9 @@ export function BoardConnected({ uid, user, isAdmin, initialComposeOpen = false 
     <SiteHeader user={user} unreadCount={unreadCount} uid={uid} isAdmin={isAdmin} activeNav="kudos" />
   )
 
-  // Loading skeleton gate
-  if (feedLoading && feed.length === 0) {
-    return (
-      <div className="relative min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
-        {header}
-        <div className="flex flex-1 flex-col items-center justify-center gap-4" style={{ minHeight: 'calc(100vh - 80px)' }}
-          role="status" aria-busy="true" aria-label="Đang tải bảng Kudos…">
-          <div
-            className="h-10 w-10 animate-spin rounded-full"
-            style={{ border: '3px solid rgba(255,234,158,0.25)', borderTopColor: '#FFEA9E' }}
-          />
-          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>Đang tải bảng Kudos…</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Error gate
-  if (feedError && feed.length === 0) {
-    return (
-      <div className="relative min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
-        {header}
-        <div className="flex flex-1 items-center justify-center" style={{ minHeight: 'calc(100vh - 80px)' }}
-          role="alert" aria-label="Lỗi tải bảng Kudos">
-          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            Không thể tải dữ liệu. Vui lòng thử lại.
-          </p>
-        </div>
-      </div>
-    )
-  }
+  // Loading / error skeleton gates — shell components in board-connected-helpers.tsx
+  if (feedLoading && feed.length === 0) return <BoardLoadingGate header={header} />
+  if (feedError && feed.length === 0) return <BoardErrorGate header={header} />
 
   return (
     <div className="relative min-h-screen w-full" style={{ backgroundColor: 'rgba(0,16,26,1)' }}>
@@ -183,7 +159,7 @@ export function BoardConnected({ uid, user, isAdmin, initialComposeOpen = false 
         departments={departmentNames}
         activeDepartment={activeDepartment}
         spotlight={spotlightNodes}
-        spotlightActivity={EMPTY_ACTIVITY}
+        spotlightActivity={activity}
         totalKudos={totalKudos}
         userStats={userStats}
         giftLeaderboard={giftLeaderboard}
@@ -191,7 +167,7 @@ export function BoardConnected({ uid, user, isAdmin, initialComposeOpen = false 
         onDepartmentChange={handleDepartmentChange}
         onToggleHeart={(kudoId) => { toggle(kudoId) }}
         onCopyLink={() => { /* handled inside BoardScreen */ }}
-        onOpenProfile={(id) => router.push('/profile?id=' + id)}
+        onOpenProfile={(id) => router.push('/profile?' + new URLSearchParams({ id }).toString())}
         onOpenSecretBox={() => router.push('/secret-box')}
         isLoading={feedLoading}
         hasNextPage={hasNextPage}

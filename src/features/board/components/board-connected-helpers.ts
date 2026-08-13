@@ -5,7 +5,7 @@
  */
 
 import type { BoardKudoRow } from '../board-queries'
-import type { FeedCardProps, SpotlightNode, BoardUserStats, LeaderboardEntry, SpotlightActivityEntry } from './board-types'
+import type { FeedCardProps, SpotlightNode, BoardUserStats, LeaderboardEntry } from './board-types'
 
 /**
  * Maps a Track B BoardKudoRow to a Track A FeedCardProps.
@@ -56,7 +56,8 @@ export const ZERO_STATS: BoardUserStats = {
   secretBoxUnopened: 0,
 }
 
-export const EMPTY_ACTIVITY: SpotlightActivityEntry[] = []
+// EMPTY_ACTIVITY removed — board-connected now reads from useSpotlightActivity hook.
+// Loading/error gate JSX components live in board-connected-gates.tsx (JSX needs .tsx).
 
 // Department filter is implemented: see use-department-list.ts, board-department-queries.ts,
 // board-department-filter.tsx. The departments table (20260804040000) adds a departments

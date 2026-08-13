@@ -98,7 +98,9 @@ export interface BoardUserStats {
 
 /** One entry in the spotlight activity log (bottom-left of spotlight box). */
 export interface SpotlightActivityEntry {
-  /** HH:MM format */
+  /** UUID of the kudo receiver — used as a stable React key on prepend. */
+  receiverId: string
+  /** hh:mmA format — e.g. "08:30PM", Asia/Ho_Chi_Minh TZ, no space before AM/PM */
   time: string
   name: string
 }

@@ -115,3 +115,27 @@ label[for] {
 .swiper-box-shadow-right {
   right: 0;
 }
+
+/* ── Spotlight fullscreen CSS fallback (use-fullscreen.ts) ─────────────────
+   Applied when the Fullscreen API is denied (iframe/sandboxed embed).
+   z-index matches the design token > fullscreen overlay z-50 (50 = z-[50]).  */
+.fullscreen-css-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 200 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  border-radius: 0 !important;
+}
+
+/* ── Spotlight activity feed — prepend animation (board-spotlight-activity.tsx) ─
+   Newest row fades + slides in from top over 300ms (pairs with 300ms realtime debounce). */
+@keyframes spotlight-activity-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.spotlight-activity-prepend {
+  animation: spotlight-activity-in 300ms ease-out forwards;
+}
