@@ -31,7 +31,7 @@
  *                 null = no link is marked active.
  */
 
-import { useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { montserrat } from '@/features/auth/fonts'
@@ -77,9 +77,19 @@ export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav }: SiteH
   const togglePanel = useCallback(() => setPanelOpen((v) => !v), [])
   const closePanel = useCallback(() => setPanelOpen(false), [])
 
-  // Language switcher — toggles vi ↔ en.
-  const { locale, switchLocale, isPending } = useLanguageSwitcher()
-  const nextLocale: Locale = locale === 'vi' ? 'en' : 'vi'
+  // Language switcher — click opens a VN/EN dropdown (chevron affordance).
+  const { locale, switchLocale, isPending, locales } = useLanguageSwitcher()
+  const langRef = useRef<HTMLDivElement | null>(null)
+  const [langOpen, setLangOpen] = useState(false)
+
+  useEffect(() => {
+    if (!langOpen) return
+    function onDown(e: MouseEvent) {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false)
+    }
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [langOpen])
 
   return (
     <header
@@ -150,48 +160,97 @@ export function SiteHeader({ user, unreadCount, uid, isAdmin, activeNav }: SiteH
 
       {/* Right: Language + optional bell + optional account */}
       <div className="flex items-center gap-2 md:gap-4">
-        {/* Language selector — toggles vi ↔ en */}
-        <button
-          className="flex items-center rounded px-3 py-2 transition-opacity hover:opacity-80"
-          style={{ gap: 6, background: 'transparent' }}
-          aria-label={`Chuyển sang ${nextLocale.toUpperCase()}`}
-          disabled={isPending}
-          onClick={() => switchLocale(nextLocale)}
-        >
-          {locale === 'vi' ? (
-            <div className="relative" style={{ width: 20, height: 15 }}>
-              <Image
-                src="/homepage/flag-vn.svg"
-                alt="VN"
-                fill
-                className="object-contain"
-              />
-            </div>
-          ) : (
-            <div className="relative" style={{ width: 20, height: 15 }}>
-              <Image
-                src="/homepage/flag-en.svg"
-                alt="EN"
-                fill
-                className="object-contain"
-              />
-            </div>
-          )}
-          <span
-            className={montserrat.className}
-            style={{ fontSize: 16, fontWeight: 700, lineHeight: '24px', color: '#FFFFFF', letterSpacing: '0.15px' }}
+        {/* Language selector — click opens VN/EN dropdown (design: chevron affordance). */}
+        <div ref={langRef} className="relative">
+          <button
+            className="flex items-center rounded px-3 py-2 transition-opacity hover:opacity-80"
+            style={{ gap: 6, background: 'transparent' }}
+            aria-label="Chọn ngôn ngữ"
+            aria-haspopup="listbox"
+            aria-expanded={langOpen}
+            disabled={isPending}
+            onClick={() => setLangOpen((o) => !o)}
           >
-            {locale.toUpperCase()}
-          </span>
-          <div className="relative" style={{ width: 24, height: 24 }}>
-            <Image
-              src="/homepage/icon-chevron-down.svg"
-              alt=""
-              fill
-              className="object-contain"
-            />
-          </div>
-        </button>
+            {locale === 'vi' ? (
+              <div className="relative" style={{ width: 20, height: 15 }}>
+                <Image
+                  src="/homepage/flag-vn.svg"
+                  alt="VN"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            ) : (
+              <div className="relative" style={{ width: 20, height: 15 }}>
+                <Image
+                  src="/homepage/flag-en.svg"
+                  alt="EN"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            )}
+            <span
+              className={montserrat.className}
+              style={{ fontSize: 16, fontWeight: 700, lineHeight: '24px', color: '#FFFFFF', letterSpacing: '0.15px' }}
+            >
+              {locale.toUpperCase()}
+            </span>
+            <div
+              className={`relative transition-transform ${langOpen ? 'rotate-180' : ''}`}
+              style={{ width: 24, height: 24 }}
+            >
+              <Image
+                src="/homepage/icon-chevron-down.svg"
+                alt=""
+                fill
+                className="object-contain"
+              />
+            </div>
+          </button>
+
+          {langOpen && (
+            <ul
+              role="listbox"
+              aria-label="Ngôn ngữ"
+              className="absolute right-0 z-30 mt-1 min-w-[120px] overflow-hidden rounded py-1 shadow-lg ring-1 ring-white/10"
+              style={{ background: 'rgba(16,20,23,0.95)' }}
+            >
+              {locales.map((l) => (
+                <li key={l}>
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={l === locale}
+                    disabled={isPending}
+                    onClick={() => {
+                      setLangOpen(false)
+                      switchLocale(l as Locale)
+                    }}
+                    className={`${montserrat.className} flex w-full items-center gap-2 px-4 py-2 text-left transition-colors hover:bg-white/10 disabled:opacity-60`}
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 700,
+                      lineHeight: '24px',
+                      letterSpacing: '0.15px',
+                      color: l === locale ? '#FFEA9E' : '#FFFFFF',
+                    }}
+                  >
+                    <span className="relative" style={{ width: 20, height: 15 }}>
+                      <Image
+                        src={l === 'vi' ? '/homepage/flag-vn.svg' : '/homepage/flag-en.svg'}
+                        alt=""
+                        fill
+                        className="object-contain"
+                      />
+                    </span>
+                    {l.toUpperCase()}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         {/* Notification bell — only when authenticated; wraps panel */}
         {user !== null && (
