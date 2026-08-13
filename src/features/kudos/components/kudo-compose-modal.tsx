@@ -127,7 +127,7 @@ export function KudoComposeModal({
   const [anonymousAlias, setAnonymousAlias] = useState('')
 
   // ── Track B hooks ────────────────────────────────────────────────────────
-  const { data: recipientResults = [], isLoading: recipientsLoading } = useRecipientSearch(recipientSearch)
+  const { data: recipientResults = [], isLoading: recipientsLoading } = useRecipientSearch(recipientSearch, recipientOpen)
   const { data: hashtagCatalog = [] } = useHashtags()
   const createHook = useCreateKudo()
   const updateHook = useUpdateKudo()
@@ -251,7 +251,7 @@ export function KudoComposeModal({
       <div
         key={formKey}
         data-fig="520:11647"
-        className={`${montserrat.className} flex w-full max-w-[752px] flex-col gap-8 overflow-y-auto`}
+        className={`${montserrat.className} flex w-full max-w-[800px] flex-col gap-8 overflow-y-auto`}
         style={{ background: 'rgba(255,248,225,1)', borderRadius: '24px', padding: '40px', maxHeight: '90vh' }}
         onClick={(e) => e.stopPropagation()}
       >
