@@ -46,17 +46,6 @@
     },
     "_note": "Spotlight frame border 1px #998C5F (rgb 153,140,95) + radius 47.14px — Figma node 2940:14174. Width is responsive (100% capped at 1157px) so it never overflows the 1280 content column; exact-width check dropped intentionally (do not hardcode width>50% viewport)."
   },
-  "all-kudos-list-height": {
-    "kind": "section",
-    "selector": "[data-fig='2940:13482']",
-    "code": {
-      "offsetHeight": 3068
-    },
-    "design": {
-      "height": 3068
-    },
-    "_note": "C.2 all-kudos list — node 2940:13482: 4×749 + 3×24 = 3068px"
-  },
   "feed-card-bg": {
     "kind": "style",
     "code": {

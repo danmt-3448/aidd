@@ -1,0 +1,76 @@
+{
+  "spotlight-height": {
+    "kind": "section",
+    "selector": "[data-fig='2940:14174']",
+    "code": {
+      "offsetHeight": 548
+    },
+    "design": {
+      "height": 548
+    },
+    "_note": "B.7 Spotlight dark frame — Figma node 2940:14174 h=548px. Confirmed prior gate + spec. Live DOM @1440: 548px."
+  },
+  "spotlight-frame": {
+    "kind": "style",
+    "selector": "[data-fig='2940:14174']",
+    "code": {
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(153, 140, 95)",
+      "borderTopLeftRadius": "47.14px"
+    },
+    "design": {
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(153, 140, 95)",
+      "borderTopLeftRadius": "47.14px"
+    },
+    "_note": "Figma node 2940:14174: border 1px solid #998C5F (rgb 153,140,95) + radius 47.14px. Prior gate PASS. Width excluded (responsive max-width 1157px)."
+  },
+  "search-pill": {
+    "kind": "section",
+    "selector": "[data-fig='2940:14833']",
+    "code": {
+      "offsetHeight": 39
+    },
+    "design": {
+      "height": 39
+    },
+    "_note": "mms_B.7.3 search pill wrapper — Figma node 2940:14833 h=39px. Wrapper is transparent div (visual pill on inner INPUT). Section check: height 39px."
+  },
+  "kudos-count": {
+    "kind": "style",
+    "selector": "[data-fig='3007:17482']",
+    "code": {
+      "color": "rgb(255, 255, 255)",
+      "fontSize": "28px",
+      "fontWeight": "700",
+      "lineHeight": "34px"
+    },
+    "design": {
+      "color": "#ffffff",
+      "fontSize": "28px",
+      "fontWeight": "700",
+      "lineHeight": "34px"
+    },
+    "_note": "mms_B.7.1 KUDOS count — Figma node 3007:17482. Montserrat 700 28px #fff lineHeight 34px. Prior gate PASS."
+  },
+  "bg-layer-1": {
+    "kind": "asset",
+    "selector": "[data-fig='2940:14178'] img",
+    "code": {
+      "tag": "IMG",
+      "src": "/_next/image?url=%2Fimages%2Fboard%2Fbg-spot-highlight-2.png&w=3840&q=75"
+    },
+    "design": {},
+    "_note": "Figma node 2940:14178 — nebula bg layer 1, exported PNG. DIV > img (Next.js Image). Selector on inner img."
+  },
+  "bg-layer-2": {
+    "kind": "asset",
+    "selector": "[data-fig='2940:14181'] img",
+    "code": {
+      "tag": "IMG",
+      "src": "/_next/image?url=%2Fimages%2Fboard%2Fbg-spot-highlight.png&w=3840&q=75"
+    },
+    "design": {},
+    "_note": "Figma node 2940:14181 — nebula bg layer 2, exported PNG. Same pattern."
+  }
+}

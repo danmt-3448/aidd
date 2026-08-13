@@ -1,0 +1,76 @@
+{
+  "spotlight-height": {
+    "kind": "section",
+    "selector": "[data-fig='2940:14174']",
+    "code": {
+      "offsetHeight": 548
+    },
+    "design": {
+      "height": 548
+    },
+    "_note": "Fixed h=548px, same at 1280. Live DOM confirmed."
+  },
+  "spotlight-frame": {
+    "kind": "style",
+    "selector": "[data-fig='2940:14174']",
+    "code": {
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(153, 140, 95)",
+      "borderTopLeftRadius": "47.14px"
+    },
+    "design": {
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(153, 140, 95)",
+      "borderTopLeftRadius": "47.14px"
+    },
+    "_note": "Border + radius same at 1280. Width adapts to content column, no overflow."
+  },
+  "search-pill": {
+    "kind": "section",
+    "selector": "[data-fig='2940:14833']",
+    "code": {
+      "offsetHeight": 39
+    },
+    "design": {
+      "height": 39
+    },
+    "_note": "Search pill wrapper h=39px fixed, same at 1280."
+  },
+  "kudos-count": {
+    "kind": "style",
+    "selector": "[data-fig='3007:17482']",
+    "code": {
+      "color": "rgb(255, 255, 255)",
+      "fontSize": "28px",
+      "fontWeight": "700",
+      "lineHeight": "34px"
+    },
+    "design": {
+      "color": "#ffffff",
+      "fontSize": "28px",
+      "fontWeight": "700",
+      "lineHeight": "34px"
+    },
+    "_note": "Montserrat 700 28px #fff lineHeight 34px. Confirmed at 1280."
+  },
+  "bg-layer-1": {
+    "kind": "asset",
+    "selector": "[data-fig='2940:14178'] img",
+    "code": {
+      "tag": "IMG",
+      "src": "/_next/image?url=%2Fimages%2Fboard%2Fbg-spot-highlight-2.png&w=3840&q=75"
+    },
+    "design": {},
+    "_note": "Bg layer 1 asset — same at 1280."
+  },
+  "bg-layer-2": {
+    "kind": "asset",
+    "selector": "[data-fig='2940:14181'] img",
+    "code": {
+      "tag": "IMG",
+      "src": "/_next/image?url=%2Fimages%2Fboard%2Fbg-spot-highlight.png&w=3840&q=75"
+    },
+    "design": {},
+    "_note": "Bg layer 2 asset — same at 1280."
+  }
+}
