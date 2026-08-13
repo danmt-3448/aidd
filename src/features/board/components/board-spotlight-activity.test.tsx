@@ -5,9 +5,9 @@ import type { SpotlightActivityEntry } from './board-types'
 
 // entries arrive newest-first from the hook (order by created_at desc).
 const NEWEST_FIRST: SpotlightActivityEntry[] = [
-  { receiverId: 'r1', name: 'Newest Person', time: '01:44PM' },
-  { receiverId: 'r2', name: 'Middle Person', time: '10:00AM' },
-  { receiverId: 'r3', name: 'Oldest Person', time: '07:31AM' },
+  { receiverId: 'r1', createdAt: '2026-08-13T06:44:00Z', name: 'Newest Person', time: '01:44PM' },
+  { receiverId: 'r2', createdAt: '2026-08-13T03:00:00Z', name: 'Middle Person', time: '10:00AM' },
+  { receiverId: 'r3', createdAt: '2026-08-13T00:31:00Z', name: 'Oldest Person', time: '07:31AM' },
 ]
 
 describe('ActivityLog ordering', () => {

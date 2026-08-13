@@ -68,6 +68,7 @@ async function getRecentActivity(limit = 6): Promise<SpotlightActivityEntry[]> {
   const rows = (data ?? []) as RecentActivityRow[]
   return rows.map((row) => ({
     receiverId: row.receiver_id,
+    createdAt: row.created_at,
     name: row.receiver_name,
     time: formatActivityTime(row.created_at),
   }))
