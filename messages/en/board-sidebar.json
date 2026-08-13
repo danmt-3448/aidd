@@ -1,0 +1,33 @@
+{
+  "leaderboard": {
+    "title": "TOP 10 SUNNERS\nLATEST GIFT RECIPIENTS",
+    "empty": "No data yet.",
+    "rankLabel": "Rank {rank}"
+  },
+  "boardStats": {
+    "ariaLabel": "Stats and gift recipients",
+    "kudosReceived": "Kudos you received:",
+    "kudosSent": "Kudos you sent:",
+    "heartsReceived": "Hearts earned:",
+    "secretBoxOpened": "Secret Boxes opened:",
+    "secretBoxUnopened": "Secret Boxes unopened:",
+    "openSecretBox": "Open Secret Box",
+    "x2TooltipDefault": "Double hearts day – spread twice the love!",
+    "x2TooltipFull": "Double hearts day – spread twice the love! From {start} to {end}, all hearts you receive are doubled.",
+    "statValueLabel": "{value} {label}",
+    "specialDayFallback": "XX:XX on XX/12"
+  },
+  "boardFilters": {
+    "sectionAriaLabel": "Filter by department",
+    "sectionTitle": "Department",
+    "groupAriaLabel": "Select department",
+    "all": "All"
+  },
+  "userCard": {
+    "ariaLabel": "Info for {name}",
+    "departmentLabel": "Department:",
+    "kudosReceived": "Kudos received:",
+    "kudosSent": "Kudos sent:",
+    "sendKudo": "✎ Send KUDO"
+  }
+}

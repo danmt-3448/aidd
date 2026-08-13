@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 
 /**
  * SunKudos promo banner — dark card with image background.
@@ -7,6 +8,8 @@ import Image from 'next/image'
  * CTA link wired in integration phase.
  */
 export function KudosPromo() {
+  const t = useTranslations('awards.kudosPromo')
+
   return (
     <section
       className="relative overflow-hidden"
@@ -15,7 +18,7 @@ export function KudosPromo() {
         borderRadius: '16px',
         height: '500px',
       }}
-      aria-label="Sun* Kudos — phong trào ghi nhận"
+      aria-label={t('sectionAriaLabel')}
       data-fig="335:12023"
     >
       {/* Background image (Figma: MM_MEDIA_Kudos Background) */}
@@ -43,7 +46,7 @@ export function KudosPromo() {
               className="font-montserrat font-bold"
               style={{ fontSize: '24px', lineHeight: '32px', color: '#FFFFFF' }}
             >
-              Phong trào ghi nhận
+              {t('movementLabel')}
             </p>
             {/* "Sun* Kudos" headline — Figma node I335:12023;313:8422
                 fontSize:57px, lineHeight:64px, fontWeight:700, color:rgba(255,234,158,1) */}
@@ -70,12 +73,9 @@ export function KudosPromo() {
                 textAlign: 'justify',
               }}
             >
-              <strong>ĐIỂM MỚI CỦA SAA 2025</strong>
+              <strong>{t('newFeatureLabel')}</strong>
               <br />
-              Hoạt động ghi nhận và cảm ơn đồng nghiệp - lần đầu tiên được diễn ra dành cho tất cả
-              Sunner. Hoạt động sẽ được triển khai vào tháng 11/2025, khuyến khích người Sun* chia
-              sẻ những lời ghi nhận, cảm ơn đồng nghiệp trên hệ thống do BTC công bố. Đây sẽ là
-              chất liệu để Hội đồng Heads tham khảo trong quá trình lựa chọn người đạt giải.
+              {t('description')}
             </p>
           </div>
 
@@ -93,9 +93,9 @@ export function KudosPromo() {
                 padding: '16px',
                 borderRadius: '4px',
               }}
-              aria-label="Khám phá Sun* Kudos ngay"
+              aria-label={t('ctaAriaLabel')}
             >
-              Chi tiết
+              {t('ctaLabel')}
               <span className="relative" style={{ width: '24px', height: '24px', flexShrink: 0 }}>
                 <Image
                   src="/homepage/icon-arrow-up-black.svg"

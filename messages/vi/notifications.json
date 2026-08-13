@@ -1,0 +1,18 @@
+{
+  "notifications": {
+    "pageTitle": "Tất cả thông báo",
+    "panelTitle": "Thông báo",
+    "notificationLabel": "Thông báo",
+    "newNotification": "Thông báo mới",
+    "markAllRead": "Đánh dấu tất cả đã đọc",
+    "markAllReadLabel": "Đánh dấu tất cả đã đọc",
+    "markedAllReadSuccess": "Đã đánh dấu tất cả là đã đọc",
+    "listLabel": "Danh sách thông báo",
+    "dialogLabel": "Thông báo",
+    "emptyState": "Chưa có thông báo nào",
+    "loading": "Đang tải…",
+    "loadingMore": "Đang tải thêm…",
+    "viewAll": "Xem tất cả",
+    "viewAllLabel": "Xem tất cả thông báo"
+  }
+}

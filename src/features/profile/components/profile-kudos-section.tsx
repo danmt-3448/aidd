@@ -18,6 +18,7 @@
  */
 
 import { useRef, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import { KudoCard } from '@/features/kudos/components/kudo-card'
 import { ProfileDirectionDropdown } from './profile-direction-dropdown'
@@ -25,9 +26,9 @@ import type { KudosDirection, ProfileFeedItem } from './profile-types'
 
 // ── Loading spinner ──────────────────────────────────────────────────────────
 
-function LoadingSpinner() {
+function LoadingSpinner({ label }: { label: string }) {
   return (
-    <div className="flex items-center justify-center py-6" aria-label="Đang tải...">
+    <div className="flex items-center justify-center py-6" aria-label={label}>
       <div
         className="animate-spin rounded-full"
         role="status"
@@ -44,11 +45,7 @@ function LoadingSpinner() {
 
 // ── Empty state ──────────────────────────────────────────────────────────────
 
-function EmptyState({ direction }: { direction: KudosDirection }) {
-  const message =
-    direction === 'received'
-      ? 'Hiện tại chưa có Kudos nào.'
-      : 'Bạn chưa gửi Kudo nào.'
+function EmptyState({ message }: { message: string }) {
   return (
     /* mm:kudos-empty-state */
     <div className="flex items-center justify-center py-12">
@@ -102,6 +99,8 @@ export function ProfileKudosSection({
   onOpenProfile,
   onLoadMore,
 }: ProfileKudosSectionProps) {
+  const t = useTranslations('profile')
+
   // IntersectionObserver ref — ref callback avoids stale closure on hasNextPage.
   const observerRef = useRef<IntersectionObserver | null>(null)
 
@@ -149,15 +148,21 @@ export function ProfileKudosSection({
 
       {/* Body */}
       {isFeedLoading ? (
-        <LoadingSpinner />
+        <LoadingSpinner label={t('feed.loadingLabel')} />
       ) : feedItems.length === 0 ? (
-        <EmptyState direction={activeDirection} />
+        <EmptyState
+          message={
+            activeDirection === 'received'
+              ? t('feed.emptyReceived')
+              : t('feed.emptySent')
+          }
+        />
       ) : (
         /* mm:kudos-feed-list */
         <div
           className="flex flex-col gap-4"
           role="feed"
-          aria-label="Danh sách Kudos"
+          aria-label={t('feed.feedLabel')}
           aria-busy={isFetchingNextPage}
         >
           {feedItems.map((item) => (
@@ -175,7 +180,7 @@ export function ProfileKudosSection({
           {hasNextPage && <div ref={sentinelRef} aria-hidden style={{ height: 1 }} />}
 
           {/* Next-page spinner */}
-          {isFetchingNextPage && <LoadingSpinner />}
+          {isFetchingNextPage && <LoadingSpinner label={t('feed.loadingLabel')} />}
         </div>
       )}
     </section>

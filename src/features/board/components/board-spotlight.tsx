@@ -11,6 +11,7 @@
  */
 
 import { useMemo, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import type { ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
 import { montserrat } from '@/features/auth/fonts'
 import { useFullscreen } from '../use-fullscreen'
@@ -43,6 +44,7 @@ export function BoardSpotlight({
   onSearchChange,
   isLoading = false,
 }: BoardSpotlightProps) {
+  const t = useTranslations('spotlight')
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null)
   const layout = useMemo(() => computeWordLayout(nodes), [nodes])
   const { isFullscreen, toggle, ref: fullscreenRef, containerHeight } = useFullscreen()
@@ -52,7 +54,7 @@ export function BoardSpotlight({
   const handleSearchChange = onSearchChange ?? (() => {})
 
   return (
-    <section aria-label="Spotlight Board — nhận được nhiều Kudos nhất">
+    <section aria-label={t('spotlightBoardAriaLabel')}>
       <SectionEyebrow />
       <h2
         style={{
@@ -113,7 +115,7 @@ export function BoardSpotlight({
               lineHeight: '34px',
               letterSpacing: '1px',
             }}
-            aria-label={`${totalKudos} kudos tổng`}
+            aria-label={t('kudosTotalAriaLabel', { count: totalKudos })}
           >
             {totalKudos.toLocaleString('vi-VN')} KUDOS
           </p>
@@ -125,11 +127,11 @@ export function BoardSpotlight({
         {/* Word-cloud canvas or loading state */}
         <div className="relative z-10">
           {isLoading ? (
-            <div className="flex h-48 items-center justify-center" aria-label="Đang tải spotlight">
+            <div className="flex h-48 items-center justify-center" aria-label={t('loadingSpotlightAriaLabel')}>
               <div
                 className="h-8 w-8 animate-spin rounded-full"
                 role="status"
-                aria-label="Đang tải"
+                aria-label={t('loadingAriaLabel')}
                 style={{ border: '3px solid rgba(255,234,158,0.2)', borderTopColor: '#FFEA9E' }}
               />
             </div>

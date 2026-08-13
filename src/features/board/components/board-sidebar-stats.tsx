@@ -24,6 +24,7 @@
  */
 
 import { Inbox, Send, Flame, PackageOpen, Package } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import type { BoardUserStats } from './board-types'
 import type { LucideIcon } from 'lucide-react'
@@ -68,7 +69,7 @@ function StatRow({ icon: Icon, iconColor = 'rgba(255,255,255,0.85)', label, valu
           {label}
         </span>
         {showX2Badge && (
-          <X2FlameBadge tooltipText={x2TooltipText ?? 'Ngày x2 tim – lan tỏa gấp đôi yêu thương!'} />
+          <X2FlameBadge tooltipText={x2TooltipText ?? ''} />
         )}
       </span>
 
@@ -105,11 +106,13 @@ export interface StatsCardProps {
 }
 
 export function StatsCard({ stats, onOpenSecretBox }: StatsCardProps) {
+  const t = useTranslations('boardStats')
+
   // Build x2 tooltip text per spec §4 — use real dates when available
   const x2TooltipText = (() => {
-    const start = stats.specialDayStart ?? 'XX:XX ngày XX/12'
-    const end = stats.specialDayEnd ?? 'XX:XX ngày XX/12'
-    return `Ngày x2 tim – lan tỏa gấp đôi yêu thương! Từ ${start} đến ${end}, tất cả tim bạn nhận được đều được nhân đôi.`
+    const start = stats.specialDayStart ?? t('specialDayFallback')
+    const end = stats.specialDayEnd ?? t('specialDayFallback')
+    return t('x2TooltipFull', { start, end })
   })()
 
   return (
@@ -127,14 +130,14 @@ export function StatsCard({ stats, onOpenSecretBox }: StatsCardProps) {
       {/* mm:2940:13491 */}
       <StatRow
         icon={Inbox}
-        label="Số Kudos bạn nhận được:"
+        label={t('kudosReceived')}
         value={stats.kudosReceived}
       />
       <Divider />
       {/* mm:2940:13492 */}
       <StatRow
         icon={Send}
-        label="Số Kudos bạn đã gửi:"
+        label={t('kudosSent')}
         value={stats.kudosSent}
       />
       <Divider />
@@ -142,7 +145,7 @@ export function StatsCard({ stats, onOpenSecretBox }: StatsCardProps) {
       <StatRow
         icon={Flame}
         iconColor="#FF6B35"
-        label="Số tim đạt được:"
+        label={t('heartsReceived')}
         value={stats.heartsReceived}
         showX2Badge={stats.isSpecialDay === true}
         x2TooltipText={x2TooltipText}
@@ -151,14 +154,14 @@ export function StatsCard({ stats, onOpenSecretBox }: StatsCardProps) {
       {/* mm:2940:13495 */}
       <StatRow
         icon={PackageOpen}
-        label="Số Secret Box bạn đã mở:"
+        label={t('secretBoxOpened')}
         value={stats.secretBoxCount}
       />
       <Divider />
       {/* mm:2940:13496 */}
       <StatRow
         icon={Package}
-        label="Số Secret Box chưa mở:"
+        label={t('secretBoxUnopened')}
         value={stats.secretBoxUnopened ?? 0}
       />
 
@@ -181,7 +184,7 @@ export function StatsCard({ stats, onOpenSecretBox }: StatsCardProps) {
           justifyContent: 'center',
         }}
       >
-        Mở Secret Box
+        {t('openSecretBox')}
       </button>
     </div>
   )

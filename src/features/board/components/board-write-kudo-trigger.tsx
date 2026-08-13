@@ -13,6 +13,7 @@
  *   Field 2 (search): flex-shrink-0 w-[268px] on desktop, icon = magnifier.
  */
 
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 
 export interface BoardWriteKudoTriggerProps {
@@ -69,19 +70,20 @@ const PLACEHOLDER_STYLE: React.CSSProperties = {
 }
 
 export function BoardWriteKudoTrigger({ onOpen, onProfileSearch }: BoardWriteKudoTriggerProps) {
+  const t = useTranslations('board')
   return (
     <div className="flex items-center gap-4">
       {/* Field 1 — compose kudo (flex-1) */}
       <button
         type="button"
         onClick={onOpen}
-        aria-label="Viết lời cảm ơn và ghi nhận"
+        aria-label={t('writeKudoLabel')}
         className="min-w-0 flex-1 text-left transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFEA9E]"
         style={PILL_BASE}
       >
         <PencilIcon />
         <span className="truncate" style={PLACEHOLDER_STYLE}>
-          Hôm nay, bạn muốn gửi lời cảm ơn và ghi nhận đến ai?
+          {t('writeKudoPlaceholder')}
         </span>
       </button>
 
@@ -93,8 +95,8 @@ export function BoardWriteKudoTrigger({ onOpen, onProfileSearch }: BoardWriteKud
         <SearchIcon />
         <input
           type="search"
-          placeholder="Tìm kiếm sunner"
-          aria-label="Tìm kiếm sunner"
+          placeholder={t('searchSunnerPlaceholder')}
+          aria-label={t('searchSunnerLabel')}
           maxLength={100}
           onChange={(e) => onProfileSearch?.(e.target.value)}
           className="w-full bg-transparent outline-none placeholder:font-semibold"

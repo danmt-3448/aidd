@@ -15,6 +15,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import { AwardMedallion } from '@/features/awards/components/award-medallion'
 import type { Award } from '@/features/awards/types'
@@ -24,6 +25,8 @@ interface HomepageAwardCardProps {
 }
 
 export function HomepageAwardCard({ award }: HomepageAwardCardProps) {
+  const t = useTranslations('home');
+  const tAwards = useTranslations('awards');
   const href = `/awards#${award.hashtagAnchor}`
 
   return (
@@ -47,7 +50,7 @@ export function HomepageAwardCard({ award }: HomepageAwardCardProps) {
         <Link
           href={href}
           className="transition-opacity hover:opacity-80"
-          aria-label={`${award.title} — xem chi tiết`}
+          aria-label={t('awardCard.titleAriaLabel', { title: award.title })}
         >
           <h3
             className={montserrat.className}
@@ -63,7 +66,7 @@ export function HomepageAwardCard({ award }: HomepageAwardCardProps) {
           </h3>
         </Link>
 
-        {/* Description — 2-line clamp */}
+        {/* Description — 2-line clamp (loaded from awards i18n catalog) */}
         <p
           className={montserrat.className}
           style={{
@@ -78,7 +81,7 @@ export function HomepageAwardCard({ award }: HomepageAwardCardProps) {
             WebkitBoxOrient: 'vertical',
           }}
         >
-          {award.description}
+          {tAwards(`categories.${award.i18nKey}.description` as Parameters<typeof tAwards>[0])}
         </p>
 
         {/* "Chi tiết" link with arrow */}
@@ -92,9 +95,9 @@ export function HomepageAwardCard({ award }: HomepageAwardCardProps) {
             color: '#FFEA9E',
             padding: '16px 0',
           }}
-          aria-label={`Xem chi tiết giải ${award.title}`}
+          aria-label={t('awardCard.detailAriaLabel', { title: award.title })}
         >
-          Chi tiết
+          {t('awardCard.detailLink')}
           <div className="relative" style={{ width: 24, height: 24, flexShrink: 0 }}>
             <Image
               src="/homepage/icon-arrow-up.svg"

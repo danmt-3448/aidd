@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { AwardsNav } from "./awards-nav";
 import { AwardCard } from "./award-card";
 import { KudosPromo } from "./kudos-promo";
@@ -14,7 +15,9 @@ import { HomepageFooter } from "@/features/homepage/components/homepage-footer";
  * Content capped at 1440px — single source of truth for this page (do NOT also wrap in PageContainer).
  * Horizontal padding: px-4 sm:px-8 md:px-16 xl:px-36 — prevents the 144px hardcoded overflow at ≤768px.
  */
-export function AwardsShowcase({ awards }: AwardsShowcaseProps) {
+export async function AwardsShowcase({ awards }: AwardsShowcaseProps) {
+  const t = await getTranslations("awards");
+
   return (
     <div
       className="min-h-screen w-full"
@@ -25,11 +28,11 @@ export function AwardsShowcase({ awards }: AwardsShowcaseProps) {
       <div
         className="pointer-events-none absolute right-0 top-0 hidden md:block -z-0"
         aria-hidden="true"
-        style={{ width: "100vw", height: 584}}
+        style={{ width: "100vw", height: 584 }}
       >
         <Image
           src="/homepage/keyvisual-bg.png"
-          alt="SAA 2025 hero artwork"
+          alt={t("heroAlt")}
           fill
           priority
           style={{ objectFit: "inherit", objectPosition: "top right" }}
@@ -73,13 +76,13 @@ export function AwardsShowcase({ awards }: AwardsShowcaseProps) {
           </div>
         </div>
 
-        {/* Title section: "Sun* Annual Awards 2025" + divider + headline */}
+        {/* Title section: event name + divider + page heading */}
         <div className="mb-16 flex flex-col gap-4 md:mb-28">
           <p
             className="w-full text-center font-montserrat text-2xl font-bold leading-8"
             style={{ color: "#FFFFFF" }}
           >
-            Sun* Annual Awards 2025
+            {t("pageSubtitle")}
           </p>
           {/* Thin horizontal rule */}
           <div
@@ -106,7 +109,7 @@ export function AwardsShowcase({ awards }: AwardsShowcaseProps) {
               }}
               data-fig="313:8457"
             >
-              Hệ thống giải thưởng SAA 2025
+              {t("pageHeading")}
             </h1>
           </div>
         </div>

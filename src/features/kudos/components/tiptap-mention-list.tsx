@@ -1,6 +1,7 @@
 'use client'
 
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 export interface MentionItem {
   id: string
@@ -24,6 +25,7 @@ export interface MentionListRef {
 
 export const MentionList = forwardRef<MentionListRef, MentionListProps>(
   ({ items, command }, ref) => {
+    const t = useTranslations('kudos')
     const [selectedIndex, setSelectedIndex] = useState(0)
 
     const selectItem = (index: number) => {
@@ -61,7 +63,7 @@ export const MentionList = forwardRef<MentionListRef, MentionListProps>(
         style={{ border: '1px solid #998C5F', background: '#FFF', minWidth: '160px' }}
       >
         {items.length === 0 ? (
-          <div className="px-4 py-2 text-sm text-[#999]">Không tìm thấy</div>
+          <div className="px-4 py-2 text-sm text-[#999]">{t('recipientNotFound')}</div>
         ) : (
           items.map((item, index) => (
             <button

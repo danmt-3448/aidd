@@ -1,0 +1,33 @@
+{
+  "board": {
+    "copyLink": "Sao chép liên kết",
+    "viewDetail": "Xem chi tiết",
+    "like": "Thích",
+    "unlike": "Bỏ thích",
+    "kudoFromTo": "Kudo từ {sender} đến {receiver}",
+    "viewProfile": "Xem profile {name}",
+    "editKudo": "Chỉnh sửa kudo",
+    "viewDetailKudo": "Xem chi tiết kudo",
+    "emptyState": "Hiện tại chưa có Kudos nào.",
+    "loadMore": "Tải thêm Kudos",
+    "loading": "Đang tải…",
+    "loadingBoard": "Đang tải bảng Kudos…",
+    "errorBoardLabel": "Lỗi tải bảng Kudos",
+    "errorMessage": "Không thể tải dữ liệu. Vui lòng thử lại.",
+    "writeKudoLabel": "Viết lời cảm ơn và ghi nhận",
+    "writeKudoPlaceholder": "Hôm nay, bạn muốn gửi lời cảm ơn và ghi nhận đến ai?",
+    "searchSunnerPlaceholder": "Tìm kiếm sunner",
+    "searchSunnerLabel": "Tìm kiếm sunner",
+    "bannerLabel": "Sun* Kudos — Hệ thống ghi nhận và cảm ơn",
+    "bannerSubtitle": "Hệ thống ghi nhận và cảm ơn",
+    "x2BadgeLabel": "nhân 2",
+    "imageGalleryLabel": "Ảnh đính kèm",
+    "imageAltPrefix": "Ảnh đính kèm",
+    "imageMoreLabel": "và {overflow} ảnh khác",
+    "hashtagOverflow": "và {overflow} hashtag khác",
+    "tierNewHeroDesc": "Có 1–4 người gửi Kudos cho bạn. Hành trình lan tỏa điều tốt đẹp bắt đầu – những lời cảm ơn và ghi nhận đầu đã tìm đến bạn.",
+    "tierRisingHeroDesc": "Có 5-9 người gửi Kudos cho bạn. Hình ảnh bạn đang lớn dần trong trái tim đồng đội bằng sự tử tế và cống hiến của mình.",
+    "tierSuperHeroDesc": "Có 10-20 người gửi Kudos cho bạn. Bạn đã trở thành biểu tượng được tin tưởng và yêu quý, người luôn sẵn sàng hỗ trợ và được nhiều đồng đội nhớ đến.",
+    "tierLegendHeroDesc": "Có hơn 20 người gửi Kudos cho bạn. Bạn đã trở thành huyền thoại – người để lại dấu ấn khó quên trong tập thể bằng trái tim và hành động của mình."
+  }
+}

@@ -32,6 +32,10 @@ describe('HomepageAwardCard', () => {
     title: 'Most Improved Developer',
     hashtagAnchor: 'most-improved-dev',
     icon: 'star',
+    // Description is rendered from the awards i18n catalog via `i18nKey`
+    // (homepage-award-card.tsx: tAwards(`categories.${i18nKey}.description`)),
+    // not the deprecated `description` prop. The mock maps this key in vitest.setup.ts.
+    i18nKey: 'mostImproved',
     description: 'Awarded to the team member who showed exceptional growth and improvement in technical skills and contributions.',
   })
 

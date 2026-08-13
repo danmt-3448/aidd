@@ -32,6 +32,7 @@
 
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 
 export interface HomepageWidgetFabProps {
@@ -42,6 +43,7 @@ export interface HomepageWidgetFabProps {
 }
 
 export function HomepageWidgetFab({ onWriteKudo, onOpenRules }: HomepageWidgetFabProps) {
+  const t = useTranslations('home')
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -90,7 +92,7 @@ export function HomepageWidgetFab({ onWriteKudo, onOpenRules }: HomepageWidgetFa
         /* Expanded — gold action pills + red round close, right-aligned stack */
         <div
           role="menu"
-          aria-label="Quick actions"
+          aria-label={t('fab.menuAriaLabel')}
           className="flex flex-col items-end"
           style={{ gap: 12 }}
         >
@@ -103,7 +105,7 @@ export function HomepageWidgetFab({ onWriteKudo, onOpenRules }: HomepageWidgetFa
             <div className="relative" style={{ width: 20, height: 20, flexShrink: 0 }}>
               <Image src="/homepage/icon-kudos-logo.svg" alt="" fill className="object-contain" />
             </div>
-            Thể lệ
+            {t('fab.rulesButton')}
           </button>
 
           <button
@@ -115,11 +117,11 @@ export function HomepageWidgetFab({ onWriteKudo, onOpenRules }: HomepageWidgetFa
             <div className="relative" style={{ width: 20, height: 20, flexShrink: 0 }}>
               <Image src="/homepage/icon-pen-black.svg" alt="" fill className="object-contain" style={{fill: '#000'}} />
             </div>
-            Viết KUDOS
+            {t('fab.writeKudosButton')}
           </button>
 
           <button
-            aria-label="Đóng"
+            aria-label={t('fab.closeAriaLabel')}
             onClick={() => setOpen(false)}
             className="flex items-center justify-center rounded-full font-bold text-white shadow-lg transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
             style={{ width: 40, height: 40, background: '#EF4444', fontSize: 18, lineHeight: 1 }}
@@ -133,7 +135,7 @@ export function HomepageWidgetFab({ onWriteKudo, onOpenRules }: HomepageWidgetFa
           onClick={() => setOpen(true)}
           aria-haspopup="menu"
           aria-expanded={false}
-          aria-label="Mở menu nhanh"
+          aria-label={t('fab.openAriaLabel')}
           className="flex items-center justify-center rounded-full font-bold shadow-lg transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300"
           style={{
             gap: 8,

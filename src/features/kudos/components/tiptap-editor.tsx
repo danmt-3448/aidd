@@ -8,11 +8,9 @@ import CharacterCount from '@tiptap/extension-character-count'
 import Mention from '@tiptap/extension-mention'
 import { type SuggestionOptions } from '@tiptap/suggestion'
 import { useCallback, useEffect, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { RichTextToolbar, type ToolbarAction } from './rich-text-toolbar'
 import { MentionList, type MentionListRef, type MentionItem } from './tiptap-mention-list'
-
-const PLACEHOLDER = 'Hãy gửi gắm lời cám ơn và ghi nhận đến đồng đội tại đây nhé!'
-const HINT = 'Bạn có thể "@ + tên" để nhắc tới đồng nghiệp khác'
 
 interface TiptapEditorProps {
   onChange: (html: string, charCount: number) => void
@@ -33,6 +31,8 @@ export function TiptapEditor({
   mentionItems = [],
   initialContent = '',
 }: TiptapEditorProps) {
+  const t = useTranslations('kudos')
+
   // Ref holds the latest mention list, read ONLY inside TipTap's deferred
   // suggestion callbacks (items/render/onKeyDown fire on user input, never
   // during React render). The react-hooks/refs report on Mention.configure
@@ -113,7 +113,7 @@ export function TiptapEditor({
         openOnClick: false,
         HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
       }),
-      Placeholder.configure({ placeholder: PLACEHOLDER }),
+      Placeholder.configure({ placeholder: t('contentPlaceholder') }),
       CharacterCount.configure({ limit: maxLength }),
       // eslint-disable-next-line react-hooks/refs -- suggestion callbacks read mentionItemsRef only on user input (deferred), not during render
       Mention.configure({
@@ -138,7 +138,7 @@ export function TiptapEditor({
     editorProps: {
       attributes: {
         class: 'tiptap-content',
-        'aria-label': 'Nội dung Kudo',
+        'aria-label': t('contentAriaLabel'),
         'aria-multiline': 'true',
         role: 'textbox',
       },
@@ -240,7 +240,7 @@ export function TiptapEditor({
           className="font-montserrat text-base font-bold leading-6 tracking-[0.5px]"
           style={{ color: '#00101A' }}
         >
-          {HINT}
+          {t('contentHint')}
         </span>
         <span
           className="shrink-0 font-montserrat text-xs leading-4"

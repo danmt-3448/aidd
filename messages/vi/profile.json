@@ -1,0 +1,43 @@
+{
+  "profile": {
+    "loading": "Đang tải profile…",
+    "hero": {
+      "sectionLabel": "Thông tin cá nhân",
+      "avatarLabel": "Avatar của {name}"
+    },
+    "badges": {
+      "headingSelf": "Bộ sưu tập icon của tôi",
+      "headingOther": "Bộ sưu tập icon",
+      "slotLabel": "Ô badge {number} — chưa mở khóa",
+      "slotsRowLabel": "6 ô badge chưa mở khóa"
+    },
+    "stats": {
+      "sectionLabel": "Thống kê của tôi",
+      "received": "Số Kudos bạn nhận được:",
+      "sent": "Số Kudos bạn đã gửi:",
+      "hearts": "Số tim đạt được:",
+      "boxesOpened": "Số box đã mở:",
+      "boxesRemaining": "Số box chưa mở:",
+      "boxesRemainingAriaLabel": "{count} Số box chưa mở",
+      "openGiftButton": "Mở quà",
+      "openGiftDisabledLabel": "Mở quà — không khả dụng"
+    },
+    "writeBar": {
+      "sectionLabel": "Gửi Kudo cho {name}",
+      "label": "Gửi Kudo cho <strong>{name}</strong>",
+      "button": "Viết Kudo",
+      "buttonLabel": "Viết Kudo cho {name}"
+    },
+    "direction": {
+      "receivedLabel": "Đã nhận ({count})",
+      "sentLabel": "Đã gửi ({count})",
+      "menuLabel": "Chọn hướng Kudos"
+    },
+    "feed": {
+      "loadingLabel": "Đang tải...",
+      "feedLabel": "Danh sách Kudos",
+      "emptyReceived": "Hiện tại chưa có Kudos nào.",
+      "emptySent": "Bạn chưa gửi Kudo nào."
+    }
+  }
+}

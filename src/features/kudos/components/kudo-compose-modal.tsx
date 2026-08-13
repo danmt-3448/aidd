@@ -3,24 +3,31 @@
 import { useCallback, useEffect, useId, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { toast } from 'sonner'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '../fonts'
 import { RecipientSelect, type RecipientItem } from './recipient-select'
 import { HashtagPicker, type HashtagItem } from './hashtag-picker'
 
 // Lazy-load TiptapEditor: ProseMirror + 7 @tiptap/* packages are heavy (~300 KB+).
 // Dynamic import with ssr:false splits them out of the initial /kudos bundle.
+// EditorLoadingFallback is a named component so it can call useTranslations.
+function EditorLoadingFallback() {
+  const t = useTranslations('kudos')
+  return (
+    <div
+      className="flex items-center justify-center"
+      style={{ border: '1px solid #998C5F', borderRadius: '0 0 8px 8px', minHeight: '200px', background: '#FFF' }}
+    >
+      <span className="font-montserrat text-sm" style={{ color: '#999' }}>{t('editorLoading')}</span>
+    </div>
+  )
+}
+
 const TiptapEditor = dynamic(
   () => import('./tiptap-editor').then((m) => ({ default: m.TiptapEditor })),
   {
     ssr: false,
-    loading: () => (
-      <div
-        className="flex items-center justify-center"
-        style={{ border: '1px solid #998C5F', borderRadius: '0 0 8px 8px', minHeight: '200px', background: '#FFF' }}
-      >
-        <span className="font-montserrat text-sm" style={{ color: '#999' }}>Đang tải trình soạn thảo…</span>
-      </div>
-    ),
+    loading: () => <EditorLoadingFallback />,
   },
 )
 import { DanhHieuInput } from './danh-hieu-input'
@@ -88,6 +95,7 @@ export function KudoComposeModal({
   editKudoId,
   editInitialData,
 }: KudoComposeModalProps) {
+  const t = useTranslations('kudos')
   const isEditMode = Boolean(editKudoId)
   const [kudoId] = useState(() => isEditMode ? (editKudoId as string) : crypto.randomUUID())
   const formKey = useId()
@@ -164,7 +172,7 @@ export function KudoComposeModal({
     if (!isSuccess) return
     // RPC committed → flush deferred deletion of removed original images.
     finalizeOnSuccess()
-    toast.success(isEditMode ? 'Đã cập nhật Kudo' : 'Đã gửi Kudo thành công')
+    toast.success(isEditMode ? t('submitUpdateSuccess') : t('submitSuccess'))
     reset()
     onClose()
   }, [isSuccess, isEditMode, reset, onClose, finalizeOnSuccess])
@@ -176,7 +184,7 @@ export function KudoComposeModal({
   }, [])
 
   const handleAddHashtag = useCallback((item: HashtagItem) => {
-    if (selectedHashtags.length >= 5) { setHashtagLimitError('Tối đa 5 hashtag'); return }
+    if (selectedHashtags.length >= 5) { setHashtagLimitError(t('hashtagLimitError')); return }
     setHashtagLimitError(null)
     setSelectedHashtags((prev) => [...prev, item])
   }, [selectedHashtags.length])
@@ -246,7 +254,7 @@ export function KudoComposeModal({
       onClick={(e) => { if (e.target === e.currentTarget) handleCancel() }}
       role="dialog"
       aria-modal="true"
-      aria-label={isEditMode ? 'Sửa Kudo' : 'Viết Kudo'}
+      aria-label={isEditMode ? t('editModalTitle') : t('pageTitle')}
     >
       <div
         key={formKey}
@@ -261,7 +269,7 @@ export function KudoComposeModal({
           className="w-full text-center font-montserrat text-[32px] font-bold leading-10 tracking-[0px]"
           style={{ color: '#00101A' }}
         >
-          {isEditMode ? 'Sửa Kudo' : 'Gửi lời cám ơn và ghi nhận đến đồng đội'}
+          {isEditMode ? t('editModalTitle') : t('modalTitle')}
         </h2>
 
         {/* Recipient — locked in edit mode, editable in create mode */}

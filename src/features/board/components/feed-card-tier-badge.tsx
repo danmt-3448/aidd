@@ -15,6 +15,7 @@
 'use client'
 
 import { useState, useId, useRef, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 
 interface FeedCardTierBadgeProps {
@@ -26,9 +27,17 @@ interface FeedCardTierBadgeProps {
   lightMode?: boolean
 }
 
+/** i18n key for each tier's tooltip description — looked up via useTranslations('board') */
+const TIER_DESC_KEY: Record<1 | 2 | 3 | 4, string> = {
+  1: 'tierNewHeroDesc',
+  2: 'tierRisingHeroDesc',
+  3: 'tierSuperHeroDesc',
+  4: 'tierLegendHeroDesc',
+}
+
 const TIER_CONFIG: Record<
   1 | 2 | 3 | 4,
-  { label: string; bg: string; color: string; border: string; colorLight: string; bgLight: string; borderLight: string; description: string }
+  { label: string; bg: string; color: string; border: string; colorLight: string; bgLight: string; borderLight: string }
 > = {
   1: {
     label: 'New Hero',
@@ -38,8 +47,6 @@ const TIER_CONFIG: Record<
     colorLight: '#E73928',
     bgLight: 'rgba(231,57,40,0.12)',
     borderLight: 'rgba(231,57,40,0.30)',
-    // VERBATIM from spec kudo-card-tier-hover-spec-260811.md §1
-    description: 'Có 1–4 người gửi Kudos cho bạn. Hành trình lan tỏa điều tốt đẹp bắt đầu – những lời cảm ơn và ghi nhận đầu đã tìm đến bạn.',
   },
   2: {
     label: 'Rising Hero',
@@ -49,8 +56,6 @@ const TIER_CONFIG: Record<
     colorLight: '#D97706',
     bgLight: 'rgba(251,191,36,0.15)',
     borderLight: 'rgba(217,119,6,0.35)',
-    // VERBATIM from spec kudo-card-tier-hover-spec-260811.md §1
-    description: 'Có 5-9 người gửi Kudos cho bạn. Hình ảnh bạn đang lớn dần trong trái tim đồng đội bằng sự tử tế và cống hiến của mình.',
   },
   3: {
     // Tier 3 = Super Hero (10–20 distinct senders). Orange/red per Figma.
@@ -61,8 +66,6 @@ const TIER_CONFIG: Record<
     colorLight: '#C2410C',
     bgLight: 'rgba(249,115,22,0.12)',
     borderLight: 'rgba(194,65,12,0.30)',
-    // VERBATIM from spec kudo-card-tier-hover-spec-260811.md §1
-    description: 'Có 10-20 người gửi Kudos cho bạn. Bạn đã trở thành biểu tượng được tin tưởng và yêu quý, người luôn sẵn sàng hỗ trợ và được nhiều đồng đội nhớ đến.',
   },
   4: {
     // Tier 4 = Legend Hero (>20 distinct senders). Gold/pale-gold per Figma.
@@ -73,13 +76,13 @@ const TIER_CONFIG: Record<
     colorLight: '#92400E',
     bgLight: 'rgba(255,234,158,0.35)',
     borderLight: 'rgba(146,64,14,0.35)',
-    // VERBATIM from spec kudo-card-tier-hover-spec-260811.md §1
-    description: 'Có hơn 20 người gửi Kudos cho bạn. Bạn đã trở thành huyền thoại – người để lại dấu ấn khó quên trong tập thể bằng trái tim và hành động của mình.',
   },
 }
 
 export function FeedCardTierBadge({ tier, lightMode = false }: FeedCardTierBadgeProps) {
+  const t = useTranslations('board')
   const cfg = TIER_CONFIG[tier]
+  const description = t(TIER_DESC_KEY[tier])
   const badgeColor = lightMode ? cfg.colorLight : cfg.color
   const badgeBg = lightMode ? cfg.bgLight : cfg.bg
   const badgeBorder = lightMode ? cfg.borderLight : cfg.border
@@ -152,7 +155,7 @@ export function FeedCardTierBadge({ tier, lightMode = false }: FeedCardTierBadge
             className="mt-0.5 block text-xs leading-4"
             style={{ color: 'rgba(255,255,255,0.7)' }}
           >
-            {cfg.description}
+            {description}
           </span>
           {/* Arrow */}
           <span

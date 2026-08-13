@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { signInWithPassword } from '@/app/login/actions'
 
 /**
@@ -10,6 +11,7 @@ import { signInWithPassword } from '@/app/login/actions'
  */
 export function DevLoginForm() {
   const router = useRouter()
+  const t = useTranslations('devLogin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('TestPass123!')
   const [message, setMessage] = useState<string | null>(null)
@@ -21,7 +23,7 @@ export function DevLoginForm() {
     startTransition(async () => {
       const { error } = await signInWithPassword(email, password)
       if (error) {
-        setMessage(`Lỗi: ${error}`)
+        setMessage(t('errorPrefix', { message: error }))
         return
       }
       router.push('/kudos')
@@ -36,7 +38,7 @@ export function DevLoginForm() {
         required
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="you@sun-asterisk.com"
+        placeholder={t('emailPlaceholder')}
         className="w-full rounded border px-3 py-2 text-sm"
       />
       <input
@@ -44,7 +46,7 @@ export function DevLoginForm() {
         required
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        placeholder="password"
+        placeholder={t('passwordPlaceholder')}
         className="w-full rounded border px-3 py-2 text-sm"
       />
       <button
@@ -52,7 +54,7 @@ export function DevLoginForm() {
         disabled={pending}
         className="w-full rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-60"
       >
-        {pending ? 'Đang đăng nhập…' : 'Đăng nhập (dev)'}
+        {pending ? t('submitting') : t('submit')}
       </button>
       {message && <p className="text-sm text-red-600">{message}</p>}
     </form>

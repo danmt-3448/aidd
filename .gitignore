@@ -93,3 +93,4 @@ e2e/__screenshots__/
 
 # UI-gate live-capture evidence (regenerable via gate-capture)
 plans/reports/_gate-ref/nodemap/*.live.*.json
+graphify-out/

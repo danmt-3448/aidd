@@ -8,6 +8,7 @@
  */
 
 import type { ReactNode } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface GateShellProps {
   header: ReactNode
@@ -24,6 +25,7 @@ function GateShell({ header, children }: GateShellProps) {
 }
 
 export function BoardLoadingGate({ header }: { header: ReactNode }) {
+  const t = useTranslations('board')
   return (
     <GateShell header={header}>
       <div
@@ -31,29 +33,30 @@ export function BoardLoadingGate({ header }: { header: ReactNode }) {
         style={{ minHeight: 'calc(100vh - 80px)' }}
         role="status"
         aria-busy="true"
-        aria-label="Đang tải bảng Kudos…"
+        aria-label={t('loadingBoard')}
       >
         <div
           className="h-10 w-10 animate-spin rounded-full"
           style={{ border: '3px solid rgba(255,234,158,0.25)', borderTopColor: '#FFEA9E' }}
         />
-        <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>Đang tải bảng Kudos…</p>
+        <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('loadingBoard')}</p>
       </div>
     </GateShell>
   )
 }
 
 export function BoardErrorGate({ header }: { header: ReactNode }) {
+  const t = useTranslations('board')
   return (
     <GateShell header={header}>
       <div
         className="flex flex-1 items-center justify-center"
         style={{ minHeight: 'calc(100vh - 80px)' }}
         role="alert"
-        aria-label="Lỗi tải bảng Kudos"
+        aria-label={t('errorBoardLabel')}
       >
         <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
-          Không thể tải dữ liệu. Vui lòng thử lại.
+          {t('errorMessage')}
         </p>
       </div>
     </GateShell>

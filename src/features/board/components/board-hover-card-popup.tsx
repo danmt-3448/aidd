@@ -12,6 +12,7 @@
  */
 
 import { createPortal } from 'react-dom'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import { AvatarCircle } from './board-card-atoms'
 import { FeedCardTierBadge } from './feed-card-tier-badge'
@@ -62,6 +63,7 @@ export function HoverCardPopup({
 }: HoverCardPopupProps) {
   // Hook mounted only when this component renders (popup is open)
   const { data: liveData, isLoading } = useUserHoverCard(profileId)
+  const t = useTranslations('userCard')
 
   const department = liveData?.department ?? departmentFallback
   const tier = (liveData?.tier ?? tierFallback) as 1 | 2 | 3 | 4 | undefined
@@ -77,7 +79,7 @@ export function HoverCardPopup({
     <span
       id={popoverId}
       role="tooltip"
-      aria-label={`Thông tin ${name}`}
+      aria-label={t('ariaLabel', { name })}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{
@@ -126,7 +128,7 @@ export function HoverCardPopup({
         {/* Department — "Tên đơn vị: {dept}" per spec §3 */}
         {(department || isLoading) && (
           <span className="text-xs leading-4" style={{ color: subtleColor }}>
-            <span style={{ color: 'rgba(255,255,255,0.75)' }}>Tên đơn vị: </span>
+            <span style={{ color: 'rgba(255,255,255,0.75)' }}>{t('departmentLabel')} </span>
             {isLoading && !department ? (
               <span style={{ color: 'rgba(255,255,255,0.35)' }}>…</span>
             ) : (
@@ -144,7 +146,7 @@ export function HoverCardPopup({
             className="flex items-center justify-between text-xs"
             style={{ color: subtleColor }}
           >
-            <span>Số Kudos nhận được:</span>
+            <span>{t('kudosReceived')}</span>
             <span className="font-bold" style={{ color: GOLD }}>
               {isLoading && kudosReceived === undefined ? '…' : fmtCount(kudosReceived)}
             </span>
@@ -154,7 +156,7 @@ export function HoverCardPopup({
             className="flex items-center justify-between text-xs"
             style={{ color: subtleColor }}
           >
-            <span>Số Kudos đã gửi:</span>
+            <span>{t('kudosSent')}</span>
             <span className="font-bold" style={{ color: GOLD }}>
               {isLoading && kudosSent === undefined ? '…' : fmtCount(kudosSent)}
             </span>
@@ -174,7 +176,7 @@ export function HoverCardPopup({
               letterSpacing: '0.04em',
             }}
           >
-            ✎ Gửi KUDO
+            {t('sendKudo')}
           </button>
         )}
       </span>

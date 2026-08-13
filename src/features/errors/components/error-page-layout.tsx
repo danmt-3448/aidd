@@ -15,20 +15,23 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { montserrat, montserratAlternates } from '@/features/auth/fonts'
 
 export interface ErrorPageLayoutProps {
   /** The HTTP-style code to display large (e.g. "404", "403", "500"). */
   code: string
-  /** Short Vietnamese title (1 line). */
+  /** Short localized title (1 line). */
   title: string
-  /** Longer Vietnamese explanation (1–2 sentences). */
+  /** Longer localized explanation (1–2 sentences). */
   description: string
-  /** When provided a "Thử lại" button is rendered that calls this function. */
+  /** When provided a retry button is rendered that calls this function. */
   onReset?: () => void
 }
 
 export function ErrorPageLayout({ code, title, description, onReset }: ErrorPageLayoutProps) {
+  const t = useTranslations('errors')
+
   return (
     <div
       className="relative flex min-h-screen w-full flex-col"
@@ -49,7 +52,7 @@ export function ErrorPageLayout({ code, title, description, onReset }: ErrorPage
         className="relative z-10 flex h-20 w-full items-center px-6 md:px-16"
         style={{ borderBottom: '1px solid #2E3940' }}
       >
-        <Link href="/" aria-label="Sun* Annual Awards 2025 — trang chủ">
+        <Link href="/" aria-label={t('homeAriaLabel')}>
           {/* mm:logo — /homepage/logo.png, 69×64 from footer spec */}
           <div className="relative" style={{ width: 52, height: 48 }}>
             <Image
@@ -109,7 +112,7 @@ export function ErrorPageLayout({ code, title, description, onReset }: ErrorPage
 
           {/* CTA row */}
           <div className="flex flex-wrap items-center justify-center gap-4">
-            {/* Primary: Về trang chủ */}
+            {/* Primary: back to home */}
             <Link
               href="/"
               className={`${montserrat.className} inline-flex items-center rounded-lg font-bold transition-opacity hover:opacity-90`}
@@ -122,10 +125,10 @@ export function ErrorPageLayout({ code, title, description, onReset }: ErrorPage
                 borderRadius: 8,
               }}
             >
-              Về trang chủ
+              {t('homeButton')}
             </Link>
 
-            {/* Secondary: Thử lại — only when reset callback provided (error.tsx) */}
+            {/* Secondary: retry — only when reset callback provided (error.tsx) */}
             {onReset !== undefined && (
               <button
                 type="button"
@@ -141,7 +144,7 @@ export function ErrorPageLayout({ code, title, description, onReset }: ErrorPage
                   borderRadius: 8,
                 }}
               >
-                Thử lại
+                {t('retryButton')}
               </button>
             )}
           </div>
@@ -157,7 +160,7 @@ export function ErrorPageLayout({ code, title, description, onReset }: ErrorPage
           className={`${montserratAlternates.className} text-sm font-bold`}
           style={{ color: 'rgba(255,255,255,0.5)' }}
         >
-          Bản quyền thuộc về Sun* © 2025
+          {t('footer')}
         </p>
       </footer>
     </div>

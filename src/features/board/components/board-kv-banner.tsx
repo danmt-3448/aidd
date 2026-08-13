@@ -16,15 +16,17 @@
  */
 
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 
 export function BoardKvBanner() {
+  const t = useTranslations('board')
   return (
     <div
       data-fig="2940:13432"
       className="relative w-full overflow-hidden"
       style={{ height: 512, background: '#00101A' }}
-      aria-label="Sun* Kudos — Hệ thống ghi nhận và cảm ơn"
+      aria-label={t('bannerLabel')}
     >
       {/*
        * Inner stage capped at the Figma artboard width (1440) and centred. Beyond 1440 the
@@ -76,7 +78,7 @@ export function BoardKvBanner() {
                 color: '#FFEA9E',
               }}
             >
-              Hệ thống ghi nhận và cảm ơn
+              {t('bannerSubtitle')}
             </p>
 
             {/* KUDOS wordmark — exported SVG vector, 593×106 at desktop */}

@@ -13,6 +13,7 @@
  * component is purely presentational.
  */
 
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 
 export interface BoardDepartmentFilterProps {
@@ -29,8 +30,10 @@ export function BoardDepartmentFilter({
   activeDepartment,
   onDepartmentChange,
 }: BoardDepartmentFilterProps) {
+  const t = useTranslations('boardFilters')
+
   return (
-    <section aria-label="Lọc theo phòng ban">
+    <section aria-label={t('sectionAriaLabel')}>
       {/* Section label */}
       <p
         className="mb-3 tracking-[1.5px]"
@@ -42,14 +45,14 @@ export function BoardDepartmentFilter({
           textTransform: 'uppercase',
         }}
       >
-        Phòng ban
+        {t('sectionTitle')}
       </p>
 
       {/* Chip row — horizontal scroll on mobile */}
       <div
         className="flex flex-wrap gap-2"
         role="group"
-        aria-label="Chọn phòng ban"
+        aria-label={t('groupAriaLabel')}
       >
         {/* "All" chip */}
         <button
@@ -71,7 +74,7 @@ export function BoardDepartmentFilter({
               activeDepartment === null ? '#FFEA9E' : 'rgba(255,255,255,0.7)',
           }}
         >
-          Tất cả
+          {t('all')}
         </button>
 
         {departments.map((dept) => {

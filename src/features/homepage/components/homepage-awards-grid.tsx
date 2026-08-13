@@ -15,6 +15,7 @@
  * Data: Award[] from award-config (shared with /awards page — DRY).
  */
 
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import type { Award } from '@/features/awards/types'
 import { HomepageAwardCard } from './homepage-award-card'
@@ -24,6 +25,7 @@ interface HomepageAwardsGridProps {
 }
 
 export function HomepageAwardsGrid({ awards }: HomepageAwardsGridProps) {
+  const t = useTranslations('home');
   return (
     <section
       className="w-full"
@@ -63,7 +65,7 @@ export function HomepageAwardsGrid({ awards }: HomepageAwardsGridProps) {
             margin: 0,
           }}
         >
-          Hệ thống giải thưởng
+          {t('awardsGrid.sectionLabel')}
         </h2>
       </div>
 
@@ -72,7 +74,7 @@ export function HomepageAwardsGrid({ awards }: HomepageAwardsGridProps) {
         className="grid grid-cols-1 gap-16 sm:grid-cols-2 lg:grid-cols-3"
         style={{ columnGap: 'clamp(24px, 5.29vw, 80px)', rowGap: 'clamp(40px, 5.29vw, 80px)' }}
         role="list"
-        aria-label="Danh sách giải thưởng"
+        aria-label={t('awardsGrid.listAriaLabel')}
       >
         {awards.map((award) => (
           <div key={award.slug} role="listitem">

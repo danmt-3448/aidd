@@ -6,6 +6,7 @@
  * Design: tooltip within mms_B.7 (node 2940:14174); colors from design system context.
  */
 
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 
 /** Highlight color — Figma board gold accent (node 2940:14174 context) */
@@ -26,6 +27,7 @@ interface WordCloudTooltipProps {
 }
 
 export function WordCloudTooltip({ tooltip }: WordCloudTooltipProps) {
+  const t = useTranslations('spotlight')
   if (!tooltip.visible) return null
   return (
     <div
@@ -46,7 +48,7 @@ export function WordCloudTooltip({ tooltip }: WordCloudTooltipProps) {
       <p className="font-semibold" style={{ color: HIGHLIGHT_COLOR }}>{tooltip.name}</p>
       {tooltip.time && (
         <p className="mt-0.5" style={{ color: 'rgba(255,255,255,0.6)' }}>
-          Kudos lúc {tooltip.time}
+          {t('kudosAt', { time: tooltip.time })}
         </p>
       )}
     </div>

@@ -13,6 +13,7 @@ import { useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { useTranslations } from 'next-intl'
 import { SiteHeader } from '@/components/site-header'
 import { montserrat } from '@/features/auth/fonts'
 import { markRead, markAllRead } from './notification-actions'
@@ -27,6 +28,7 @@ export interface NotificationsConnectedProps {
 }
 
 export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConnectedProps) {
+  const t = useTranslations('notifications')
   const router = useRouter()
   const queryClient = useQueryClient()
   const sentinelRef = useRef<HTMLDivElement | null>(null)
@@ -63,11 +65,11 @@ export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConn
     const res = await markAllRead()
     if ('ok' in res) {
       void queryClient.invalidateQueries({ queryKey: notificationKeys.all })
-      toast.success('Đã đánh dấu tất cả là đã đọc')
+      toast.success(t('markedAllReadSuccess'))
     } else {
       toast.error(res.error)
     }
-  }, [queryClient])
+  }, [queryClient, t])
 
   const hasUnread = notifications.some((n) => !n.is_read)
 
@@ -80,16 +82,16 @@ export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConn
         {/* Page heading */}
         <div className="mb-6 flex items-center justify-between">
           <h1 data-fig="589:9132-heading" className={`${montserrat.className} text-2xl font-bold`} style={{ color: '#FFFFFF' }}>
-            Tất cả thông báo
+            {t('pageTitle')}
           </h1>
           {hasUnread && (
             <button
               onClick={handleMarkAllRead}
               className={`${montserrat.className} text-sm font-semibold transition-opacity hover:opacity-70`}
               style={{ color: '#FFEA9E', background: 'transparent' }}
-              aria-label="Đánh dấu tất cả đã đọc"
+              aria-label={t('markAllReadLabel')}
             >
-              Đánh dấu tất cả đã đọc
+              {t('markAllRead')}
             </button>
           )}
         </div>
@@ -99,7 +101,7 @@ export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConn
           className="overflow-hidden rounded-xl"
           style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
           role="list"
-          aria-label="Danh sách thông báo"
+          aria-label={t('listLabel')}
           aria-busy={isLoading}
         >
           {/* Loading skeleton */}
@@ -129,7 +131,7 @@ export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConn
             <div className="flex flex-col items-center justify-center gap-3 py-20" aria-live="polite">
               <span style={{ fontSize: 40 }} aria-hidden="true">🔔</span>
               <p className={`${montserrat.className} text-base`} style={{ color: 'rgba(255,255,255,0.4)' }}>
-                Chưa có thông báo nào
+                {t('emptyState')}
               </p>
             </div>
           )}
@@ -143,7 +145,7 @@ export function NotificationsConnected({ uid, user, isAdmin }: NotificationsConn
 
           {/* Fetch-next spinner */}
           {isFetchingNextPage && (
-            <div className="flex justify-center py-4" aria-live="polite" aria-label="Đang tải thêm…">
+            <div className="flex justify-center py-4" aria-live="polite" aria-label={t('loadingMore')}>
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-transparent"
                 style={{ borderTopColor: 'rgba(255,255,255,0.4)' }} />
             </div>

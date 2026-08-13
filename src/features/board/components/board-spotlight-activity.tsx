@@ -12,6 +12,7 @@
  * Prepend animation: newest entry fades + slides up into the bottom line.
  */
 
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import type { SpotlightActivityEntry } from './board-types'
 
@@ -27,6 +28,7 @@ interface ActivityLogProps {
 const ROW_OPACITY = [1, 0.75, 0.55, 0.4, 0.28, 0.18] as const
 
 export function ActivityLog({ entries }: ActivityLogProps) {
+  const t = useTranslations('spotlight')
   if (entries.length === 0) return null
 
   // entries arrive newest-first; assign opacity by recency (newest = brightest),
@@ -41,11 +43,11 @@ export function ActivityLog({ entries }: ActivityLogProps) {
     .reverse()
 
   return (
-    <div className="flex flex-col gap-1 absolute -bottom-[40px] left-[20px]" aria-label="Hoạt động gần đây">
+    <div className="flex flex-col gap-1 absolute -bottom-[40px] left-[20px]" aria-label={t('recentActivityAriaLabel')}>
       {rows.map(({ entry, rowOpacity, isNewest }) => {
         return (
           <p
-            key={entry.receiverId + entry.time}
+            key={entry.receiverId + entry.createdAt}
             data-fig="activity-feed-row"
             className={isNewest ? 'spotlight-activity-prepend' : undefined}
             style={{
@@ -72,7 +74,7 @@ export function ActivityLog({ entries }: ActivityLogProps) {
             >
               {entry.name}
             </span>
-            {' '}đã nhận được một Kudos mới
+            {' '}{t('receivedNewKudo')}
           </p>
         )
       })}

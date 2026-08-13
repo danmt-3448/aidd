@@ -1,0 +1,46 @@
+{
+  "home": {
+    "hero": {
+      "ariaLabel": "Root Further — SAA 2025 Hero",
+      "comingSoon": "Coming soon",
+      "countdownAriaLabel": "{days} days {hours} hours {minutes} minutes",
+      "days": "DAYS",
+      "hours": "HOURS",
+      "minutes": "MINS",
+      "eventDateLabel": "Date:",
+      "eventVenueLabel": "Venue:",
+      "livestreamNote": "Live broadcast via Livestream",
+      "ctaAwardsAriaLabel": "About Awards Information",
+      "ctaAwards": "ABOUT AWARDS",
+      "ctaKudosAriaLabel": "About Sun* Kudos",
+      "ctaKudos": "ABOUT KUDOS"
+    },
+    "card": {
+      "body1": "Facing the rapidly changing landscape of the AI era and increasingly demanding clients, Sun* has chosen a strategy of capability diversification — striving not only to become elite in its own field, but also aiming for a higher goal where every Sunner is a \"problem-solver\": an expert at resolving any challenge, finding answers to every problem in projects, for clients, and for society.",
+      "body2": "Drawing inspiration from diversity of capabilities, flexible growth, and the spirit of going deeper to break through in the AI era, \"Root Further\" was chosen as the official theme of the Sun* Annual Awards 2025 ceremony.",
+      "quoteEn": "\"A tree with deep roots fears no storm\"",
+      "quoteVi": "(Cây sâu bén rễ, bão giông chẳng nề - English proverb)",
+      "body3": "In the face of storms, only trees with deep enough roots can stand firm. An organization of individuals who are confident in their diverse capabilities, ready to create and embrace challenges, and who master change — such an organization not only weathers disruption, but also harnesses every advantage and conquers the challenges of the times. More than just the name of a new chapter in organizational development, \"Root Further\" is also a word of encouragement and motivation for each of us."
+    },
+    "awardsGrid": {
+      "sectionLabel": "Awards System",
+      "listAriaLabel": "Awards list"
+    },
+    "awardCard": {
+      "detailLink": "Details",
+      "titleAriaLabel": "{title} — view details",
+      "detailAriaLabel": "View details for {title} award"
+    },
+    "fab": {
+      "menuAriaLabel": "Quick actions",
+      "rulesButton": "Rules",
+      "writeKudosButton": "Write KUDOS",
+      "closeAriaLabel": "Close",
+      "openAriaLabel": "Open quick menu"
+    },
+    "footer": {
+      "navRules": "General Criteria",
+      "copyright": "Copyright belongs to Sun* © 2025"
+    }
+  }
+}

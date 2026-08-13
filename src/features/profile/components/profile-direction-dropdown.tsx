@@ -15,6 +15,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import type { KudosDirection } from './profile-types'
 
@@ -99,12 +100,13 @@ export function ProfileDirectionDropdown({
   sentCount,
   onDirectionChange,
 }: ProfileDirectionDropdownProps) {
+  const t = useTranslations('profile')
   const [open, setOpen] = useState(false)
 
   const activeLabel =
     activeDirection === 'received'
-      ? `Đã nhận (${receivedCount})`
-      : `Đã gửi (${sentCount ?? 0})`
+      ? t('direction.receivedLabel', { count: receivedCount })
+      : t('direction.sentLabel', { count: sentCount ?? 0 })
 
   function handleSelect(dir: KudosDirection) {
     onDirectionChange(dir)
@@ -151,7 +153,7 @@ export function ProfileDirectionDropdown({
           {/* mm:dropdown-menu */}
           <ul
             role="listbox"
-            aria-label="Chọn hướng Kudos"
+            aria-label={t('direction.menuLabel')}
             className="absolute left-0 top-full mt-1 w-max overflow-hidden"
             style={{
               background: 'rgba(11,27,40,0.97)',
@@ -164,7 +166,7 @@ export function ProfileDirectionDropdown({
           >
             {/* mm:option-received */}
             <Option
-              label={`Đã nhận (${receivedCount})`}
+              label={t('direction.receivedLabel', { count: receivedCount })}
               isActive={activeDirection === 'received'}
               onClick={() => handleSelect('received')}
             />
@@ -172,7 +174,7 @@ export function ProfileDirectionDropdown({
             {/* mm:option-sent — SELF mode only */}
             {isSelf && sentCount !== null && (
               <Option
-                label={`Đã gửi (${sentCount})`}
+                label={t('direction.sentLabel', { count: sentCount })}
                 isActive={activeDirection === 'sent'}
                 onClick={() => handleSelect('sent')}
               />

@@ -1,0 +1,43 @@
+{
+  "rules": {
+    "panelAriaLabel": "SAA 2025 Rules",
+    "title": "Rules",
+    "recipient": {
+      "heading": "KUDOS RECIPIENTS: HERO BADGES FOR POSITIVE IMPACT",
+      "body": "Based on the number of teammates who send you Kudos, you will earn the corresponding Hero Badge, displayed directly next to your profile name."
+    },
+    "sender": {
+      "heading": "KUDOS SENDERS: COLLECT ALL 6 ICONS AND WIN A MYSTERY GIFT",
+      "body": "Every Kudos you send will be published on the system and collect ❤️ reactions from the Sunner community. For every 5 ❤️ reactions, you unlock 1 Secret Box, giving you a chance to receive one of the 6 exclusive SAA icons.",
+      "footerText": "Sunners who collect all 6 icons will receive a mystery gift from SAA 2025."
+    },
+    "heroBadges": {
+      "newHero": {
+        "condition": "1–4 teammates have sent you Kudos",
+        "description": "The journey of spreading positivity begins — your first words of gratitude and recognition have found their way to you."
+      },
+      "risingHero": {
+        "condition": "5–9 teammates have sent you Kudos",
+        "description": "Your image is steadily growing in the hearts of your teammates through your kindness and dedication."
+      },
+      "superHero": {
+        "condition": "10–20 teammates have sent you Kudos",
+        "description": "You have become a trusted and beloved symbol — someone always ready to help and remembered by many teammates."
+      },
+      "legendHero": {
+        "condition": "More than 20 teammates have sent you Kudos",
+        "description": "You have become a legend — someone who left an unforgettable mark on the team through the sincerity of your heart and actions."
+      }
+    },
+    "kudosQuocDan": {
+      "heading": "KUDOS QUOC DAN",
+      "body": "The 5 Kudos that receive the most ❤️ reactions across all of Sun* will officially become Kudos Quoc Dan and be awarded a special prize from SAA 2025: Root Further."
+    },
+    "actions": {
+      "close": "Close",
+      "closeAriaLabel": "Close rules panel",
+      "writeKudos": "Write KUDOS",
+      "writeKudosAriaLabel": "Write KUDOS"
+    }
+  }
+}

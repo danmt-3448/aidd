@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 interface AnonymousToggleProps {
   checked: boolean
   onCheckedChange: (checked: boolean) => void
@@ -13,6 +15,7 @@ export function AnonymousToggle({
   aliasValue = '',
   onAliasChange,
 }: AnonymousToggleProps) {
+  const t = useTranslations('kudos')
   return (
     <div className="flex flex-col gap-3">
       {/* Checkbox row — mms_G */}
@@ -22,7 +25,7 @@ export function AnonymousToggle({
           type="button"
           role="checkbox"
           aria-checked={checked}
-          aria-label="Gửi ẩn danh"
+          aria-label={t('anonymousCheckboxAriaLabel')}
           onClick={() => onCheckedChange(!checked)}
           className="flex shrink-0 items-center justify-center transition-colors duration-150"
           style={{
@@ -59,7 +62,7 @@ export function AnonymousToggle({
           className="font-montserrat text-[22px] font-bold leading-7 tracking-[0px]"
           style={{ color: checked ? '#00101A' : '#999999' }}
         >
-          Gửi lời cám ơn và ghi nhận ẩn danh
+          {t('anonymousLabel')}
         </span>
       </div>
 
@@ -68,13 +71,13 @@ export function AnonymousToggle({
         <div className="ml-10">
           <input
             type="text"
-            placeholder="Tên hiển thị ẩn danh (để trống nếu không cần)"
+            placeholder={t('anonymousAliasPlaceholder')}
             value={aliasValue}
             onChange={(e) => onAliasChange?.(e.target.value)}
             maxLength={100}
             className="w-full rounded-lg px-4 py-3 font-montserrat text-base font-bold leading-6 text-[#00101A] outline-none placeholder:font-normal placeholder:text-[#999]"
             style={{ border: '1px solid #998C5F', background: '#FFF' }}
-            aria-label="Tên ẩn danh"
+            aria-label={t('anonymousAliasAriaLabel')}
           />
         </div>
       )}

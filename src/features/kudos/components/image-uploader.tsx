@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useTranslations } from 'next-intl'
 
 export interface UploadedImage {
   /** Unique id for the image slot (used as key + for removal) */
@@ -39,6 +40,7 @@ export function ImageUploader({
   maxCount = MAX_IMAGES,
   disabled = false,
 }: ImageUploaderProps) {
+  const t = useTranslations('kudos')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -64,11 +66,11 @@ export function ImageUploader({
     for (const file of toProcess) {
       // Client-side validation
       if (!ALLOWED_TYPES.includes(file.type)) {
-        setUploadError(`"${file.name}" không hợp lệ — chỉ chấp nhận JPG hoặc PNG.`)
+        setUploadError(t('imageInvalidType', { name: file.name }))
         continue
       }
       if (file.size > MAX_SIZE_BYTES) {
-        setUploadError(`"${file.name}" vượt quá 5 MB.`)
+        setUploadError(t('imageTooLarge', { name: file.name }))
         continue
       }
 
@@ -85,7 +87,7 @@ export function ImageUploader({
           .upload(storagePath, file, { upsert: false })
 
         if (error) {
-          setUploadError(`Tải ảnh thất bại: ${error.message}`)
+          setUploadError(t('imageUploadFailed'))
           continue
         }
 
@@ -97,7 +99,7 @@ export function ImageUploader({
           name: file.name,
         })
       } catch (err) {
-        setUploadError('Đã xảy ra lỗi khi tải ảnh lên.')
+        setUploadError(t('imageUploadError'))
         console.error('[ImageUploader] upload error', err)
       } finally {
         setUploading(false)
@@ -133,7 +135,7 @@ export function ImageUploader({
             >
               <Image
                 src={img.previewUrl}
-                alt={img.name ?? 'Ảnh đã chọn'}
+                alt={img.name ?? t('imageSelectedAlt')}
                 fill
                 className="object-cover"
                 style={{ borderRadius: '4px' }}
@@ -143,7 +145,7 @@ export function ImageUploader({
               {/* Remove button */}
               <button
                 type="button"
-                aria-label={`Xóa ảnh ${img.name ?? ''}`}
+                aria-label={t('imageRemoveAriaLabel', { name: img.name ?? '' })}
                 onClick={() => onRemove(img.id)}
                 className="absolute -right-2 -top-2 flex items-center justify-center transition-opacity duration-150 hover:opacity-80"
                 style={{
@@ -169,7 +171,7 @@ export function ImageUploader({
               disabled={uploading || disabled}
               className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors duration-150 hover:bg-[#FFF8E1] disabled:opacity-50"
               style={{ border: '1px solid #998C5F', background: '#FFF', height: '48px' }}
-              aria-label={`Thêm ảnh (tối đa ${maxCount})`}
+              aria-label={t('imageAddAriaLabel', { max: maxCount })}
             >
               {uploading ? (
                 <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
@@ -183,10 +185,10 @@ export function ImageUploader({
               )}
               <div className="flex flex-col items-start">
                 <span className="font-montserrat text-[11px] font-bold leading-4 tracking-[0.5px]" style={{ color: '#999' }}>
-                  Image
+                  {t('imageAddLabel')}
                 </span>
                 <span className="font-montserrat text-[11px] font-bold leading-4 tracking-[0.5px]" style={{ color: '#999' }}>
-                  Tối đa {maxCount}
+                  {t('imageMax', { max: maxCount })}
                 </span>
               </div>
             </button>

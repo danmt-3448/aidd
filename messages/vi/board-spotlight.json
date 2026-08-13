@@ -1,0 +1,34 @@
+{
+  "spotlight": {
+    "spotlightBoardAriaLabel": "Spotlight Board — nhận được nhiều Kudos nhất",
+    "kudosTotalAriaLabel": "{count} kudos tổng",
+    "loadingSpotlightAriaLabel": "Đang tải spotlight",
+    "loadingAriaLabel": "Đang tải",
+    "recentActivityAriaLabel": "Hoạt động gần đây",
+    "receivedNewKudo": "đã nhận được một Kudos mới",
+    "resetPanZoomAriaLabel": "Đặt lại pan/zoom spotlight",
+    "resetPanZoomTitle": "Đặt lại vị trí & zoom",
+    "exitFullscreen": "Thoát toàn màn hình",
+    "enterFullscreen": "Toàn màn hình",
+    "searchPlaceholder": "Tìm kiếm",
+    "searchAriaLabel": "Tìm kiếm sunner trong spotlight",
+    "searchResultsAriaLabel": "Kết quả tìm kiếm sunner",
+    "noResults": "Không tìm thấy Sunner",
+    "noMatchFound": "Không tìm thấy.",
+    "noData": "Chưa có dữ liệu.",
+    "wordCloudAriaLabel": "Word cloud — nhận nhiều kudos",
+    "sunnerListAriaLabel": "Danh sách sunner nhận kudos",
+    "sunnerKudoAriaLabel": "{name} — {count} kudos",
+    "kudosAt": "Kudos lúc {time}"
+  },
+  "highlight": {
+    "filterGroupAriaLabel": "Bộ lọc Highlight",
+    "departmentLabel": "Phòng ban",
+    "prevPageAriaLabel": "Trang trước",
+    "nextPageAriaLabel": "Trang tiếp theo",
+    "noKudosYet": "Hiện tại chưa có Kudos nào.",
+    "noKudosFilter": "Không có Kudos nào khớp với bộ lọc.",
+    "prevAriaLabel": "Kudo trước",
+    "nextAriaLabel": "Kudo tiếp theo"
+  }
+}

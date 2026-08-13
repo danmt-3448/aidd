@@ -16,6 +16,7 @@
  * All 6 slots are always greyed regardless of `badges` content.
  */
 
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 
 // ── Lock icon — inline SVG so color is controllable via CSS ─────────────────
@@ -45,11 +46,11 @@ function LockIcon() {
 
 // ── Single greyed slot ───────────────────────────────────────────────────────
 
-function BadgeSlot({ index }: { index: number }) {
+function BadgeSlot({ index, label }: { index: number; label: string }) {
   return (
     /* mm:badge-slot */
     <div
-      aria-label={`Ô badge ${index + 1} — chưa mở khóa`}
+      aria-label={label}
       className="flex items-center justify-center rounded-full"
       style={{
         width: 48,
@@ -82,8 +83,9 @@ export interface ProfileBadgeCollectionProps {
 }
 
 export function ProfileBadgeCollection({ headingVariant }: ProfileBadgeCollectionProps) {
+  const t = useTranslations('profile')
   const heading =
-    headingVariant === 'self' ? 'Bộ sưu tập icon của tôi' : 'Bộ sưu tập icon'
+    headingVariant === 'self' ? t('badges.headingSelf') : t('badges.headingOther')
 
   return (
     /* mm:profile-badge-collection */
@@ -107,10 +109,10 @@ export function ProfileBadgeCollection({ headingVariant }: ProfileBadgeCollectio
 
       {/* 6 greyed slots in a row */}
       {/* mm:badge-slots-row */}
-      <div className="flex items-center gap-3" role="list" aria-label="6 ô badge chưa mở khóa">
+      <div className="flex items-center gap-3" role="list" aria-label={t('badges.slotsRowLabel')}>
         {([0, 1, 2, 3, 4, 5] as const).map((i) => (
           <div key={i} role="listitem">
-            <BadgeSlot index={i} />
+            <BadgeSlot index={i} label={t('badges.slotLabel', { number: i + 1 })} />
           </div>
         ))}
       </div>

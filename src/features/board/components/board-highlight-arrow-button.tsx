@@ -11,6 +11,7 @@
  */
 
 import React from 'react'
+import { useTranslations } from 'next-intl'
 
 function ChevronLeft() {
   return (
@@ -31,12 +32,13 @@ function ChevronRight() {
 }
 
 export function HighlightArrowPrev({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
+  const t = useTranslations('highlight')
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      aria-label="Kudo trước"
+      aria-label={t('prevAriaLabel')}
       className="flex items-center justify-center transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFEA9E] flex-shrink-0"
       style={{
         width: 80, height: 80, borderRadius: '50%',
@@ -53,12 +55,13 @@ export function HighlightArrowPrev({ onClick, disabled }: { onClick: () => void;
 }
 
 export function HighlightArrowNext({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
+  const t = useTranslations('highlight')
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      aria-label="Kudo tiếp theo"
+      aria-label={t('nextAriaLabel')}
       className="flex items-center justify-center transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFEA9E] flex-shrink-0"
       style={{
         width: 80, height: 80, borderRadius: '50%',

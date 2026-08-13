@@ -62,8 +62,8 @@ describe('BoardSpotlight', () => {
 
   it('renders activity log entries when provided (up to 6)', () => {
     const activityLog = [
-      { receiverId: 'u1', time: '09:01', name: 'Alice Nguyen' },
-      { receiverId: 'u2', time: '09:15', name: 'Bob Tran' },
+      { receiverId: 'u1', createdAt: '2026-08-13T09:01:00Z', time: '09:01', name: 'Alice Nguyen' },
+      { receiverId: 'u2', createdAt: '2026-08-13T09:15:00Z', time: '09:15', name: 'Bob Tran' },
     ]
     render(
       <BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={NOOP} activityLog={activityLog} />,

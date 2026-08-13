@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 interface SubmitBarProps {
   onCancel: () => void
   onSubmit: () => void
@@ -14,10 +16,11 @@ export function SubmitBar({
   isSubmitting = false,
   disabled = false,
 }: SubmitBarProps) {
+  const t = useTranslations('kudos')
   return (
     /* Figma mms_H: flex row, gap 24px, height 60px, w 672px */
     <div className="flex w-full flex-row items-stretch gap-6">
-      {/* Hủy — Figma mms_H.1: node I520:11647;520:9906, padding 16px 40px, border-radius 4px, bg rgba(255,234,158,0.10), border #998C5F */}
+      {/* Cancel — Figma mms_H.1: node I520:11647;520:9906, padding 16px 40px, border-radius 4px, bg rgba(255,234,158,0.10), border #998C5F */}
       <button
         type="button"
         data-fig="I520:11647;520:9906"
@@ -30,16 +33,16 @@ export function SubmitBar({
           borderRadius: '4px',
           padding: '16px 40px',
         }}
-        aria-label="Hủy"
+        aria-label={t('cancelButton')}
       >
-        Hủy
+        {t('cancelButton')}
         {/* Close X icon — 24×24 */}
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
           <path d="M18 6L6 18M6 6L18 18" stroke="#00101A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
 
-      {/* Gửi — Figma mms_H.2: node I520:11647;520:9907, flex-1, height 60px, border-radius 8px, bg #FFEA9E, font 22px/700 */}
+      {/* Submit — Figma mms_H.2: node I520:11647;520:9907, flex-1, height 60px, border-radius 8px, bg #FFEA9E, font 22px/700 */}
       <button
         type="button"
         data-fig="I520:11647;520:9907"
@@ -52,10 +55,10 @@ export function SubmitBar({
           borderRadius: '8px',
           padding: '16px',
         }}
-        aria-label="Gửi Kudo"
+        aria-label={t('submitAriaLabel')}
         aria-disabled={isSubmitting || disabled}
       >
-        Gửi
+        {t('submitButton')}
         {/* Send icon */}
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
           <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="#00101A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

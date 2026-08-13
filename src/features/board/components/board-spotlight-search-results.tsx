@@ -20,6 +20,7 @@
 import Image from 'next/image'
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import type { SpotlightNode } from './board-types'
 
@@ -49,6 +50,7 @@ export function BoardSpotlightSearchResults({
   onActiveChange,
   listId,
 }: BoardSpotlightSearchResultsProps) {
+  const t = useTranslations('spotlight')
   const listRef = useRef<HTMLUListElement>(null)
 
   // Scroll active item into view
@@ -89,7 +91,7 @@ export function BoardSpotlightSearchResults({
         <ul
           id={listId}
           role="listbox"
-          aria-label="Kết quả tìm kiếm sunner"
+          aria-label={t('searchResultsAriaLabel')}
           style={{ listStyle: 'none', margin: 0, padding: 0 }}
         >
           <li
@@ -99,7 +101,7 @@ export function BoardSpotlightSearchResults({
             className="px-4 py-3 text-xs"
             style={{ color: 'rgba(255,255,255,0.4)', fontFamily: montserrat.style.fontFamily, cursor: 'default' }}
           >
-            Không tìm thấy Sunner
+            {t('noResults')}
           </li>
         </ul>
       ) : (
@@ -107,7 +109,7 @@ export function BoardSpotlightSearchResults({
           ref={listRef}
           id={listId}
           role="listbox"
-          aria-label="Kết quả tìm kiếm sunner"
+          aria-label={t('searchResultsAriaLabel')}
           style={{ maxHeight: 280, overflowY: 'auto', listStyle: 'none', margin: 0, padding: 0 }}
         >
           {matches.map((node, idx) => {

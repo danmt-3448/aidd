@@ -11,6 +11,8 @@
  * From Figma node 3007:17479 context (verified in board-spotlight-controls prior session).
  */
 
+import { useTranslations } from 'next-intl'
+
 interface BoardSpotlightControlsProps {
   onReset: () => void
   toggle: () => void
@@ -22,6 +24,7 @@ export function BoardSpotlightControls({
   toggle,
   isFullscreen,
 }: BoardSpotlightControlsProps) {
+  const t = useTranslations('spotlight')
   const btnStyle: React.CSSProperties = {
     width: 36,
     height: 36,
@@ -38,8 +41,8 @@ export function BoardSpotlightControls({
       <button
         type="button"
         onClick={onReset}
-        aria-label="Đặt lại pan/zoom spotlight"
-        title="Đặt lại vị trí & zoom"
+        aria-label={t('resetPanZoomAriaLabel')}
+        title={t('resetPanZoomTitle')}
         className={btnClass}
         style={btnStyle}
       >
@@ -63,8 +66,8 @@ export function BoardSpotlightControls({
       <button
         type="button"
         onClick={toggle}
-        aria-label={isFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
-        title={isFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
+        aria-label={isFullscreen ? t('exitFullscreen') : t('enterFullscreen')}
+        title={isFullscreen ? t('exitFullscreen') : t('enterFullscreen')}
         aria-pressed={isFullscreen}
         className={btnClass}
         style={btnStyle}

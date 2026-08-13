@@ -1,0 +1,12 @@
+{
+  "errors": {
+    "homeAriaLabel": "Sun* Annual Awards 2025 — home",
+    "homeButton": "Back to home",
+    "retryButton": "Try again",
+    "footer": "Copyright © Sun* 2025",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "The system ran into an unexpected problem. Please try again or return to the home page.",
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "The page you're looking for doesn't exist or has been moved. Please return to the home page."
+  }
+}

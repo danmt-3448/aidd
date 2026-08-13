@@ -14,6 +14,7 @@
  *   Load more button: gold border + text, Montserrat 700.
  */
 
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import { BoardFeedCard } from './board-feed-card'
 import { SectionEyebrow } from './board-section-eyebrow'
@@ -44,6 +45,7 @@ export function BoardAllKudosFeed({
   currentUserId,
   onEdit,
 }: BoardAllKudosFeedProps) {
+  const t = useTranslations('board')
   return (
     <section data-fig="2940:13434" aria-label="All Kudos">
       {/* D5 — eyebrow + section title */}
@@ -68,7 +70,7 @@ export function BoardAllKudosFeed({
           style={{ fontFamily: montserrat.style.fontFamily, color: 'rgba(255,255,255,0.4)' }}
           aria-live="polite"
         >
-          Hiện tại chưa có Kudos nào.
+          {t('emptyState')}
         </p>
       ) : (
         /* Bounded scroll container — cards scroll inside; page stays fixed.
@@ -103,7 +105,7 @@ export function BoardAllKudosFeed({
                 type="button"
                 onClick={onLoadMore}
                 disabled={isFetchingNextPage}
-                aria-label="Tải thêm Kudos"
+                aria-label={t('loadMore')}
                 className="flex items-center gap-2 rounded-full px-6 py-3 transition-opacity hover:opacity-80 disabled:opacity-50"
                 style={{
                   border: '1.5px solid #FFEA9E',
@@ -127,10 +129,10 @@ export function BoardAllKudosFeed({
                       }}
                       aria-hidden
                     />
-                    Đang tải…
+                    {t('loading')}
                   </>
                 ) : (
-                  'Tải thêm Kudos'
+                  t('loadMore')
                 )}
               </button>
             </div>

@@ -24,6 +24,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { ProfileScreen } from './profile-screen'
 import { useProfileStats, useProfileHeader } from '../use-profile-stats'
@@ -80,6 +81,7 @@ export interface ProfileConnectedProps {
 // ---------------------------------------------------------------------------
 
 export function ProfileConnected({ profileId, isSelf, selfUid }: ProfileConnectedProps) {
+  const t = useTranslations('profile')
   const router = useRouter()
 
   // ── Direction state ────────────────────────────────────────────────────────
@@ -186,7 +188,7 @@ export function ProfileConnected({ profileId, isSelf, selfUid }: ProfileConnecte
         className="flex min-h-screen items-center justify-center"
         style={{ backgroundColor: '#00101A' }}
         aria-busy="true"
-        aria-label="Đang tải profile…"
+        aria-label={t('loading')}
       />
     )
   }

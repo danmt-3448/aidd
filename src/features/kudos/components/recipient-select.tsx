@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 
 export interface RecipientItem {
   id: string
@@ -34,6 +35,7 @@ export function RecipientSelect({
   isLoading,
   error,
 }: RecipientSelectProps) {
+  const t = useTranslations('kudos')
   return (
     <div className="flex flex-col gap-1">
       <div className="flex flex-row items-center gap-4">
@@ -43,7 +45,7 @@ export function RecipientSelect({
             className="font-montserrat text-[22px] font-bold leading-7 tracking-[0px]"
             style={{ color: '#00101A' }}
           >
-            Người nhận
+            {t('recipientLabel')}
           </span>
           {required && (
             <span
@@ -83,7 +85,7 @@ export function RecipientSelect({
                   className="font-montserrat text-base font-bold leading-6 tracking-[0.15px]"
                   style={{ color: '#999999' }}
                 >
-                  Tìm kiếm
+                  {t('recipientPlaceholder')}
                 </span>
               )}
             </div>
@@ -116,7 +118,7 @@ export function RecipientSelect({
                 <input
                   autoFocus
                   type="text"
-                  placeholder="Tìm kiếm..."
+                  placeholder={t('recipientPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
                   className="w-full bg-transparent font-montserrat text-sm font-bold leading-5 text-[#00101A] outline-none placeholder:font-normal placeholder:text-[#999]"
@@ -126,15 +128,15 @@ export function RecipientSelect({
               <ul role="listbox" className="max-h-48 overflow-y-auto">
                 {isLoading ? (
                   <li className="px-4 py-3 font-montserrat text-sm text-[#999]">
-                    Đang tìm kiếm…
+                    {t('recipientSearching')}
                   </li>
                 ) : options.length === 0 && searchQuery.trim().length > 0 ? (
                   <li className="px-4 py-3 font-montserrat text-sm text-[#999]">
-                    Không tìm thấy
+                    {t('recipientNotFound')}
                   </li>
                 ) : options.length === 0 ? (
                   <li className="px-4 py-3 font-montserrat text-sm text-[#999]">
-                    Nhập tên để tìm kiếm
+                    {t('recipientHint')}
                   </li>
                 ) : (
                   options.map((opt) => (

@@ -12,6 +12,7 @@
  */
 
 import { useState, useId, useRef, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 
 export interface X2FlameBadgeProps {
@@ -20,6 +21,7 @@ export interface X2FlameBadgeProps {
 }
 
 export function X2FlameBadge({ tooltipText }: X2FlameBadgeProps) {
+  const t = useTranslations('board')
   const [open, setOpen] = useState(false)
   const tooltipId = useId()
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -49,7 +51,7 @@ export function X2FlameBadge({ tooltipText }: X2FlameBadgeProps) {
           lineHeight: '16px',
           cursor: 'default',
         }}
-        aria-label="nhân 2"
+        aria-label={t('x2BadgeLabel')}
         aria-describedby={open ? tooltipId : undefined}
         tabIndex={0}
         onFocus={show}

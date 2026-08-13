@@ -15,6 +15,7 @@
  */
 
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import { UserHoverCard } from './board-user-hover-card'
 import type { LeaderboardEntry } from './board-types'
@@ -82,6 +83,8 @@ export function SidebarLeaderboard({
   entries,
   onSendKudo,
 }: SidebarLeaderboardProps) {
+  const t = useTranslations('leaderboard')
+
   return (
     <div
       className="flex flex-col"
@@ -106,7 +109,7 @@ export function SidebarLeaderboard({
           whiteSpace: 'pre-line',
         }}
       >
-        {'10 SUNNER NHẬN QUÀ\nMỚI NHẤT'}
+        {t('title')}
       </p>
 
       {entries.length === 0 ? (
@@ -118,7 +121,7 @@ export function SidebarLeaderboard({
             color: 'rgba(255,255,255,0.3)',
           }}
         >
-          Chưa có dữ liệu.
+          {t('empty')}
         </p>
       ) : (
         <ol className="flex flex-col" style={{ gap: 12 }}>
@@ -130,7 +133,7 @@ export function SidebarLeaderboard({
             >
               {/* Rank number — 1-indexed, gold, right-aligned in fixed width */}
               <span
-                aria-label={`Hạng ${index + 1}`}
+                aria-label={t('rankLabel', { rank: index + 1 })}
                 style={{
                   fontFamily: montserrat.style.fontFamily,
                   fontWeight: 700,

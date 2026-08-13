@@ -1,9 +1,12 @@
+'use client'
+
 /**
  * board-card-atoms.tsx — tiny presentational atoms shared by board card components.
  * Extracted to keep board-feed-card.tsx under 200 lines.
  */
 
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 
 // ── AvatarCircle ─────────────────────────────────────────────────────────────
@@ -154,6 +157,7 @@ export function formatCardDate(iso: string): string {
  * Example: tags=["ThanhOm"] renders "#ThanhOm".
  */
 export function HashtagRow({ tags }: { tags: string[] }) {
+  const t = useTranslations('board')
   if (tags.length === 0) return null
   const visible = tags.slice(0, 5)
   const overflow = tags.length - 5
@@ -176,7 +180,7 @@ export function HashtagRow({ tags }: { tags: string[] }) {
       ))}
       {overflow > 0 && (
         <span
-          aria-label={`và ${overflow} hashtag khác`}
+          aria-label={t('hashtagOverflow', { overflow })}
           style={{
             fontFamily: montserrat.style.fontFamily,
             fontSize: 11,

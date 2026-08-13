@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 export interface HashtagItem {
   id: string
@@ -30,6 +31,7 @@ export function HashtagPicker({
   required,
   limitError,
 }: HashtagPickerProps) {
+  const t = useTranslations('kudos')
   const [isOpen, setIsOpen] = useState(false)
   const [search, setSearch] = useState('')
   const containerRef = useRef<HTMLDivElement>(null)
@@ -72,7 +74,7 @@ export function HashtagPicker({
           className="font-montserrat text-[22px] font-bold leading-7 tracking-[0px]"
           style={{ color: '#00101A' }}
         >
-          Hashtag
+          {t('hashtagLabel')}
         </span>
         {required && (
           <span
@@ -96,7 +98,7 @@ export function HashtagPicker({
             #{tag.label}
             <button
               type="button"
-              aria-label={`Xóa hashtag #${tag.label}`}
+              aria-label={t('hashtagRemoveAriaLabel', { label: tag.label })}
               onClick={() => onRemove(tag.id)}
               className="flex h-4 w-4 items-center justify-center rounded-full transition-colors duration-150 hover:bg-[#FFEA9E]"
             >
@@ -119,7 +121,7 @@ export function HashtagPicker({
             opacity: canAdd ? 1 : 0.5,
             cursor: canAdd ? 'pointer' : 'not-allowed',
           }}
-          aria-label={`Thêm Hashtag (tối đa ${maxCount})`}
+          aria-label={t('hashtagAddAriaLabel', { max: maxCount })}
           aria-disabled={!canAdd}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden className="shrink-0">
@@ -127,10 +129,10 @@ export function HashtagPicker({
           </svg>
           <div className="flex flex-col items-start">
             <span className="font-montserrat text-[11px] font-bold leading-4 tracking-[0.5px]" style={{ color: '#999' }}>
-              Hashtag
+              {t('hashtagAddLabel')}
             </span>
             <span className="font-montserrat text-[11px] font-bold leading-4 tracking-[0.5px]" style={{ color: '#999' }}>
-              Tối đa {maxCount}
+              {t('hashtagMax', { max: maxCount })}
             </span>
           </div>
         </button>
@@ -153,7 +155,7 @@ export function HashtagPicker({
               <input
                 autoFocus
                 type="text"
-                placeholder="Tìm hashtag..."
+                placeholder={t('hashtagSearchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full bg-transparent font-montserrat text-sm font-bold text-[#00101A] outline-none placeholder:font-normal placeholder:text-[#999]"
@@ -163,7 +165,7 @@ export function HashtagPicker({
             <ul className="max-h-48 overflow-y-auto" role="listbox">
               {filtered.length === 0 ? (
                 <li className="px-4 py-2 font-montserrat text-sm text-[#999]">
-                  Không có hashtag
+                  {t('hashtagNotFound')}
                 </li>
               ) : (
                 filtered.map((item) => (

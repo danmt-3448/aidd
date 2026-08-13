@@ -11,6 +11,7 @@
 
 import { useRef, useState } from 'react'
 import { TransformWrapper, TransformComponent, type ReactZoomPanPinchRef } from 'react-zoom-pan-pinch'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import { CANVAS_W, CANVAS_H, type WordLayout } from './board-spotlight-layout'
 import type { SpotlightNode, SpotlightActivityEntry } from './board-types'
@@ -62,6 +63,7 @@ export function BoardSpotlightWordCloud({
   transformRef,
   fullscreenHeight,
 }: BoardSpotlightWordCloudProps) {
+  const t = useTranslations('spotlight')
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false, x: 0, y: 0, containerW: 800, name: '', time: null,
   })
@@ -81,7 +83,7 @@ export function BoardSpotlightWordCloud({
     return (
       <div className="flex h-48 items-center justify-center">
         <p className="text-sm" style={{ fontFamily: montserrat.style.fontFamily, color: 'rgba(255,255,255,0.3)' }}>
-          {q ? 'Không tìm thấy.' : 'Chưa có dữ liệu.'}
+          {q ? t('noMatchFound') : t('noData')}
         </p>
       </div>
     )
@@ -117,7 +119,7 @@ export function BoardSpotlightWordCloud({
         // zoom expands the layout box (unlike transform:scale which clips inside overflow-hidden ancestors)
         zoom: scaleVal !== 1 ? scaleVal : undefined,
       }}
-      aria-label="Word cloud — nhận nhiều kudos"
+      aria-label={t('wordCloudAriaLabel')}
     >
       <TransformWrapper
         ref={transformRef}
@@ -136,7 +138,7 @@ export function BoardSpotlightWordCloud({
         >
           <div
             role="list"
-            aria-label="Danh sách sunner nhận kudos"
+            aria-label={t('sunnerListAriaLabel')}
             style={{ width: CANVAS_W, height: CANVAS_H, position: 'relative' }}
           >
             {layout.map(({ node, fontSize, colorOpacity, x, y }) => {
@@ -149,7 +151,7 @@ export function BoardSpotlightWordCloud({
                   onPointerEnter={(e) => onEnter(e, node)}
                   onPointerLeave={() => setTooltip((p) => ({ ...p, visible: false }))}
                   onClick={() => onClick(node.receiverId)}
-                  aria-label={`${node.name} — ${node.kudoCount} kudos`}
+                  aria-label={t('sunnerKudoAriaLabel', { name: node.name, count: node.kudoCount })}
                   className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFEA9E]"
                   style={{
                     position: 'absolute',

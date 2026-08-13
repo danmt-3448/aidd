@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { RichTextToolbar, type ToolbarAction } from './rich-text-toolbar'
 
 export interface ContentEditorProps {
@@ -14,8 +15,6 @@ export interface ContentEditorProps {
   charCount?: number
 }
 
-const PLACEHOLDER = 'Hãy gửi gắm lời cám ơn và ghi nhận đến đồng đội tại đây nhé!'
-const HINT = 'Bạn có thể "@ + tên" để nhắc tới đồng nghiệp khác'
 const DEFAULT_MAX = 2000
 
 export function ContentEditor({
@@ -26,6 +25,7 @@ export function ContentEditor({
   maxLength = DEFAULT_MAX,
   charCount,
 }: ContentEditorProps) {
+  const t = useTranslations('kudos')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const count = charCount ?? value.replace(/<[^>]*>/g, '').length
 
@@ -55,11 +55,11 @@ export function ContentEditor({
             ref={textareaRef}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            placeholder={PLACEHOLDER}
+            placeholder={t('contentPlaceholder')}
             maxLength={maxLength}
             className="w-full flex-1 resize-none bg-transparent px-6 py-4 font-montserrat text-base font-bold leading-6 text-[#00101A] outline-none placeholder:text-[#999] placeholder:font-normal"
             style={{ minHeight: '160px' }}
-            aria-label="Nội dung Kudo"
+            aria-label={t('contentAriaLabel')}
           />
         </div>
       </div>
@@ -70,7 +70,7 @@ export function ContentEditor({
           className="font-montserrat text-base font-bold leading-6 tracking-[0.5px]"
           style={{ color: '#00101A' }}
         >
-          {HINT}
+          {t('contentHint')}
         </span>
         <span
           className="shrink-0 font-montserrat text-xs leading-4"

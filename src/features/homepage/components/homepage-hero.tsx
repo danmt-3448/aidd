@@ -24,6 +24,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { montserrat } from "@/features/auth/fonts";
 import { CountdownLedBlock } from "@/features/countdown/components/countdown-led-block";
 import { HomepageWidgetFab } from "./homepage-widget-fab";
@@ -50,11 +51,12 @@ export function HomepageHero({
   onWriteKudo,
   onOpenRules,
 }: HomepageHeroProps) {
+  const t = useTranslations("home");
   return (
     <section
       id="about"
       className="relative w-full"
-      aria-label="Root Further — SAA 2025 Hero"
+      aria-label={t("hero.ariaLabel")}
       style={{ minHeight: "100vh" }}
     >
       {/* Keyvisual background */}
@@ -120,7 +122,7 @@ export function HomepageHero({
                   color: "#FFFFFF",
                 }}
               >
-                Coming soon
+                {t("hero.comingSoon")}
               </p>
             )}
 
@@ -133,11 +135,11 @@ export function HomepageHero({
               style={{ gap: "clamp(12px, 2.6vw, 40px)" }}
               role="timer"
               aria-live="polite"
-              aria-label={`${countdown.days} ngày ${countdown.hours} giờ ${countdown.minutes} phút`}
+              aria-label={t("hero.countdownAriaLabel", { days: countdown.days, hours: countdown.hours, minutes: countdown.minutes })}
             >
-              <CountdownLedBlock value={countdown.days} label="NGÀY" />
-              <CountdownLedBlock value={countdown.hours} label="GIỜ" />
-              <CountdownLedBlock value={countdown.minutes} label="PHÚT" />
+              <CountdownLedBlock value={countdown.days} label={t("hero.days")} />
+              <CountdownLedBlock value={countdown.hours} label={t("hero.hours")} />
+              <CountdownLedBlock value={countdown.minutes} label={t("hero.minutes")} />
             </div>
 
             {/* Event info */}
@@ -152,7 +154,7 @@ export function HomepageHero({
                     letterSpacing: "0.5px",
                   }}
                 >
-                  <span>Thời gian:</span>
+                  <span>{t("hero.eventDateLabel")}</span>
                   <span
                     className="ms-1"
                     style={{ color: "#FFEA9E", fontSize: 24 }}
@@ -169,7 +171,7 @@ export function HomepageHero({
                     letterSpacing: "0.5px",
                   }}
                 >
-                  <span>Địa điểm:</span>
+                  <span>{t("hero.eventVenueLabel")}</span>
                   <span
                     className="ms-1"
                     style={{ color: "#FFEA9E", fontSize: 24 }}
@@ -188,7 +190,7 @@ export function HomepageHero({
                   letterSpacing: "0.5px",
                 }}
               >
-                Tường thuật trực tiếp qua sóng Livestream
+                {t("hero.livestreamNote")}
               </p>
             </div>
           </div>
@@ -214,9 +216,9 @@ export function HomepageHero({
                 fontWeight: 700,
                 borderRadius: 8,
               }}
-              aria-label="About Awards Information"
+              aria-label={t("hero.ctaAwardsAriaLabel")}
             >
-              ABOUT AWARDS
+              {t("hero.ctaAwards")}
               <div
                 className="relative"
                 style={{ width: 24, height: 24, flexShrink: 0 }}
@@ -244,9 +246,9 @@ export function HomepageHero({
                 fontWeight: 700,
                 borderRadius: 8,
               }}
-              aria-label="About Sun* Kudos"
+              aria-label={t("hero.ctaKudosAriaLabel")}
             >
-              ABOUT KUDOS
+              {t("hero.ctaKudos")}
               <div
                 className="relative"
                 style={{ width: 24, height: 24, flexShrink: 0 }}

@@ -9,6 +9,7 @@
  *   Gap between boxes: 24px (derived from position delta: startY 2959 − endY 2935 = 24).
  */
 
+import { useTranslations } from 'next-intl'
 import { StatsCard } from './board-sidebar-stats'
 import { SidebarLeaderboard } from './board-sidebar-leaderboard'
 import type { BoardUserStats, LeaderboardEntry } from './board-types'
@@ -25,9 +26,11 @@ export function BoardSidebar({
   giftLeaderboard,
   onOpenSecretBox,
 }: BoardSidebarProps) {
+  const t = useTranslations('boardStats')
+
   return (
     <aside
-      aria-label="Thống kê và danh sách nhận quà"
+      aria-label={t('ariaLabel')}
       className="flex flex-col"
       style={{ gap: 24 }}
     >

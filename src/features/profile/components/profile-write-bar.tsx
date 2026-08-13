@@ -14,6 +14,7 @@
  * state; it is purely presentational.
  */
 
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 
 // ── Pencil icon — inline SVG ─────────────────────────────────────────────────
@@ -57,10 +58,11 @@ export interface ProfileWriteBarProps {
 }
 
 export function ProfileWriteBar({ recipientName, onWriteKudo }: ProfileWriteBarProps) {
+  const t = useTranslations('profile')
   return (
     /* mm:profile-write-bar */
     <section
-      aria-label={`Gửi Kudo cho ${recipientName}`}
+      aria-label={t('writeBar.sectionLabel', { name: recipientName })}
       className="px-6 py-5"
     >
       <div
@@ -72,7 +74,9 @@ export function ProfileWriteBar({ recipientName, onWriteKudo }: ProfileWriteBarP
           padding: '16px 20px',
         }}
       >
-        {/* mm:write-bar-label */}
+        {/* mm:write-bar-label
+            The label has a bold name inline — use t.rich() to inject a <strong> tag.
+            The 'strong' tag renderer is defined inline to apply the exact Figma style. */}
         <p
           style={{
             fontFamily: montserrat.style.fontFamily,
@@ -83,15 +87,19 @@ export function ProfileWriteBar({ recipientName, onWriteKudo }: ProfileWriteBarP
             margin: 0,
           }}
         >
-          Gửi Kudo cho{' '}
-          <span style={{ fontWeight: 700, color: '#FFFFFF' }}>{recipientName}</span>
+          {t.rich('writeBar.label', {
+            name: recipientName,
+            strong: (chunks) => (
+              <span style={{ fontWeight: 700, color: '#FFFFFF' }}>{chunks}</span>
+            ),
+          })}
         </p>
 
         {/* mm:write-kudo-cta */}
         <button
           type="button"
           onClick={onWriteKudo}
-          aria-label={`Viết Kudo cho ${recipientName}`}
+          aria-label={t('writeBar.buttonLabel', { name: recipientName })}
           className="flex flex-shrink-0 items-center gap-2 rounded-lg font-bold transition-opacity hover:opacity-90 active:opacity-75"
           style={{
             background: '#FFEA9E',
@@ -104,7 +112,7 @@ export function ProfileWriteBar({ recipientName, onWriteKudo }: ProfileWriteBarP
           }}
         >
           <PencilIcon />
-          Viết Kudo
+          {t('writeBar.button')}
         </button>
       </div>
     </section>

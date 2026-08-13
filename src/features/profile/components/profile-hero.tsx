@@ -15,16 +15,17 @@
  */
 
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import type { ProfileHeaderProps } from './profile-types'
 
 // ── Initials avatar fallback ─────────────────────────────────────────────────
 
-function InitialsAvatar({ name, size }: { name: string; size: number }) {
+function InitialsAvatar({ name, size, ariaLabel }: { name: string; size: number; ariaLabel: string }) {
   const initial = name.trim().charAt(0).toUpperCase() || '?'
   return (
     <div
-      aria-label={`Avatar của ${name}`}
+      aria-label={ariaLabel}
       className="flex items-center justify-center rounded-full font-bold"
       style={{
         width: size,
@@ -71,14 +72,16 @@ export interface ProfileHeroProps {
 }
 
 export function ProfileHero({ header }: ProfileHeroProps) {
+  const t = useTranslations('profile')
   const { full_name, avatar_url, department_id, title, tier } = header
   const displayName = full_name ?? 'Sunner'
+  const avatarLabel = t('hero.avatarLabel', { name: displayName })
 
   return (
     /* mm:profile-hero — mms_A_Info 362:5052 — centered over keyvisual */
     <section
       data-fig="362:5052"
-      aria-label="Thông tin cá nhân"
+      aria-label={t('hero.sectionLabel')}
       className="flex flex-col items-center text-center"
       style={{
         gap: 32,
@@ -101,7 +104,7 @@ export function ProfileHero({ header }: ProfileHeroProps) {
         >
           <Image
             src={avatar_url}
-            alt={`Avatar của ${displayName}`}
+            alt={avatarLabel}
             width={200}
             height={200}
             className="rounded-full object-cover"
@@ -109,7 +112,7 @@ export function ProfileHero({ header }: ProfileHeroProps) {
           />
         </div>
       ) : (
-        <InitialsAvatar name={displayName} size={200} />
+        <InitialsAvatar name={displayName} size={200} ariaLabel={avatarLabel} />
       )}
 
       {/* Info block: name + dept/title + tier */}

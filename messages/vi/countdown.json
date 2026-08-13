@@ -1,0 +1,17 @@
+{
+  "countdown": {
+    "pageTitle": "SAA 2025 — Đếm ngược",
+    "logoAlt": "Sun* Annual Awards 2025",
+    "eyebrow": "Sun* Annual Awards 2025",
+    "heading": "Sắp ra mắt",
+    "subheading": "Sự kiện đang đến gần. Hãy cùng chờ đón!",
+    "title": "Sự kiện sẽ bắt đầu sau",
+    "days": "NGÀY",
+    "hours": "GIỜ",
+    "minutes": "PHÚT",
+    "done": "Sự kiện đã bắt đầu!",
+    "invalidConfig": "Thông tin sự kiện chưa được cấu hình.",
+    "footer": "Bản quyền thuộc về Sun* © 2025",
+    "timerAriaLabel": "{days} ngày {hours} giờ {minutes} phút còn lại"
+  }
+}

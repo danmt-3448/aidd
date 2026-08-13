@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { getTranslations } from 'next-intl/server'
 import { AwardMedallion } from './award-medallion'
 import type { AwardCardProps } from '../types'
 
@@ -8,11 +9,20 @@ import type { AwardCardProps } from '../types'
  * Layout from Figma node mms_D.1_Top talent (213:2554):
  *   row gap 40px | image 336×336 | content flex-col gap-32px
  */
-export function AwardCard({ award }: AwardCardProps) {
-  const { title, description, quantity, quantityUnit, prize, imageLeft, hashtagAnchor, icon, image } = award
+export async function AwardCard({ award }: AwardCardProps) {
+  const t = await getTranslations('awards')
+  const { title, quantity, prize, imageLeft, hashtagAnchor, icon, image } = award
+  const i18nKey = award.i18nKey ?? ''
+
+  const description = t(`categories.${i18nKey}.description` as Parameters<typeof t>[0])
+  const quantityUnit = t(`categories.${i18nKey}.quantityUnit` as Parameters<typeof t>[0])
+  const medallionAlt = `${title} — ${t('card.medallionAltSuffix')}`
+  const quantityLabel = t('card.quantityLabel')
+  const prizeLabel = t('card.prizeLabel')
+  const perAwardLabel = t('card.perAwardLabel')
 
   const trophyMedallion = (
-    <AwardMedallion src={image} alt={`${title} — huy hiệu giải thưởng`} size={336} />
+    <AwardMedallion src={image} alt={medallionAlt} size={336} />
   )
 
   const contentPanel = (
@@ -57,7 +67,7 @@ export function AwardCard({ award }: AwardCardProps) {
       {/* Horizontal divider */}
       <div style={{ height: '1px', backgroundColor: 'rgba(46,57,64,1)' }} />
 
-      {/* Quantity row: diamond icon + "Số lượng giải thưởng:" + number + unit */}
+      {/* Quantity row: diamond icon + label + number + unit */}
       <div className="flex flex-wrap items-center" style={{ gap: '16px' }}>
         <div className="relative shrink-0" style={{ width: '24px', height: '24px' }}>
           <Image src="/awards/icon-diamond.svg" alt="" fill className="object-contain" />
@@ -66,7 +76,7 @@ export function AwardCard({ award }: AwardCardProps) {
           className="font-montserrat font-bold"
           style={{ fontSize: '24px', lineHeight: '32px', color: '#FFEA9E' }}
         >
-          Số lượng giải thưởng:
+          {quantityLabel}
         </span>
         <div className="flex items-center" style={{ gap: '8px' }}>
           <span
@@ -84,7 +94,7 @@ export function AwardCard({ award }: AwardCardProps) {
         </div>
       </div>
 
-      {/* Prize section: license icon + "Giá trị giải thưởng:" + amount + per-award note */}
+      {/* Prize section: gift icon + label + amount + per-award note */}
       <div className="flex flex-col" style={{ gap: '16px' }}>
         <div className="flex items-center" style={{ gap: '16px' }}>
           <div className="relative shrink-0" style={{ width: '24px', height: '24px' }}>
@@ -94,7 +104,7 @@ export function AwardCard({ award }: AwardCardProps) {
             className="font-montserrat font-bold"
             style={{ fontSize: '24px', lineHeight: '32px', color: '#FFEA9E' }}
           >
-            Giá trị giải thưởng:
+            {prizeLabel}
           </span>
         </div>
         <div>
@@ -108,7 +118,7 @@ export function AwardCard({ award }: AwardCardProps) {
             className="font-montserrat font-bold"
             style={{ fontSize: '14px', lineHeight: '20px', letterSpacing: '0.1px', color: '#FFFFFF' }}
           >
-            cho mỗi giải thưởng
+            {perAwardLabel}
           </p>
         </div>
       </div>
@@ -135,7 +145,7 @@ export function AwardCard({ award }: AwardCardProps) {
         )}
         {/* Mobile: medallion below content, centered */}
         <div className="flex w-full justify-center md:hidden">
-          <AwardMedallion src={image} alt={`${title} — huy hiệu giải thưởng`} size={240} />
+          <AwardMedallion src={image} alt={medallionAlt} size={240} />
         </div>
       </div>
 

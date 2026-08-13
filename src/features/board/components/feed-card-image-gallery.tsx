@@ -17,12 +17,14 @@
  * fetches the signed URL directly and re-fetches on each load.
  */
 
+import { useTranslations } from 'next-intl'
+
 const THUMB_SIZE = 80
 const MAX_VISIBLE = 5
 
 interface FeedCardImageGalleryProps {
   imageUrls: string[]
-  /** Alt prefix used with index, e.g. "Ảnh đính kèm 1" */
+  /** Alt prefix used with index, e.g. "Ảnh đính kèm 1". Defaults to the i18n translation. */
   altPrefix?: string
   /** When true, card bg is cream — overflow scrim uses warm-dark color */
   lightMode?: boolean
@@ -30,9 +32,12 @@ interface FeedCardImageGalleryProps {
 
 export function FeedCardImageGallery({
   imageUrls,
-  altPrefix = 'Ảnh đính kèm',
+  altPrefix,
   lightMode = false,
 }: FeedCardImageGalleryProps) {
+  const t = useTranslations('board')
+  const prefix = altPrefix ?? t('imageAltPrefix')
+
   if (imageUrls.length === 0) return null
 
   const visible = imageUrls.slice(0, MAX_VISIBLE)
@@ -40,7 +45,7 @@ export function FeedCardImageGallery({
   const scrimBg = lightMode ? 'rgba(26,18,8,0.6)' : 'rgba(0,16,26,0.65)'
 
   return (
-    <div className="flex flex-wrap gap-2" role="list" aria-label="Ảnh đính kèm">
+    <div className="flex flex-wrap gap-2" role="list" aria-label={t('imageGalleryLabel')}>
       {visible.map((url, idx) => {
         const isLast = idx === MAX_VISIBLE - 1 && overflow > 0
         return (
@@ -49,14 +54,14 @@ export function FeedCardImageGallery({
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`${altPrefix} ${idx + 1}${isLast && overflow > 0 ? ` và ${overflow} ảnh khác` : ''}`}
+              aria-label={`${prefix} ${idx + 1}${isLast && overflow > 0 ? ` ${t('imageMoreLabel', { overflow })}` : ''}`}
               className="block overflow-hidden rounded transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFEA9E]"
               style={{ width: THUMB_SIZE, height: THUMB_SIZE }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={url}
-                alt={`${altPrefix} ${idx + 1}`}
+                alt={`${prefix} ${idx + 1}`}
                 width={THUMB_SIZE}
                 height={THUMB_SIZE}
                 loading="lazy"

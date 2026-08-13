@@ -1,17 +1,10 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { RulesPanel } from './rules-panel'
 import { KudoComposeModal } from '@/features/kudos/components/kudo-compose-modal'
-import {
-  RECIPIENT_SECTION,
-  SENDER_SECTION,
-  HERO_BADGES,
-  SECRET_BADGES,
-  SENDER_FOOTER_TEXT,
-  KUDOS_QUOC_DAN_HEADING,
-  KUDOS_QUOC_DAN_BODY,
-} from '../rules-content'
+import { HERO_BADGES, SECRET_BADGES } from '../rules-content'
 
 /**
  * RulesModal — the "Thể lệ" right-anchored side-panel over a dim backdrop
@@ -27,6 +20,7 @@ interface RulesModalProps {
 }
 
 export function RulesModal({ onClose }: RulesModalProps) {
+  const t = useTranslations('rules')
   const [composeOpen, setComposeOpen] = useState(false)
   const backdropRef = useRef<HTMLDivElement>(null)
 
@@ -52,13 +46,37 @@ export function RulesModal({ onClose }: RulesModalProps) {
         data-testid="rules-backdrop"
       >
         <RulesPanel
-          recipientSection={RECIPIENT_SECTION}
-          senderSection={SENDER_SECTION}
-          heroBadges={HERO_BADGES}
+          panelAriaLabel={t('panelAriaLabel')}
+          title={t('title')}
+          recipientSection={{
+            id: 'recipient',
+            heading: t('recipient.heading'),
+            body: t('recipient.body'),
+          }}
+          senderSection={{
+            id: 'sender',
+            heading: t('sender.heading'),
+            body: t('sender.body'),
+          }}
+          heroBadges={HERO_BADGES.map((badge) => {
+            // Map badge id (kebab-case) to camelCase key used in messages JSON
+            const keyMap: Record<string, string> = {
+              'new-hero': 'newHero',
+              'rising-hero': 'risingHero',
+              'super-hero': 'superHero',
+              'legend-hero': 'legendHero',
+            }
+            const msgKey = keyMap[badge.id] ?? badge.id
+            return {
+              ...badge,
+              condition: t(`heroBadges.${msgKey}.condition`),
+              description: t(`heroBadges.${msgKey}.description`),
+            }
+          })}
           secretBadges={SECRET_BADGES}
-          senderFooterText={SENDER_FOOTER_TEXT}
-          kudosQuocDanHeading={KUDOS_QUOC_DAN_HEADING}
-          kudosQuocDanBody={KUDOS_QUOC_DAN_BODY}
+          senderFooterText={t('sender.footerText')}
+          kudosQuocDanHeading={t('kudosQuocDan.heading')}
+          kudosQuocDanBody={t('kudosQuocDan.body')}
           onWriteKudos={() => setComposeOpen(true)}
           onClose={onClose}
         />

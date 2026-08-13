@@ -1,0 +1,46 @@
+{
+  "home": {
+    "hero": {
+      "ariaLabel": "Root Further — SAA 2025 Hero",
+      "comingSoon": "Coming soon",
+      "countdownAriaLabel": "{days} ngày {hours} giờ {minutes} phút",
+      "days": "NGÀY",
+      "hours": "GIỜ",
+      "minutes": "PHÚT",
+      "eventDateLabel": "Thời gian:",
+      "eventVenueLabel": "Địa điểm:",
+      "livestreamNote": "Tường thuật trực tiếp qua sóng Livestream",
+      "ctaAwardsAriaLabel": "About Awards Information",
+      "ctaAwards": "ABOUT AWARDS",
+      "ctaKudosAriaLabel": "About Sun* Kudos",
+      "ctaKudos": "ABOUT KUDOS"
+    },
+    "card": {
+      "body1": "Đứng trước bối cảnh thay đổi như vũ bão của thời đại AI và yêu cầu ngày càng cao từ khách hàng, Sun* lựa chọn chiến lược đa dạng hóa năng lực để không chỉ nỗ lực trở thành tinh anh trong lĩnh vực của mình, mà còn hướng đến một cái đích cao hơn, nơi mọi Sunner đều là \"problem-solver\" - chuyên gia trong việc giải quyết mọi vấn đề, tìm lời giải cho mọi bài toán của dự án, khách hàng và xã hội.",
+      "body2": "Lấy cảm hứng từ sự đa dạng năng lực, khả năng phát triển linh hoạt cùng tinh thần đào sâu để bứt phá trong kỷ nguyên AI, \"Root Further\" đã được chọn để trở thành chủ đề chính thức của Lễ trao giải Sun* Annual Awards 2025.",
+      "quoteEn": "\"A tree with deep roots fears no storm\"",
+      "quoteVi": "(Cây sâu bén rễ, bão giông chẳng nề - Ngạn ngữ Anh)",
+      "body3": "Trước giông bão, chỉ những tán cây có bộ rễ đủ mạnh mới có thể trụ vững. Một tổ chức với những cá nhân tự tin vào năng lực đa dạng, sẵn sàng kiến tạo và đón nhận thử thách, làm chủ sự thay đổi là tổ chức không chỉ vững vàng trước biến động, mà còn khai thác được mọi lợi thế, chinh phục các thách thức của thời cuộc. Không đơn thuần là tên gọi của chương mới trên hành trình phát triển tổ chức, \"Root Further\" còn như một lời cổ vũ, động viên mỗi chúng ta."
+    },
+    "awardsGrid": {
+      "sectionLabel": "Hệ thống giải thưởng",
+      "listAriaLabel": "Danh sách giải thưởng"
+    },
+    "awardCard": {
+      "detailLink": "Chi tiết",
+      "titleAriaLabel": "{title} — xem chi tiết",
+      "detailAriaLabel": "Xem chi tiết giải {title}"
+    },
+    "fab": {
+      "menuAriaLabel": "Quick actions",
+      "rulesButton": "Thể lệ",
+      "writeKudosButton": "Viết KUDOS",
+      "closeAriaLabel": "Đóng",
+      "openAriaLabel": "Mở menu nhanh"
+    },
+    "footer": {
+      "navRules": "Tiêu chuẩn chung",
+      "copyright": "Bản quyền thuộc về Sun* © 2025"
+    }
+  }
+}

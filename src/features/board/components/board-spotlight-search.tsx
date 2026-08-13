@@ -20,6 +20,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import type { SpotlightNode } from './board-types'
 import { BoardSpotlightSearchResults } from './board-spotlight-search-results'
@@ -45,6 +46,7 @@ export function BoardSpotlightSearch({
   nodes = [],
   onSelect,
 }: BoardSpotlightSearchProps) {
+  const t = useTranslations('spotlight')
   const inputRef = useRef<HTMLInputElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [dropdownRect, setDropdownRect] = useState<DropdownRect>({ top: 0, left: 0, width: 219 })
@@ -159,9 +161,9 @@ export function BoardSpotlightSearch({
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
         onFocus={reposition}
-        placeholder="Tìm kiếm"
+        placeholder={t('searchPlaceholder')}
         maxLength={100}
-        aria-label="Tìm kiếm sunner trong spotlight"
+        aria-label={t('searchAriaLabel')}
         style={{
           fontFamily: montserrat.style.fontFamily,
           fontSize: 12,

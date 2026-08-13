@@ -1,0 +1,43 @@
+{
+  "profile": {
+    "loading": "Loading profile…",
+    "hero": {
+      "sectionLabel": "Personal information",
+      "avatarLabel": "Avatar of {name}"
+    },
+    "badges": {
+      "headingSelf": "My icon collection",
+      "headingOther": "Icon collection",
+      "slotLabel": "Badge slot {number} — locked",
+      "slotsRowLabel": "6 locked badge slots"
+    },
+    "stats": {
+      "sectionLabel": "My statistics",
+      "received": "Kudos received:",
+      "sent": "Kudos sent:",
+      "hearts": "Hearts earned:",
+      "boxesOpened": "Boxes opened:",
+      "boxesRemaining": "Boxes remaining:",
+      "boxesRemainingAriaLabel": "{count} boxes remaining",
+      "openGiftButton": "Open gift",
+      "openGiftDisabledLabel": "Open gift — unavailable"
+    },
+    "writeBar": {
+      "sectionLabel": "Send a Kudo to {name}",
+      "label": "Send a Kudo to <strong>{name}</strong>",
+      "button": "Write Kudo",
+      "buttonLabel": "Write a Kudo for {name}"
+    },
+    "direction": {
+      "receivedLabel": "Received ({count})",
+      "sentLabel": "Sent ({count})",
+      "menuLabel": "Select kudos direction"
+    },
+    "feed": {
+      "loadingLabel": "Loading...",
+      "feedLabel": "Kudos list",
+      "emptyReceived": "No kudos yet.",
+      "emptySent": "You haven't sent any kudos yet."
+    }
+  }
+}

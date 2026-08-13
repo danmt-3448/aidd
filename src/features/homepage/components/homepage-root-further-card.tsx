@@ -13,9 +13,11 @@
  */
 
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 
 export function HomepageRootFurtherCard() {
+  const t = useTranslations('home');
   return (
     <div
       className="relative w-full overflow-hidden rounded-lg"
@@ -67,11 +69,7 @@ export function HomepageRootFurtherCard() {
             width: '100%',
           }}
         >
-          Đứng trước bối cảnh thay đổi như vũ bão của thời đại AI và yêu cầu ngày càng cao từ
-          khách hàng, Sun* lựa chọn chiến lược đa dạng hóa năng lực để không chỉ nỗ lực trở
-          thành tinh anh trong lĩnh vực của mình, mà còn hướng đến một cái đích cao hơn, nơi
-          mọi Sunner đều là &ldquo;problem-solver&rdquo; - chuyên gia trong việc giải quyết mọi vấn đề, tìm
-          lời giải cho mọi bài toán của dự án, khách hàng và xã hội.
+          {t('card.body1')}
         </p>
 
         <p
@@ -85,9 +83,7 @@ export function HomepageRootFurtherCard() {
             width: '100%',
           }}
         >
-          Lấy cảm hứng từ sự đa dạng năng lực, khả năng phát triển linh hoạt cùng tinh thần
-          đào sâu để bứt phá trong kỷ nguyên AI, &ldquo;Root Further&rdquo; đã được chọn để trở thành chủ
-          đề chính thức của Lễ trao giải Sun* Annual Awards 2025.
+          {t('card.body2')}
         </p>
 
         {/* Quote block */}
@@ -102,10 +98,10 @@ export function HomepageRootFurtherCard() {
             width: '100%',
           }}
         >
-          &ldquo;A tree with deep roots fears no storm&rdquo;
+          {t('card.quoteEn')}
           <br />
           <span style={{ fontStyle: 'italic', opacity: 0.8 }}>
-            (Cây sâu bén rễ, bão giông chẳng nề - Ngạn ngữ Anh)
+            {t('card.quoteVi')}
           </span>
         </p>
 
@@ -121,12 +117,7 @@ export function HomepageRootFurtherCard() {
             width: '100%',
           }}
         >
-          Trước giông bão, chỉ những tán cây có bộ rễ đủ mạnh mới có thể trụ vững. Một tổ chức
-          với những cá nhân tự tin vào năng lực đa dạng, sẵn sàng kiến tạo và đón nhận thử
-          thách, làm chủ sự thay đổi là tổ chức không chỉ vững vàng trước biến động, mà còn
-          khai thác được mọi lợi thế, chinh phục các thách thức của thời cuộc. Không đơn thuần
-          là tên gọi của chương mới trên hành trình phát triển tổ chức, &ldquo;Root Further&rdquo; còn như
-          một lời cổ vũ, động viên mỗi chúng ta.
+          {t('card.body3')}
         </p>
       </div>
     </div>

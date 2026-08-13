@@ -1,0 +1,33 @@
+{
+  "board": {
+    "copyLink": "Copy Link",
+    "viewDetail": "View detail",
+    "like": "Like",
+    "unlike": "Unlike",
+    "kudoFromTo": "Kudo from {sender} to {receiver}",
+    "viewProfile": "View profile {name}",
+    "editKudo": "Edit kudo",
+    "viewDetailKudo": "View kudo detail",
+    "emptyState": "No kudos yet.",
+    "loadMore": "Load more kudos",
+    "loading": "Loading…",
+    "loadingBoard": "Loading kudos board…",
+    "errorBoardLabel": "Error loading kudos board",
+    "errorMessage": "Unable to load data. Please try again.",
+    "writeKudoLabel": "Write a kudo",
+    "writeKudoPlaceholder": "Today, who would you like to send appreciation to?",
+    "searchSunnerPlaceholder": "Search sunner",
+    "searchSunnerLabel": "Search sunner",
+    "bannerLabel": "Sun* Kudos — Recognition and appreciation system",
+    "bannerSubtitle": "Recognition and appreciation system",
+    "x2BadgeLabel": "double",
+    "imageGalleryLabel": "Attached images",
+    "imageAltPrefix": "Attached image",
+    "imageMoreLabel": "and {overflow} more images",
+    "hashtagOverflow": "and {overflow} more hashtags",
+    "tierNewHeroDesc": "1–4 people have sent you Kudos. The journey of spreading goodness has begun — the first words of gratitude and recognition have found you.",
+    "tierRisingHeroDesc": "5–9 people have sent you Kudos. Your image is growing in your teammates' hearts through your kindness and dedication.",
+    "tierSuperHeroDesc": "10–20 people have sent you Kudos. You have become a trusted and beloved symbol — always ready to help, remembered by many teammates.",
+    "tierLegendHeroDesc": "More than 20 people have sent you Kudos. You have become a legend — someone who leaves an unforgettable mark on the team with your heart and actions."
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "errors": {
+    "homeAriaLabel": "Sun* Annual Awards 2025 — trang chủ",
+    "homeButton": "Về trang chủ",
+    "retryButton": "Thử lại",
+    "footer": "Bản quyền thuộc về Sun* © 2025",
+    "errorTitle": "Đã có lỗi xảy ra",
+    "errorDescription": "Hệ thống gặp sự cố ngoài ý muốn. Vui lòng thử lại hoặc quay về trang chủ.",
+    "notFoundTitle": "Không tìm thấy trang",
+    "notFoundDescription": "Trang bạn tìm không tồn tại hoặc đã được di chuyển. Hãy quay lại trang chủ."
+  }
+}

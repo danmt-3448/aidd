@@ -1,0 +1,18 @@
+{
+  "notifications": {
+    "pageTitle": "All Notifications",
+    "panelTitle": "Notifications",
+    "notificationLabel": "Notification",
+    "newNotification": "New Notification",
+    "markAllRead": "Mark all as read",
+    "markAllReadLabel": "Mark all as read",
+    "markedAllReadSuccess": "All notifications marked as read",
+    "listLabel": "Notification list",
+    "dialogLabel": "Notifications",
+    "emptyState": "No notifications yet",
+    "loading": "Loading…",
+    "loadingMore": "Loading more…",
+    "viewAll": "View all",
+    "viewAllLabel": "View all notifications"
+  }
+}

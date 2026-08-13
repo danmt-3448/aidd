@@ -40,6 +40,10 @@ export interface SecretBadge {
 }
 
 export interface RulesPanelProps {
+  /** Panel accessible label (translated) */
+  panelAriaLabel: string
+  /** Panel title shown in header (translated) */
+  title: string
   /** Section list: Người nhận heading + body */
   recipientSection: RuleSection
   /** Section list: Người gửi heading + body */

@@ -20,6 +20,7 @@
  *   5. Số box chưa mở:          (boxesRemaining) + disabled "Mở quà" button
  */
 
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import type { ProfileStatsProps } from './profile-types'
 
@@ -85,13 +86,14 @@ export interface ProfileStatsCardProps {
 }
 
 export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
+  const t = useTranslations('profile')
   const { received, sent, hearts, boxesOpened, boxesRemaining } = stats
 
   return (
     /* mm:profile-stats-card — mms_B_Thống kê 362:5073: flex column, gap 24px, px 24px, py 24px */
     <section
       data-fig="362:5073"
-      aria-label="Thống kê của tôi"
+      aria-label={t('stats.sectionLabel')}
       className="flex w-full flex-col px-6 py-6"
       style={{ rowGap: 24 }}
     >
@@ -108,7 +110,7 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
       >
         {/* Row 1: Số Kudos bạn nhận được */}
         <StatRow
-          label="Số Kudos bạn nhận được:"
+          label={t('stats.received')}
           value={received}
           labelNodeId="I362:5076;256:6735"
           valueNodeId="I362:5076;256:6753"
@@ -117,7 +119,7 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
         {/* Row 2: Số Kudos bạn đã gửi — SELF only */}
         {sent !== null && (
           <StatRow
-            label="Số Kudos bạn đã gửi:"
+            label={t('stats.sent')}
             value={sent}
             labelNodeId="I362:5077;256:6735"
             valueNodeId="I362:5077;256:6753"
@@ -126,7 +128,7 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
 
         {/* Row 3: Số tim đạt được (tim mà kudo người dùng GỬI nhận được — spec C.4.1) */}
         <StatRow
-          label="Số tim đạt được:"
+          label={t('stats.hearts')}
           value={hearts}
           labelNodeId="I362:5078;256:6735"
           valueNodeId="I362:5078;256:6753"
@@ -137,7 +139,7 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
 
         {/* Row 4: Số box đã mở */}
         <StatRow
-          label="Số box đã mở:"
+          label={t('stats.boxesOpened')}
           value={boxesOpened}
           labelNodeId="I362:5080;256:6735"
           valueNodeId="I362:5080;256:6753"
@@ -157,7 +159,7 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
                 lineHeight: '28px',
               }}
             >
-              Số box chưa mở:
+              {t('stats.boxesRemaining')}
             </span>
             <span
               data-fig="I362:5081;256:6753"
@@ -168,7 +170,7 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
                 color: 'rgba(255,234,158,1)',
                 lineHeight: '40px',
               }}
-              aria-label={`${boxesRemaining} Số box chưa mở`}
+              aria-label={t('stats.boxesRemainingAriaLabel', { count: boxesRemaining })}
             >
               {boxesRemaining.toLocaleString('vi-VN')}
             </span>
@@ -180,7 +182,7 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
             type="button"
             disabled
             aria-disabled="true"
-            aria-label="Mở quà — không khả dụng"
+            aria-label={t('stats.openGiftDisabledLabel')}
             className="rounded-lg font-bold"
             style={{
               background: 'rgba(255,234,158,0.15)',
@@ -195,7 +197,7 @@ export function ProfileStatsCard({ stats }: ProfileStatsCardProps) {
               borderRadius: 8,
             }}
           >
-            Mở quà
+            {t('stats.openGiftButton')}
           </button>
         </div>
       </div>

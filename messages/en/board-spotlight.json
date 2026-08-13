@@ -1,0 +1,34 @@
+{
+  "spotlight": {
+    "spotlightBoardAriaLabel": "Spotlight Board — most Kudos received",
+    "kudosTotalAriaLabel": "{count} kudos total",
+    "loadingSpotlightAriaLabel": "Loading spotlight",
+    "loadingAriaLabel": "Loading",
+    "recentActivityAriaLabel": "Recent activity",
+    "receivedNewKudo": "received a new Kudos",
+    "resetPanZoomAriaLabel": "Reset spotlight pan/zoom",
+    "resetPanZoomTitle": "Reset position & zoom",
+    "exitFullscreen": "Exit full screen",
+    "enterFullscreen": "Full screen",
+    "searchPlaceholder": "Search",
+    "searchAriaLabel": "Search sunner in spotlight",
+    "searchResultsAriaLabel": "Sunner search results",
+    "noResults": "No Sunner found",
+    "noMatchFound": "No match found.",
+    "noData": "No data yet.",
+    "wordCloudAriaLabel": "Word cloud — most kudos received",
+    "sunnerListAriaLabel": "List of sunners who received kudos",
+    "sunnerKudoAriaLabel": "{name} — {count} kudos",
+    "kudosAt": "Kudos at {time}"
+  },
+  "highlight": {
+    "filterGroupAriaLabel": "Highlight filters",
+    "departmentLabel": "Department",
+    "prevPageAriaLabel": "Previous page",
+    "nextPageAriaLabel": "Next page",
+    "noKudosYet": "No Kudos yet.",
+    "noKudosFilter": "No Kudos match the current filter.",
+    "prevAriaLabel": "Previous Kudo",
+    "nextAriaLabel": "Next Kudo"
+  }
+}

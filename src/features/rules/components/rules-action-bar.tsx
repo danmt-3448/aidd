@@ -1,3 +1,6 @@
+'use client'
+
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/kudos/fonts'
 
 interface RulesActionBarProps {
@@ -15,6 +18,7 @@ interface RulesActionBarProps {
  * Responsive: flex-wrap so buttons stack at narrow widths.
  */
 export function RulesActionBar({ onClose, onWriteKudos }: RulesActionBarProps) {
+  const t = useTranslations('rules')
   return (
     <div className="flex w-full flex-row gap-4 mt-3">
       {/* Đóng — secondary — Figma 3204:6093 */}
@@ -30,7 +34,7 @@ export function RulesActionBar({ onClose, onWriteKudos }: RulesActionBarProps) {
           background: 'rgba(255, 234, 158, 0.10)',
           borderRadius: 4,
         }}
-        aria-label="Đóng thể lệ"
+        aria-label={t('actions.closeAriaLabel')}
       >
         {/* Close icon — inline SVG for CSS color control */}
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -39,7 +43,7 @@ export function RulesActionBar({ onClose, onWriteKudos }: RulesActionBarProps) {
             fill="white"
           />
         </svg>
-        Đóng
+        {t('actions.close')}
       </button>
 
       {/* Viết KUDOS — primary — Figma 3204:6094 */}
@@ -54,7 +58,7 @@ export function RulesActionBar({ onClose, onWriteKudos }: RulesActionBarProps) {
           color: 'rgba(0, 16, 26, 1)',
           borderRadius: 4,
         }}
-        aria-label="Viết KUDOS"
+        aria-label={t('actions.writeKudosAriaLabel')}
       >
         {/* Pen icon — inline SVG so color inherits */}
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -63,7 +67,7 @@ export function RulesActionBar({ onClose, onWriteKudos }: RulesActionBarProps) {
             fill="currentColor"
           />
         </svg>
-        Viết KUDOS
+        {t('actions.writeKudos')}
       </button>
     </div>
   )

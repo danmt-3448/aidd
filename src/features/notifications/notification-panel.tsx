@@ -16,6 +16,7 @@
 import { useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import { markRead, markAllRead } from './notification-actions'
 import { notificationKeys, useNotificationList } from './use-notifications'
@@ -36,6 +37,7 @@ export function NotificationPanel({
   onClose,
   triggerRef,
 }: NotificationPanelProps) {
+  const t = useTranslations('notifications')
   const router = useRouter()
   const queryClient = useQueryClient()
   const panelRef = useRef<HTMLDivElement | null>(null)
@@ -98,7 +100,7 @@ export function NotificationPanel({
       ref={panelRef}
       data-fig="589:9152"
       role="dialog"
-      aria-label="Thông báo"
+      aria-label={t('dialogLabel')}
       aria-modal="true"
       className="absolute right-0 z-50 flex flex-col overflow-hidden rounded-xl"
       style={{
@@ -117,16 +119,16 @@ export function NotificationPanel({
       >
         {/* Panel title — HELD: MoMorph has no node metadata for gWBVcaSVIf */}
         <h2 data-fig="589:9152-title" className={`${montserrat.className} text-sm font-bold`} style={{ color: '#FFFFFF' }}>
-          Thông báo
+          {t('panelTitle')}
         </h2>
         <button
           ref={firstFocusRef}
           onClick={handleMarkAllRead}
           className="text-xs transition-opacity hover:opacity-70"
           style={{ color: '#FFEA9E', background: 'transparent' }}
-          aria-label="Đánh dấu tất cả đã đọc"
+          aria-label={t('markAllReadLabel')}
         >
-          Đánh dấu tất cả đã đọc
+          {t('markAllRead')}
         </button>
       </div>
 
@@ -135,14 +137,14 @@ export function NotificationPanel({
         className="flex-1 overflow-y-auto"
         style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.15) transparent' }}
         role="list"
-        aria-label="Danh sách thông báo"
+        aria-label={t('listLabel')}
       >
         {isLoading && (
           <div className="flex items-center justify-center py-8">
             <div
               className="h-5 w-5 animate-spin rounded-full border-2 border-transparent"
               style={{ borderTopColor: 'rgba(255,255,255,0.4)' }}
-              aria-label="Đang tải…"
+              aria-label={t('loading')}
             />
           </div>
         )}
@@ -151,7 +153,7 @@ export function NotificationPanel({
           <div className="flex flex-col items-center justify-center gap-2 py-12" aria-live="polite">
             <span style={{ fontSize: 32 }} aria-hidden="true">🔔</span>
             <p className={`${montserrat.className} text-sm`} style={{ color: 'rgba(255,255,255,0.5)' }}>
-              Chưa có thông báo nào
+              {t('emptyState')}
             </p>
           </div>
         )}
@@ -172,9 +174,9 @@ export function NotificationPanel({
           onClick={handleViewAll}
           className={`${montserrat.className} w-full rounded py-2 text-sm font-semibold transition-opacity hover:opacity-80`}
           style={{ color: '#FFEA9E', background: 'transparent' }}
-          aria-label="Xem tất cả thông báo"
+          aria-label={t('viewAllLabel')}
         >
-          Xem tất cả
+          {t('viewAll')}
         </button>
       </div>
     </div>

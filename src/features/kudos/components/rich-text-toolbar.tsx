@@ -1,6 +1,7 @@
 'use client'
 
 import { Bold, Italic, Strikethrough, ListOrdered, Link2, Quote } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 export type ToolbarAction = 'bold' | 'italic' | 'strikethrough' | 'orderedList' | 'link' | 'quote'
 
@@ -39,11 +40,12 @@ interface RichTextToolbarProps {
 }
 
 export function RichTextToolbar({ activeFormats = {}, onAction }: RichTextToolbarProps) {
+  const t = useTranslations('kudos')
   return (
-    <div className="flex w-full flex-wrap items-center" role="toolbar" aria-label="Định dạng văn bản">
+    <div className="flex w-full flex-wrap items-center" role="toolbar" aria-label={t('toolbarAriaLabel')}>
       {/* Bold — mms_C.1 */}
       <ToolbarButton
-        label="In đậm"
+        label={t('toolbarBold')}
         action="bold"
         active={activeFormats.bold}
         onClick={onAction}
@@ -53,13 +55,13 @@ export function RichTextToolbar({ activeFormats = {}, onAction }: RichTextToolba
       </ToolbarButton>
 
       {/* Italic — mms_C.2 */}
-      <ToolbarButton label="In nghiêng" action="italic" active={activeFormats.italic} onClick={onAction}>
+      <ToolbarButton label={t('toolbarItalic')} action="italic" active={activeFormats.italic} onClick={onAction}>
         <Italic size={24} strokeWidth={2} color="#00101A" aria-hidden />
       </ToolbarButton>
 
       {/* Strikethrough — mms_C.3 */}
       <ToolbarButton
-        label="Gạch ngang"
+        label={t('toolbarStrikethrough')}
         action="strikethrough"
         active={activeFormats.strikethrough}
         onClick={onAction}
@@ -69,7 +71,7 @@ export function RichTextToolbar({ activeFormats = {}, onAction }: RichTextToolba
 
       {/* Ordered list — mms_C.4 */}
       <ToolbarButton
-        label="Danh sách có số"
+        label={t('toolbarOrderedList')}
         action="orderedList"
         active={activeFormats.orderedList}
         onClick={onAction}
@@ -78,12 +80,12 @@ export function RichTextToolbar({ activeFormats = {}, onAction }: RichTextToolba
       </ToolbarButton>
 
       {/* Link — mms_C.5 */}
-      <ToolbarButton label="Chèn liên kết" action="link" active={activeFormats.link} onClick={onAction}>
+      <ToolbarButton label={t('toolbarLink')} action="link" active={activeFormats.link} onClick={onAction}>
         <Link2 size={24} strokeWidth={2} color="#00101A" aria-hidden />
       </ToolbarButton>
 
       {/* Quote (66/99 blockquote) — mms_C.6 */}
-      <ToolbarButton label="Trích dẫn" action="quote" active={activeFormats.quote} onClick={onAction}>
+      <ToolbarButton label={t('toolbarQuote')} action="quote" active={activeFormats.quote} onClick={onAction}>
         <Quote size={24} strokeWidth={2} color="#00101A" aria-hidden />
       </ToolbarButton>
 
@@ -99,9 +101,9 @@ export function RichTextToolbar({ activeFormats = {}, onAction }: RichTextToolba
           color: '#E46060',
           textDecoration: 'none',
         }}
-        aria-label="Xem tiêu chuẩn cộng đồng"
+        aria-label={t('communityGuidelinesAriaLabel')}
       >
-        Tiêu chuẩn cộng đồng
+        {t('communityGuidelines')}
       </a>
     </div>
   )

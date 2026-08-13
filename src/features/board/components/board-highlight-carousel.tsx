@@ -18,6 +18,7 @@ import "swiper/css";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperClass } from "swiper/types";
+import { useTranslations } from "next-intl";
 import { montserrat } from "@/features/auth/fonts";
 import { BoardFeedCard } from "./board-feed-card";
 import { BoardFilterDropdown } from "./board-filter-dropdown";
@@ -67,6 +68,7 @@ export function BoardHighlightCarousel({
     : cards;
   const total = filtered.length;
 
+  const t = useTranslations('highlight')
   const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef<SwiperClass | null>(null);
 
@@ -120,7 +122,7 @@ export function BoardHighlightCarousel({
           <div
             className="flex flex-wrap gap-3"
             role="group"
-            aria-label="Bộ lọc Highlight"
+            aria-label={t('filterGroupAriaLabel')}
           >
             {hashtags.length > 0 && (
               <BoardFilterDropdown
@@ -136,7 +138,7 @@ export function BoardHighlightCarousel({
             {departments.length > 0 && (
               <BoardFilterDropdown
                 id="highlight-department-filter"
-                label="Phòng ban"
+                label={t('departmentLabel')}
                 value={activeDepartment ?? ""}
                 options={departments}
                 onChange={(v) => {
@@ -236,7 +238,7 @@ export function BoardHighlightCarousel({
             <button
               type="button"
               onClick={handlePrev}
-              aria-label="Trang trước"
+              aria-label={t('prevPageAriaLabel')}
               className="flex h-8 w-8 items-center justify-center rounded-full transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFEA9E]"
               style={{ color: "rgba(255,255,255,0.7)" }}
             >
@@ -276,7 +278,7 @@ export function BoardHighlightCarousel({
             <button
               type="button"
               onClick={handleNext}
-              aria-label="Trang tiếp theo"
+              aria-label={t('nextPageAriaLabel')}
               className="flex h-8 w-8 items-center justify-center rounded-full transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFEA9E]"
               style={{ color: "rgba(255,255,255,0.7)" }}
             >
@@ -306,8 +308,8 @@ export function BoardHighlightCarousel({
           }}
         >
           {cards.length === 0
-            ? "Hiện tại chưa có Kudos nào."
-            : "Không có Kudos nào khớp với bộ lọc."}
+            ? t('noKudosYet')
+            : t('noKudosFilter')}
         </p>
       )}
     </section>

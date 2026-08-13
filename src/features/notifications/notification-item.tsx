@@ -5,6 +5,7 @@
  * Presentational only; click handling delegated to parent via onClick prop.
  */
 
+import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import { formatRelativeTime } from './notification-time'
 import type { Notification } from './notification-actions'
@@ -15,6 +16,7 @@ export interface NotificationItemProps {
 }
 
 export function NotificationItem({ notification, onClick }: NotificationItemProps) {
+  const t = useTranslations('notifications')
   const { title, body, created_at, is_read } = notification
 
   return (
@@ -33,7 +35,7 @@ export function NotificationItem({ notification, onClick }: NotificationItemProp
         ;(e.currentTarget as HTMLButtonElement).style.background = 'transparent'
       }}
       onClick={() => onClick(notification)}
-      aria-label={title ?? 'Thông báo'}
+      aria-label={title ?? t('notificationLabel')}
     >
       {/* Unread dot */}
       <span
@@ -47,7 +49,7 @@ export function NotificationItem({ notification, onClick }: NotificationItemProp
           className={`${montserrat.className} line-clamp-2 text-sm font-semibold leading-snug`}
           style={{ color: is_read ? 'rgba(255,255,255,0.7)' : '#FFFFFF' }}
         >
-          {title ?? 'Thông báo mới'}
+          {title ?? t('newNotification')}
         </span>
 
         {body && (

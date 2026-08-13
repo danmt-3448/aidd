@@ -1,10 +1,12 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 interface DanhHieuInputProps {
   value: string
   onChange: (value: string) => void
   error?: string
-  /** Hint text shown below the input. Defaults to Figma spec copy. */
+  /** Hint text shown below the input. Defaults to Figma spec copy (i18n). */
   hint?: string
 }
 
@@ -17,8 +19,10 @@ export function DanhHieuInput({
   value,
   onChange,
   error,
-  hint = 'Danh tặng một danh hiệu cho đồng đội. Ví dụ: "Người truyền động lực cho tôi."',
+  hint,
 }: DanhHieuInputProps) {
+  const t = useTranslations('kudos')
+  const resolvedHint = hint ?? t('danhHieuHint')
   return (
     <div className="flex flex-col gap-1">
       <div className="flex flex-row items-center gap-4">
@@ -28,7 +32,7 @@ export function DanhHieuInput({
             className="font-montserrat text-[22px] font-bold leading-7 tracking-[0px]"
             style={{ color: '#00101A' }}
           >
-            Danh hiệu
+            {t('danhHieuLabel')}
           </span>
           <span
             className="font-['Noto_Sans_JP'] text-base font-bold leading-5"
@@ -45,9 +49,9 @@ export function DanhHieuInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           maxLength={200}
-          placeholder="Ví dụ: Người truyền động lực cho tôi"
+          placeholder={t('danhHieuPlaceholder')}
           aria-required="true"
-          aria-label="Danh hiệu (bắt buộc)"
+          aria-label={t('danhHieuAriaLabel')}
           aria-describedby={error ? 'danh-hieu-error' : 'danh-hieu-hint'}
           className="flex-1 rounded-lg px-6 py-4 font-montserrat text-base font-bold leading-6 tracking-[0.15px] outline-none placeholder:font-normal placeholder:text-[#999999]"
           style={{

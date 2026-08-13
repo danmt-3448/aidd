@@ -8,6 +8,7 @@
  * in the UI). Styled to match the RecipientSelect visual language.
  */
 
+import { useTranslations } from 'next-intl'
 import { montserrat } from '../fonts'
 
 interface KudoEditInitialDataProps {
@@ -15,13 +16,14 @@ interface KudoEditInitialDataProps {
 }
 
 export function KudoEditInitialData({ recipientName }: KudoEditInitialDataProps) {
+  const t = useTranslations('kudos')
   return (
     <div className="flex flex-col gap-1">
       <label
         className={`${montserrat.className} text-sm font-bold leading-5`}
         style={{ color: '#00101A' }}
       >
-        Người nhận
+        {t('recipientLabel')}
       </label>
       <div
         className="flex items-center gap-3 px-4 py-3"
@@ -32,7 +34,7 @@ export function KudoEditInitialData({ recipientName }: KudoEditInitialDataProps)
           cursor: 'not-allowed',
           opacity: 0.8,
         }}
-        aria-label={`Người nhận: ${recipientName} (không thể thay đổi)`}
+        aria-label={t('recipientReadonlyAriaLabel', { name: recipientName })}
         aria-disabled="true"
       >
         <span
@@ -45,7 +47,7 @@ export function KudoEditInitialData({ recipientName }: KudoEditInitialDataProps)
           className={`${montserrat.className} shrink-0 text-xs`}
           style={{ color: '#998C5F' }}
         >
-          Không thể thay đổi
+          {t('recipientReadonlyHint')}
         </span>
       </div>
     </div>

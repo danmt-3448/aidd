@@ -17,6 +17,8 @@ import { RulesActionBar } from './rules-action-bar'
  * The scrollable content area uses overflow-y-auto so the action bar stays fixed at bottom.
  */
 export function RulesPanel({
+  panelAriaLabel,
+  title,
   recipientSection,
   senderSection,
   heroBadges,
@@ -38,12 +40,12 @@ export function RulesPanel({
       }}
       role="dialog"
       aria-modal="true"
-      aria-label="Thể lệ SAA 2025"
+      aria-label={panelAriaLabel}
     >
       {/* Scrollable content */}
       <div className="flex flex-col gap-6 overflow-y-auto pb-6" style={{ flex: 1 }}>
         {/* Title */}
-        <RulesPanelHeader title="Thể lệ" />
+        <RulesPanelHeader title={title} />
 
         {/* ── SECTION: Người nhận ── */}
         <div className="flex flex-col gap-4">

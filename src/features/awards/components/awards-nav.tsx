@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { AwardNavItem } from './award-nav-item'
 import type { Award } from '../types'
 
@@ -17,6 +18,7 @@ interface AwardsNavProps {
  * `id={hashtagAnchor}`) and marks the topmost visible one active.
  */
 export function AwardsNav({ awards }: AwardsNavProps) {
+  const t = useTranslations('awards')
   const [activeSlug, setActiveSlug] = useState(awards[0]?.slug ?? '')
 
   useEffect(() => {
@@ -49,12 +51,12 @@ export function AwardsNav({ awards }: AwardsNavProps) {
     <nav
       className="flex flex-col"
       style={{ width: '178px', minWidth: '178px', gap: '16px' }}
-      aria-label="Danh mục giải thưởng"
+      aria-label={t('nav.ariaLabel')}
     >
       {awards.map((award) => (
         <AwardNavItem
           key={award.slug}
-          label={award.navLabelMultiline ?? award.navLabel}
+          label={t(`categories.${award.i18nKey ?? ''}.navLabel` as Parameters<typeof t>[0])}
           isActive={activeSlug === award.slug}
           href={`#${award.hashtagAnchor}`}
         />

@@ -1,0 +1,33 @@
+{
+  "leaderboard": {
+    "title": "10 SUNNER NHẬN QUÀ\nMỚI NHẤT",
+    "empty": "Chưa có dữ liệu.",
+    "rankLabel": "Hạng {rank}"
+  },
+  "boardStats": {
+    "ariaLabel": "Thống kê và danh sách nhận quà",
+    "kudosReceived": "Số Kudos bạn nhận được:",
+    "kudosSent": "Số Kudos bạn đã gửi:",
+    "heartsReceived": "Số tim đạt được:",
+    "secretBoxOpened": "Số Secret Box bạn đã mở:",
+    "secretBoxUnopened": "Số Secret Box chưa mở:",
+    "openSecretBox": "Mở Secret Box",
+    "x2TooltipDefault": "Ngày x2 tim – lan tỏa gấp đôi yêu thương!",
+    "x2TooltipFull": "Ngày x2 tim – lan tỏa gấp đôi yêu thương! Từ {start} đến {end}, tất cả tim bạn nhận được đều được nhân đôi.",
+    "statValueLabel": "{value} {label}",
+    "specialDayFallback": "XX:XX ngày XX/12"
+  },
+  "boardFilters": {
+    "sectionAriaLabel": "Lọc theo phòng ban",
+    "sectionTitle": "Phòng ban",
+    "groupAriaLabel": "Chọn phòng ban",
+    "all": "Tất cả"
+  },
+  "userCard": {
+    "ariaLabel": "Thông tin {name}",
+    "departmentLabel": "Tên đơn vị:",
+    "kudosReceived": "Số Kudos nhận được:",
+    "kudosSent": "Số Kudos đã gửi:",
+    "sendKudo": "✎ Gửi KUDO"
+  }
+}

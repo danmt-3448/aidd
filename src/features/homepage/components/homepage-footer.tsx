@@ -16,16 +16,17 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { montserratAlternates, montserrat } from '@/features/auth/fonts'
 
-const NAV_LINKS = [
-  { label: 'About SAA 2025', href: '#about' },
-  { label: 'Award Information', href: '/awards' },
-  { label: 'Sun* Kudos', href: '/board' },
-  { label: 'Tiêu chuẩn chung', href: '/rules' },
-] as const
-
 export function HomepageFooter() {
+  const t = useTranslations('home');
+  const NAV_LINKS = [
+    { label: 'About SAA 2025', href: '#about' },
+    { label: 'Award Information', href: '/awards' },
+    { label: 'Sun* Kudos', href: '/board' },
+    { label: t('footer.navRules'), href: '/rules' },
+  ];
   return (
     <footer
       data-fig="5001:14800"
@@ -89,7 +90,7 @@ export function HomepageFooter() {
         className={`${montserratAlternates.className} text-center text-base font-bold leading-6`}
         style={{ color: 'rgba(255,255,255,0.8)' }}
       >
-        Bản quyền thuộc về Sun* © 2025
+        {t('footer.copyright')}
       </p>
     </footer>
   )

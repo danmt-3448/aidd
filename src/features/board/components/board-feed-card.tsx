@@ -115,7 +115,7 @@ export function BoardFeedCard({
            not stretched. The 525px fixed height was the tallest (gallery) card and
            caused empty gaps on sparse cards. Feed variant was always hug-content. */
       }}
-      aria-label={`Kudo từ ${senderName} đến ${receiverName}`}
+      aria-label={t('kudoFromTo', { sender: senderName, receiver: receiverName })}
     >
       {/* Header: sender block + paper-plane icon + receiver block — all top-aligned */}
       <div className="flex items-start justify-between gap-4">
@@ -127,7 +127,7 @@ export function BoardFeedCard({
           department={senderDepartment}
           tier={senderTier}
           interactive={senderId !== null}
-          label={`Xem profile ${senderName}`}
+          label={t('viewProfile', { name: senderName })}
           onClick={senderId !== null ? () => onOpenProfile(senderId) : undefined}
           lightMode
           profileId={senderId}
@@ -146,7 +146,7 @@ export function BoardFeedCard({
           department={receiverDepartment}
           tier={receiverTier}
           interactive
-          label={`Xem profile ${receiverName}`}
+          label={t('viewProfile', { name: receiverName })}
           onClick={() => onOpenProfile(receiverId)}
           lightMode
           profileId={receiverId}
@@ -183,7 +183,7 @@ export function BoardFeedCard({
             {isOwn && (
               <button
                 type="button"
-                aria-label="Chỉnh sửa kudo"
+                aria-label={t('editKudo')}
                 className="transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
                 onClick={() => onEdit?.(id)}
               >
@@ -266,7 +266,7 @@ export function BoardFeedCard({
           <button
             type="button"
             onClick={() => onViewDetail?.(id)}
-            aria-label="Xem chi tiết kudo"
+            aria-label={t('viewDetailKudo')}
             className="flex items-center gap-1 transition-opacity hover:opacity-70"
             style={{
               color: '#92400E',
@@ -275,7 +275,7 @@ export function BoardFeedCard({
               fontWeight: 600,
             }}
           >
-            <span>Xem chi tiết</span>
+            <span>{t('viewDetail')}</span>
             <svg
               width="12"
               height="12"
