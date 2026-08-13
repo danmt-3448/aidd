@@ -62,8 +62,8 @@ describe('BoardSpotlight', () => {
 
   it('renders activity log entries when provided (up to 6)', () => {
     const activityLog = [
-      { time: '09:01', name: 'Alice Nguyen' },
-      { time: '09:15', name: 'Bob Tran' },
+      { receiverId: 'u1', time: '09:01', name: 'Alice Nguyen' },
+      { receiverId: 'u2', time: '09:15', name: 'Bob Tran' },
     ]
     render(
       <BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={NOOP} activityLog={activityLog} />,
@@ -84,8 +84,9 @@ describe('BoardSpotlight', () => {
 
   it('renders search input with placeholder "Tìm kiếm"', () => {
     render(<BoardSpotlight nodes={NODES} totalKudos={20} onOpenProfile={NOOP} />)
+    // Input has role="combobox" (ARIA pattern for search with dropdown suggestions)
     expect(
-      screen.getByRole('searchbox', { name: /tìm kiếm sunner/i }),
+      screen.getByRole('combobox', { name: /tìm kiếm sunner/i }),
     ).toBeInTheDocument()
   })
 
@@ -100,7 +101,8 @@ describe('BoardSpotlight', () => {
         onSearchChange={onSearchChange}
       />,
     )
-    const input = screen.getByRole('searchbox', { name: /tìm kiếm sunner/i })
+    // Input has role="combobox" (ARIA pattern for search with dropdown suggestions)
+    const input = screen.getByRole('combobox', { name: /tìm kiếm sunner/i })
     fireEvent.change(input, { target: { value: 'Alice' } })
     expect(onSearchChange).toHaveBeenCalledWith('Alice')
   })

@@ -55,12 +55,13 @@ export default defineConfig({
 
     // ── Authed project: regular user storageState ─────────────────────────────
     // Runs specs that require an authenticated session.
-    // Specs: board, profile, homepage (authed+admin describe blocks),
+    // Specs: board, board-spotlight, profile, homepage (authed+admin describe blocks),
     //        root-redirect, awards/rules/secret-box, viet-kudo.
     {
       name: 'authed',
       testMatch: [
         '**/board.spec.ts',
+        '**/board-spotlight.spec.ts',
         '**/profile.spec.ts',
         '**/homepage.spec.ts',
         '**/root-redirect.spec.ts',
