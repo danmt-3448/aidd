@@ -148,10 +148,10 @@ export function BoardSpotlight({
 
         {/* Bottom bar: activity log left + controls right */}
         <div
-          className="relative z-10 flex items-end justify-between gap-4 pb-4 pt-3"
+          className="relative z-20 flex items-start justify-between gap-4 pb-4 pt-3"
           style={{ minHeight: 72, boxShadow: 'inset 0 8px 8px -8px rgba(0, 0, 0, 0.25)' }}
         >
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 relative">
             <ActivityLog entries={activityLog} />
           </div>
           <BoardSpotlightControls

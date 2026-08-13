@@ -41,7 +41,7 @@ export function ActivityLog({ entries }: ActivityLogProps) {
     .reverse()
 
   return (
-    <div className="flex flex-col gap-1" aria-label="Hoạt động gần đây">
+    <div className="flex flex-col gap-1 absolute -bottom-[40px] left-[20px]" aria-label="Hoạt động gần đây">
       {rows.map(({ entry, rowOpacity, isNewest }) => {
         return (
           <p
