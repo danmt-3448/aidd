@@ -1,0 +1,145 @@
+{
+  "timestamp": "2026-08-12T08:57:13.321Z",
+  "auth": true,
+  "style-assert-1440": {
+    "exit": 1,
+    "output": "\nUI-First Gate — property-diff [board-1440]\n\nkey                        prop             code                 design               verdict\n--------------------------------------------------------------------------------------------\nkv-banner-height           section-height   512                  512                  PASS\nhighlight-height           section-height   582                  525                  FAIL\nspotlight-height           section-height   548                  548                  PASS\nspotlight-frame            borderTopWidth   1                    1                    PASS\nspotlight-frame            borderTopColor   153,140,95,1.00      153,140,95,1.00      PASS\nspotlight-frame            borderTopLeftRa  47.14                47.14                PASS\nall-kudos-list-height      section-height   7896                 3068                 FAIL\nfeed-card-bg               backgroundColor  255,248,225,1.00     255,248,225,1.00     PASS\nfeed-card-radius           borderTopLeftRa  24                   24                   PASS\nfeed-card-padding-top      paddingTop       40                   40                   PASS\nbody-box-bg                backgroundColor  255,234,158,0.40     255,234,158,0.40     PASS\nbody-box-radius            borderTopLeftRa  12                   12                   PASS\nkudos-logo-asset           asset-tag        IMG                  IMG|SVG|PICTURE      PASS\nkudos-logo-asset           asset-src        /_next/image?url=%2  (non-empty)          PASS\n--------------------------------------------------------------------------------------------\n{\n  \"screen\": \"board-1440\",\n  \"elements\": 11,\n  \"checks\": 14,\n  \"failed\": 2,\n  \"verdict\": \"FAIL\"\n}\n"
+  },
+  "style-assert-1280": {
+    "exit": 1,
+    "output": "\nUI-First Gate — property-diff [board-1280]\n\nkey                        prop             code                 design               verdict\n--------------------------------------------------------------------------------------------\nkv-banner-height           section-height   512                  512                  PASS\nhighlight-height           section-height   576                  525                  FAIL\nspotlight-height           section-height   548                  548                  PASS\nspotlight-frame            borderTopWidth   1                    1                    PASS\nspotlight-frame            borderTopColor   153,140,95,1.00      153,140,95,1.00      PASS\nspotlight-frame            borderTopLeftRa  47.14                47.14                PASS\nall-kudos-list-height      section-height   7896                 3068                 FAIL\nfeed-card-bg               backgroundColor  255,248,225,1.00     255,248,225,1.00     PASS\nfeed-card-radius           borderTopLeftRa  24                   24                   PASS\nfeed-card-padding-top      paddingTop       40                   40                   PASS\nbody-box-bg                backgroundColor  255,234,158,0.40     255,234,158,0.40     PASS\nbody-box-radius            borderTopLeftRa  12                   12                   PASS\nkudos-logo-asset           asset-tag        IMG                  IMG|SVG|PICTURE      PASS\nkudos-logo-asset           asset-src        /_next/image?url=%2  (non-empty)          PASS\n--------------------------------------------------------------------------------------------\n{\n  \"screen\": \"board-1280\",\n  \"elements\": 11,\n  \"checks\": 14,\n  \"failed\": 2,\n  \"verdict\": \"FAIL\"\n}\n"
+  },
+  "nodeId_slugs": [
+    {
+      "val": "activity-feed-row",
+      "tag": "P"
+    },
+    {
+      "val": "activity-feed-time",
+      "tag": "SPAN"
+    },
+    {
+      "val": "activity-feed-name",
+      "tag": "SPAN"
+    },
+    {
+      "val": "activity-feed-row",
+      "tag": "P"
+    },
+    {
+      "val": "activity-feed-time",
+      "tag": "SPAN"
+    },
+    {
+      "val": "activity-feed-name",
+      "tag": "SPAN"
+    },
+    {
+      "val": "activity-feed-row",
+      "tag": "P"
+    },
+    {
+      "val": "activity-feed-time",
+      "tag": "SPAN"
+    },
+    {
+      "val": "activity-feed-name",
+      "tag": "SPAN"
+    },
+    {
+      "val": "activity-feed-row",
+      "tag": "P"
+    },
+    {
+      "val": "activity-feed-time",
+      "tag": "SPAN"
+    },
+    {
+      "val": "activity-feed-name",
+      "tag": "SPAN"
+    },
+    {
+      "val": "activity-feed-row",
+      "tag": "P"
+    },
+    {
+      "val": "activity-feed-time",
+      "tag": "SPAN"
+    },
+    {
+      "val": "activity-feed-name",
+      "tag": "SPAN"
+    },
+    {
+      "val": "activity-feed-row",
+      "tag": "P"
+    },
+    {
+      "val": "activity-feed-time",
+      "tag": "SPAN"
+    },
+    {
+      "val": "activity-feed-name",
+      "tag": "SPAN"
+    }
+  ],
+  "behavior": {
+    "B1_search_dropdown_appears": true,
+    "B1_dropdown_not_clipped": true,
+    "B1_keyboard_arrowdown": true,
+    "B1_escape_closes": true,
+    "B1_empty_query_no_dropdown": true,
+    "B1_gibberish_empty_msg": false,
+    "B2_activity_rows": 6,
+    "B2_time_format_ok": true,
+    "B2_time_values": [
+      "01:44PM",
+      "01:44PM",
+      "01:10PM",
+      "01:10PM",
+      "01:02PM",
+      "01:01PM"
+    ],
+    "B2_unique_names_in_feed": 1,
+    "B3_reset_btn": true,
+    "B3_fullscreen_btn": true,
+    "B3_fullscreen_toggles": true,
+    "B3_reset_present_after_fs": true,
+    "B4_highlight_gold_count": 2,
+    "B4_dimmed_others_count": 28,
+    "B4_highlight_color": "rgb(255, 234, 158)"
+  },
+  "overflow": {
+    "1280": "OK",
+    "1920": "OK"
+  },
+  "console_errors": [],
+  "screenshots": [
+    "evidence/screenshots/board-spotlight-1440-full.png",
+    "evidence/screenshots/board-spotlight-section-1440.png",
+    "evidence/screenshots/board-spotlight-1280-full.png",
+    "evidence/screenshots/board-spotlight-1920.png",
+    "evidence/screenshots/board-search-dropdown-open.png",
+    "evidence/screenshots/board-spotlight-highlight.png"
+  ],
+  "concerns": {
+    "highlight_color_FFEA9E": "CONFIRMED",
+    "opacity_ramp_actual": [
+      1,
+      0.75,
+      0.55,
+      0.4,
+      0.28,
+      0.18
+    ],
+    "opacity_ramp_expected": [
+      1,
+      0.75,
+      0.55,
+      0.4,
+      0.28,
+      0.18
+    ],
+    "opacity_ramp_match": true
+  }
+}
