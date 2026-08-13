@@ -2,14 +2,14 @@
 
 /**
  * board-spotlight-activity.tsx — Activity log for the Spotlight box.
- * Shows up to 6 recent kudo recipients (newest first, oldest bottom).
+ * Shows up to 6 recent kudo recipients — NEWEST AT THE BOTTOM (ticker style):
+ * the freshest kudo appears on the last line, older entries stack above and fade.
  * Figma node: 2940:14174 child feed layer.
  *
- * Opacity ramp: newest row at full opacity, each subsequent row steps down.
- * Exact opacity values must be verified against get_node on the feed layer
- * children (data-fig tags below feed into style-assert.mjs at gate time).
+ * Opacity ramp: bottom (newest) row at full opacity, each row upward steps down.
+ * Exact opacity values verified against get_node on the feed layer children.
  *
- * Prepend animation: newest entry fades + slides in from top via CSS keyframe.
+ * Prepend animation: newest entry fades + slides up into the bottom line.
  */
 
 import { montserrat } from '@/features/auth/fonts'
@@ -28,15 +28,21 @@ const ROW_OPACITY = [1, 0.75, 0.55, 0.4, 0.28, 0.18] as const
 
 export function ActivityLog({ entries }: ActivityLogProps) {
   if (entries.length === 0) return null
-  const visible = entries.slice(0, 6)
+
+  // entries arrive newest-first; assign opacity by recency (newest = brightest),
+  // then reverse so the newest row renders LAST → at the bottom of the feed.
+  const rows = entries
+    .slice(0, 6)
+    .map((entry, i) => ({
+      entry,
+      rowOpacity: ROW_OPACITY[i] ?? ROW_OPACITY[ROW_OPACITY.length - 1],
+      isNewest: i === 0,
+    }))
+    .reverse()
 
   return (
     <div className="flex flex-col gap-1" aria-label="Hoạt động gần đây">
-      {visible.map((entry, i) => {
-        const rowOpacity = ROW_OPACITY[i] ?? ROW_OPACITY[ROW_OPACITY.length - 1]
-        // Newest row (i=0) gets the prepend-fade animation class.
-        const isNewest = i === 0
-
+      {rows.map(({ entry, rowOpacity, isNewest }) => {
         return (
           <p
             key={entry.receiverId + entry.time}
