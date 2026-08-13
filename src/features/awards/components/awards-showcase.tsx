@@ -3,6 +3,7 @@ import { AwardsNav } from "./awards-nav";
 import { AwardCard } from "./award-card";
 import { KudosPromo } from "./kudos-promo";
 import type { AwardsShowcaseProps } from "../types";
+import { HomepageFooter } from "@/features/homepage/components/homepage-footer";
 
 /**
  * Root awards showcase component.
@@ -134,29 +135,8 @@ export function AwardsShowcase({ awards }: AwardsShowcaseProps) {
         </div>
       </div>
 
-      {/* Footer — matches Figma Footer INSTANCE */}
-      <footer
-        className="flex flex-col items-center justify-between gap-4 border-t px-4 py-8 sm:px-8 md:flex-row md:px-16 xl:px-36"
-        style={{
-          borderColor: "rgba(46,57,64,1)",
-          backgroundColor: "rgba(0,16,26,1)",
-        }}
-      >
-        <div className="relative h-10 w-36">
-          <Image
-            src="/awards/logo-footer.png"
-            alt="Sun* logo"
-            fill
-            className="object-contain object-left"
-          />
-        </div>
-        <p
-          className="font-montserrat-alternates text-center text-base font-bold leading-6"
-          style={{ color: "rgba(255,255,255,0.8)" }}
-        >
-          Bản quyền thuộc về Sun* © 2025
-        </p>
-      </footer>
+      {/* Footer */}
+      <HomepageFooter />
     </div>
   );
 }
