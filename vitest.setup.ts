@@ -123,6 +123,23 @@ vi.mock('next-intl/server', () => ({
 // Mock next-intl
 vi.mock('next-intl', () => {
   const React = require('react')
+  // Load + merge the real vi catalogs (messages/vi/*.json) so every migrated
+  // namespace/key resolves without hand-maintaining it here. Inline `messages`
+  // below still wins (keeps a few test-only synthetic keys); real catalog is the
+  // fallback for anything not inlined. Mirrors src/i18n/request.ts merge.
+  const fs = require('node:fs')
+  const path = require('node:path')
+  const realCatalog: Record<string, unknown> = {}
+  try {
+    const dir = path.join(process.cwd(), 'messages', 'vi')
+    for (const file of fs.readdirSync(dir)) {
+      if (file.endsWith('.json')) Object.assign(realCatalog, JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8')))
+    }
+  } catch {
+    /* catalogs optional — inline messages cover the rest */
+  }
+  const getByPath = (obj: unknown, dotted: string): unknown =>
+    dotted.split('.').reduce<unknown>((o, k) => (o != null && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined), obj)
   return {
     useTranslations: (namespace: string) => {
       const messages: Record<string, Record<string, string>> = {
@@ -284,14 +301,22 @@ vi.mock('next-intl', () => {
         },
       }
       const ns = messages[namespace] || {}
+      // Inline flat key first (test-tuned); fall back to the real nested vi catalog
+      // (namespace + dot-path), then to the key itself.
+      const realBase = getByPath(realCatalog, namespace)
+      const lookup = (key: string): string => {
+        if (ns[key] != null) return ns[key]
+        const fromReal = getByPath(realBase, key)
+        return typeof fromReal === 'string' ? fromReal : key
+      }
       const translate = (key: string, params?: Record<string, unknown>) => {
-        const template = ns[key] || key
+        const template = lookup(key)
         if (!params) return template
         return template.replace(/\{(\w+)\}/g, (_: string, k: string) => String(params[k] ?? `{${k}}`))
       }
       // Support t.rich() — same interpolation but returns string (sufficient for test assertions)
       translate.rich = (key: string, params?: Record<string, unknown>) => {
-        const template = ns[key] || key
+        const template = lookup(key)
         if (!params) return template
         // For rich text in tests: strip tags, substitute vars
         return template

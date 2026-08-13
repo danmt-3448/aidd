@@ -13,6 +13,14 @@ import type { Mock } from 'vitest'
 
 import { createClient } from '@/lib/supabase/server'
 
+// listProfileKudos batch-fetches signed image URLs (queries a second table with
+// `.in()`). That path has its own tests — stub it here so these query tests stay
+// focused on direction/cursor/anon logic and don't need the image builder chain.
+vi.mock('@/features/board/kudo-image-urls', () => ({
+  fetchKudoImageUrls: vi.fn(async () => ({ byKudoId: new Map(), signedUrls: new Map() })),
+  resolveKudoImageUrls: vi.fn(() => []),
+}))
+
 const mockCreateClient = createClient as Mock
 
 // ---------------------------------------------------------------------------

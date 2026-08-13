@@ -55,7 +55,8 @@ describe('HomepageHeader', () => {
       expect(logoLink).toHaveAttribute('href', '/')
     })
 
-    it('ID-10: displays language selector with current locale label', () => {
+    it('ID-10: displays language selector that opens a VN/EN dropdown', async () => {
+      const user = userEvent.setup()
       render(
         <HomepageHeader
           unreadCount={0}
@@ -64,11 +65,16 @@ describe('HomepageHeader', () => {
         />
       )
 
-      // aria-label: "Chuyển sang EN" (Vietnamese default locale → shows VI, toggles to EN)
-      const langButton = screen.getByRole('button', { name: /chuyển sang/i })
-      expect(langButton).toBeInTheDocument()
-      // Shows the current locale label (VI or EN depending on mock)
-      expect(langButton).toBeInTheDocument()
+      // Trigger button — labelled "Chọn ngôn ngữ", shows the current locale (VI default).
+      const langButton = screen.getByRole('button', { name: /chọn ngôn ngữ/i })
+      expect(langButton).toHaveTextContent('VI')
+      expect(langButton).toHaveAttribute('aria-expanded', 'false')
+
+      // Click opens the VN/EN dropdown listbox.
+      await user.click(langButton)
+      expect(langButton).toHaveAttribute('aria-expanded', 'true')
+      const options = screen.getAllByRole('option').map((o) => o.textContent)
+      expect(options).toEqual(expect.arrayContaining(['VI', 'EN']))
     })
   })
 
