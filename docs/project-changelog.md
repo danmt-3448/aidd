@@ -16,9 +16,9 @@ _(Nothing merged to main yet — all work is on `develop`.)_
 - **Awards page** (`bfd6895`, `df05770`) — `/awards` with tier-based card layout, medallion
   icons; statically generated. UI-First Gate PASS at 1440 + 1280.
 - **Rules page** (`78301b6`) — `/rules` with action bar and modal integration.
-- **Countdown refinements** (`525a91e`) — display polish + mock fixtures for all 4 ui_state values.
+- **Countdown refinements** (`525a91e`) — display polish + mock fixtures for all 4 ui_state values. _(mock fixtures later removed.)_
 - **Shared ui_state fixture infra** (`7eeba16`) — `?ui_state=full|empty|error|loading` dev bypass
-  wired across all screens via `src/lib/ui-state-override.ts`.
+  wired across all screens via `src/lib/ui-state-override.ts`. _**Removed** — the `?ui_state=` mock system and `ui-state-override.ts` no longer exist; verification runs on real seeded data._
 - **Property-diff hard gate** (`2bd507f`) — `scripts/style-assert.mjs` replaces whole-page
   pixel-diff as the primary UI-First Gate verdict; exit 0 = PASS, 1 = FAIL with element/prop
   localization, 2 = coverage warning.

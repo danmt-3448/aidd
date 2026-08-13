@@ -8,6 +8,7 @@ branch: develop
 tags: [ui-parity, bugfix, responsive, i18n, supabase-config]
 created: 2026-08-04
 blockedBy: [260806-0711-ui-pixel-parity-fix]
+cleanup_note: "2026-08-13 — phases 05–09 superseded by 260806-0711. Phases 01/02/03/04/12 (Track B: dicebear whitelist, awards data, secret-box counter, countdown i18n, danh_hieu migration) STILL PENDING — not archived, not covered elsewhere."
 ---
 
 # UI Parity Fixes

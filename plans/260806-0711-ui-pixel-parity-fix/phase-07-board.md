@@ -6,7 +6,7 @@
 - Sun* Kudos Live board: https://momorph.ai/files/9ypp4enmFmdK3YAFJLIu6C/screens/MaZUn5xHXZ
 - Figma node `2940:13431` · artboard **1440×5862** · app **1440×8622**
 - Gate cũ: [run1](../reports/ui-gate/ui-gate-260805-board-fullpage.md) · [run3](../reports/ui-gate/ui-gate-260805-board-run3.md) · [run4](../reports/ui-gate/ui-gate-260805-board-run4.md) — FAIL 4 lần, mới nhất 23.33%
-- **Phân tích Figma đã có, KHÔNG viết lại:** [260805-1117-board-highlight-spotlight-rework](../260805-1117-board-highlight-spotlight-rework/plan.md) + `clarifications.md` + `Explore-260805-1135-*`
+- **Phân tích Figma đã có, KHÔNG viết lại:** [260805-1117-board-highlight-spotlight-rework](../archived/260805-1117-board-highlight-spotlight-rework/plan.md) + `clarifications.md` + `Explore-260805-1135-*`
 
 ## Goal
 Mọi band ≤1% @1440 + 1280 → PASS `/aidd-ui-gate /board`.

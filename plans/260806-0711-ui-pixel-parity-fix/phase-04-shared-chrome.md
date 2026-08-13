@@ -11,7 +11,7 @@ Sửa một lần các thành phần dùng chung → nhiều màn cùng tụt s�
 ## Đầu việc
 1. Gom kết quả band `chrome` (header/footer) từ phase-03 + các gate report cũ để biết chrome lệch gì.
 2. Lấy số thật từ MoMorph `get_node` cho: chiều cao header, spacing nav, footer 5 item, font-size/weight, màu.
-3. Sửa tại chỗ. File > 200 dòng thì tách (đã đo: `src/components/site-header.tsx` **263 dòng**, `src/features/board/components/board-feed-card.tsx` **220 dòng** — xem [board rework plan](../260805-1117-board-highlight-spotlight-rework/plan.md)).
+3. Sửa tại chỗ. File > 200 dòng thì tách (đã đo: `src/components/site-header.tsx` **263 dòng**, `src/features/board/components/board-feed-card.tsx` **220 dòng** — xem [board rework plan](../archived/260805-1117-board-highlight-spotlight-rework/plan.md)).
 4. Chạy lại band `chrome` trên `/awards` → phải ≤1%.
 
 ## File ownership (độc quyền phase này) — path THẬT đã verify

@@ -1,7 +1,8 @@
 ---
 title: SAA 2025 — required 8 features (scoped rebuild plan)
 work_type: feature
-status: scoped
+status: superseded
+cleanup_note: "2026-08-13 — reference/comparison artifact; superseded by 260803-1636-saa2025-remaining-7-screens. Kept in place, not archived."
 blockedBy: []
 blocks: []
 note: Clean-slate plan scoped STRICTLY to the 8 requested features (STT 6–13). Built to compare against the sprawling current plan (260803-1636). No code changes.

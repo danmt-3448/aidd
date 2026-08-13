@@ -102,8 +102,7 @@ src/
 │   ├── query/
 │   │   ├── query-client.ts  makeQueryClient(), getQueryClient() — SSR-safe singleton
 │   │   └── query-provider.tsx  <QueryProvider> — mounts QueryClientProvider client-side
-│   ├── time/              Time utilities (countdown, formatting)
-│   └── ui-state-override.ts  Dev-only: reads ?ui_state= param for mock rendering
+│   └── time/              Time utilities (countdown, formatting)
 │
 └── proxy.ts               3 responsibilities:
                              1. Session refresh (updateSession)

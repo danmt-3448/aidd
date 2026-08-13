@@ -6,7 +6,7 @@
 - Homepage SAA: https://momorph.ai/files/9ypp4enmFmdK3YAFJLIu6C/screens/i87tDx10uM
 - Figma node `2167:9026` · artboard **1512×4480** (scale → 1440×4266) · app **1440×4326**
 - Gate cũ: [ui-gate-260805-homepage.md](../reports/ui-gate/ui-gate-260805-homepage.md) — 22.6%
-- Plan cũ (tham khảo, đã bị phase này thay thế): [260805-1353-home-ui-parity-check-fix](../260805-1353-home-ui-parity-check-fix/plan.md)
+- Plan cũ (tham khảo, đã bị phase này thay thế): [260805-1353-home-ui-parity-check-fix](../archived/260805-1353-home-ui-parity-check-fix/plan.md)
 
 ## Goal
 Mọi band ≤1% @1440 + 1280 → PASS `/aidd-ui-gate /`.

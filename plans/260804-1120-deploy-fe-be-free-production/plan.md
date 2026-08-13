@@ -1,6 +1,7 @@
 ---
 title: Deploy AIDD (FE + BE) to free/stable internal production
-status: pending
+status: deferred
+cleanup_note: "2026-08-13 — deployment not yet performed; kept in place (not archived) as the ops runbook for when go-live happens."
 priority: high
 work_type: deliverable
 spec_waived: ops/deployment runbook — no product feature; config-only, zero code changes

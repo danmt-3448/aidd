@@ -32,10 +32,11 @@ if (authError || !user) return { ok: false, errors: { _root: ['...'] } }
 
 Next.js 16 route guard (replaces `middleware.ts`). Execution order per request:
 
-1. `?ui_state=` present in dev → bypass all guards (UI-gate mock support).
-2. `updateSession()` — refresh Supabase cookie session.
-3. Auth fast-path: logged-in on `/login` → `/`; unauthenticated on protected path → `/login` (no DB query on this branch).
-4. Pre-launch gate: reads `event_config.event_start_at` + `profiles.is_admin` in parallel. If `now < event_start_at` and not admin → `/countdown`. Fail-open on missing/unreadable config.
+1. `updateSession()` — refresh Supabase cookie session.
+2. Auth fast-path: logged-in on `/login` → `/`; unauthenticated on protected path → `/login` (no DB query on this branch).
+3. Pre-launch gate: reads `event_config.event_start_at` + `profiles.is_admin` in parallel. If `now < event_start_at` and not admin → `/countdown`. Fail-open on missing/unreadable config.
+
+> The dev-only `?ui_state=` mock-bypass step was **removed** — verification now runs on real seeded data (authed session).
 
 **Bypass paths** (never gated): `/countdown`, `/login`, `/auth`, `/dev-login`.
 **RLS note:** `event_config` is anon-readable (`20260805020000`), but `profiles.is_admin` requires `authenticated`. Unauthenticated visitors skip the admin check and go straight to `/login` via the auth fast-path.
