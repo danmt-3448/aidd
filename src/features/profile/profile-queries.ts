@@ -2,6 +2,7 @@
 
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { fetchKudoImageUrls, resolveKudoImageUrls } from '@/features/board/kudo-image-urls'
 
 // ---------------------------------------------------------------------------
 // Exported interfaces — integration contract for Track A (phase-13/15) and tests.
@@ -55,6 +56,12 @@ export interface ProfileKudoRow {
   createdAt: string
   heartCount: number
   likedByMe: boolean
+  /**
+   * Signed URLs for attached images, sorted by sort_order.
+   * Empty array when the kudo has no images or signing failed for all.
+   * URLs expire after 3600s — do not cache beyond page lifetime.
+   */
+  imageUrls: string[]
 }
 
 export interface ProfileCursor {
@@ -288,6 +295,11 @@ export async function listProfileKudos(
 
     const rows = (data ?? []) as RawRow[]
 
+    // Batch-fetch signed image URLs for all kudos on this page (DRY — same
+    // helper used by board-queries.ts; no signing logic duplicated here).
+    const kudoIds = rows.map((r) => r.id)
+    const { byKudoId, signedUrls } = await fetchKudoImageUrls(kudoIds)
+
     const mapped: ProfileKudoRow[] = rows.map((r) => {
       const hearts: HeartRow[] = Array.isArray(r.hearts) ? r.hearts : []
       return {
@@ -302,6 +314,7 @@ export async function listProfileKudos(
         createdAt: r.created_at,
         heartCount: hearts.length,
         likedByMe: uid ? hearts.some((h) => h.user_id === uid) : false,
+        imageUrls: resolveKudoImageUrls(r.id, byKudoId, signedUrls),
       }
     })
 

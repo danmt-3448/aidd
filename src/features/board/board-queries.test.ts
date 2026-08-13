@@ -35,6 +35,7 @@ function makeQueryMock(result: { data: unknown; error: unknown }) {
   self.from = vi.fn(() => self)
   self.select = vi.fn(chain)
   self.eq = vi.fn(chain)
+  self.in = vi.fn(chain)
   self.or = vi.fn(chain)
   self.order = vi.fn(chain)
   self.limit = vi.fn(chain)
@@ -50,6 +51,24 @@ interface MockClient {
   auth: { getUser: Mock }
   from: Mock
   rpc: Mock
+  storage: { from: Mock }
+}
+
+/**
+ * Build a storage mock for createSignedUrls.
+ * Default: returns empty signed list (no images) — no-op for tests that don't
+ * care about images. Tests that need image assertions can override `fromImpl`.
+ */
+function makeStorageMock(
+  createSignedUrlsResult: { data: { path: string; signedUrl: string | null }[] | null; error: unknown } = {
+    data: [],
+    error: null,
+  },
+) {
+  const bucket = {
+    createSignedUrls: vi.fn(() => Promise.resolve(createSignedUrlsResult)),
+  }
+  return { from: vi.fn(() => bucket) }
 }
 
 function makeClient(
@@ -66,6 +85,7 @@ function makeClient(
     },
     from: vi.fn((table: string) => fromImpl(table)),
     rpc: vi.fn(() => Promise.resolve(rpcResult)),
+    storage: makeStorageMock(),
   }
 }
 
@@ -152,7 +172,8 @@ describe('getHighlightKudos', () => {
           if (table === 'special_day_config') {
             return makeQueryMock({ data: { hearts_multiplier: 2 }, error: null })
           }
-          return makeQueryMock({ data: null, error: null })
+          // kudo_images: return empty — no images on these kudos
+          return makeQueryMock({ data: [], error: null })
         },
         { data: rpcRows, error: null },
       ),
@@ -180,7 +201,7 @@ describe('getHighlightKudos', () => {
           if (table === 'special_day_config') {
             return makeQueryMock({ data: null, error: null })
           }
-          return makeQueryMock({ data: null, error: null })
+          return makeQueryMock({ data: [], error: null })
         },
         { data: rpcRows, error: null },
       ),
@@ -213,7 +234,7 @@ describe('getHighlightKudos', () => {
           if (table === 'special_day_config') {
             return makeQueryMock({ data: null, error: null })
           }
-          return makeQueryMock({ data: null, error: null })
+          return makeQueryMock({ data: [], error: null })
         },
         { data: rpcRows, error: null },
       ),
@@ -236,7 +257,7 @@ describe('getHighlightKudos', () => {
           if (table === 'special_day_config') {
             return makeQueryMock({ data: null, error: null })
           }
-          return makeQueryMock({ data: null, error: null })
+          return makeQueryMock({ data: [], error: null })
         },
         { data: rpcRows, error: null },
       ),
@@ -314,7 +335,10 @@ describe('listBoardKudos', () => {
     ]
 
     mockCreateClient.mockResolvedValue(
-      makeClient(null, () => {
+      makeClient(null, (table) => {
+        if (table === 'kudo_images') {
+          return makeQueryMock({ data: [], error: null })
+        }
         const m: Record<string, unknown> = {}
         m.select = vi.fn(() => m)
         m.order = vi.fn(() => m)
@@ -350,7 +374,10 @@ describe('listBoardKudos', () => {
     ]
 
     mockCreateClient.mockResolvedValue(
-      makeClient(viewerId, () => {
+      makeClient(viewerId, (table) => {
+        if (table === 'kudo_images') {
+          return makeQueryMock({ data: [], error: null })
+        }
         const m: Record<string, unknown> = {}
         m.select = vi.fn(() => m)
         m.order = vi.fn(() => m)
@@ -380,7 +407,10 @@ describe('listBoardKudos', () => {
     }))
 
     mockCreateClient.mockResolvedValue(
-      makeClient(null, () => {
+      makeClient(null, (table) => {
+        if (table === 'kudo_images') {
+          return makeQueryMock({ data: [], error: null })
+        }
         const m: Record<string, unknown> = {}
         m.select = vi.fn(() => m)
         m.order = vi.fn(() => m)

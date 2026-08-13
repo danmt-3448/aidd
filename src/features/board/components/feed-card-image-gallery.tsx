@@ -10,9 +10,12 @@
  *
  * Renders at most 5 images. If more exist, a "+N" overflow badge replaces the 5th slot.
  * lightMode: overflow overlay uses warm-dark scrim instead of navy.
+ *
+ * Uses a plain <img> (not next/image): the srcs are time-limited Supabase signed
+ * URLs on a private bucket — the next/image optimizer would need every storage
+ * host in remotePatterns and would cache an expiring signed URL. A plain <img>
+ * fetches the signed URL directly and re-fetches on each load.
  */
-
-import Image from 'next/image'
 
 const THUMB_SIZE = 80
 const MAX_VISIBLE = 5
@@ -50,11 +53,13 @@ export function FeedCardImageGallery({
               className="block overflow-hidden rounded transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFEA9E]"
               style={{ width: THUMB_SIZE, height: THUMB_SIZE }}
             >
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={url}
                 alt={`${altPrefix} ${idx + 1}`}
                 width={THUMB_SIZE}
                 height={THUMB_SIZE}
+                loading="lazy"
                 className="rounded object-cover"
                 style={{ width: THUMB_SIZE, height: THUMB_SIZE }}
               />

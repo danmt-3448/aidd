@@ -52,6 +52,9 @@ function mapProfileRowToFeedCard(row: ProfileKudoRow): FeedCardProps {
     heartCount: row.heartCount,
     likedByMe: row.likedByMe,
     createdAt: row.createdAt,
+    // Mirror board-connected-helpers.ts: only set when non-empty so FeedCard
+    // skips the gallery render entirely for kudos without images.
+    imageUrls: row.imageUrls.length > 0 ? row.imageUrls : undefined,
   }
 }
 

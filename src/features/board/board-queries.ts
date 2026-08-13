@@ -2,6 +2,7 @@
 
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { fetchKudoImageUrls, resolveKudoImageUrls } from './kudo-image-urls'
 
 // ---------------------------------------------------------------------------
 // Exported interfaces — integration contract for Track A (phase-12) and tests.
@@ -45,6 +46,12 @@ export interface BoardKudoRow {
    * Null when not set (legacy kudos before the danh_hieu column was added).
    */
   kudoTitle: string | null
+  /**
+   * Signed URLs for attached images, sorted by sort_order.
+   * Empty array when the kudo has no images or signing failed for all.
+   * URLs expire after 3600s — do not cache beyond page lifetime.
+   */
+  imageUrls: string[]
 }
 
 /**
@@ -185,7 +192,13 @@ export async function getHighlightKudos(): Promise<HighlightKudosResult> {
       return null
     }
 
-    const top5: BoardKudoRow[] = ((rows ?? []) as RpcRow[]).map((r) => ({
+    const rpcRows = (rows ?? []) as RpcRow[]
+
+    // Batch-fetch signed image URLs for all highlight kudos.
+    const kudoIds = rpcRows.map((r) => r.id)
+    const { byKudoId, signedUrls } = await fetchKudoImageUrls(kudoIds)
+
+    const top5: BoardKudoRow[] = rpcRows.map((r) => ({
       id: r.id,
       senderId: r.sender_id,
       senderName: r.sender_name ?? 'Ẩn danh',
@@ -203,6 +216,7 @@ export async function getHighlightKudos(): Promise<HighlightKudosResult> {
       likedByMe: r.liked_by_me,
       hashtags: Array.isArray(r.hashtags) ? r.hashtags : [],
       kudoTitle: r.danh_hieu,
+      imageUrls: resolveKudoImageUrls(r.id, byKudoId, signedUrls),
     }))
 
     return { data: top5 }
@@ -384,6 +398,10 @@ export async function listBoardKudos(
 
     const rows = data ?? []
 
+    // Batch-fetch signed image URLs for all kudos on this page.
+    const kudoIds = rows.map((r) => r.id)
+    const { byKudoId, signedUrls } = await fetchKudoImageUrls(kudoIds)
+
     const mapped: BoardKudoRow[] = rows.map((r) => {
       const hearts: HeartRow[] = Array.isArray(r.hearts) ? r.hearts : []
       const hashtagJoins: HashtagJoinRow[] = Array.isArray(r.kudo_hashtags) ? r.kudo_hashtags : []
@@ -418,6 +436,7 @@ export async function listBoardKudos(
           : false,
         hashtags,
         kudoTitle: r.danh_hieu,
+        imageUrls: resolveKudoImageUrls(r.id, byKudoId, signedUrls),
       }
     })
 

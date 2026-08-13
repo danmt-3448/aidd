@@ -38,6 +38,7 @@ export function mapKudoRowToFeedCard(row: BoardKudoRow): FeedCardProps {
     createdAt: row.createdAt,
     hashtags: row.hashtags.length > 0 ? row.hashtags : undefined,
     kudoTitle: row.kudoTitle ?? undefined,
+    imageUrls: row.imageUrls.length > 0 ? row.imageUrls : undefined,
   }
 }
 
