@@ -91,7 +91,8 @@ export function BoardSpotlightSearch({
     }
   }, [hasQuery, reposition])
 
-  // Reset active index when query changes
+  // Reset active index when query changes — intentional one-shot state sync on `q`.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setActiveIndex(-1) }, [q])
 
   function handleSelect(receiverId: string) {

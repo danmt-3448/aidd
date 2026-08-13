@@ -69,6 +69,8 @@ export function UserHoverCard({
   const triggerRef = useRef<HTMLSpanElement>(null)
   const popoverId = useId()
 
+  // Client-mount flag for portal rendering — intentional one-time set on mount.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true) }, [])
 
   const show = useCallback(() => {

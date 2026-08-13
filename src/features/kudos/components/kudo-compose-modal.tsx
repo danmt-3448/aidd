@@ -150,6 +150,8 @@ export function KudoComposeModal({
     const preselected = hashtagCatalog
       .filter((h) => editInitialData.hashtagIds.includes(h.id))
       .map((h) => ({ id: h.id, label: h.name }))
+    // Seed once when async hashtag catalog arrives (edit mode) — intentional.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedHashtags(preselected)
     // Run once when catalog arrives — editInitialData is stable (object from parent render).
     // eslint-disable-next-line react-hooks/exhaustive-deps
