@@ -1,7 +1,9 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useEffect, useRef } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSearchParams } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { getSpotlightAggregationRpc } from './board-leaderboard-queries'
 import type { SpotlightNode } from './board-queries'
 
@@ -34,17 +36,16 @@ export interface UseSpotlightReturn {
 // word-cloud lives in Track A / integration (phase 15) — this hook supplies
 // the data only.
 //
-// Spotlight data is relatively stable (changes only when new kudos arrive),
-// so staleTime is set to 60 s. No Realtime subscription here — the feed
-// Realtime channel (use-board-feed) invalidates `boardFeedKeys.all` on any
-// kudo INSERT; if integration phase 15 needs spotlight to refresh at the same
-// cadence, it can call queryClient.invalidateQueries({ queryKey: spotlightKeys.all })
-// after a kudos invalidation event.
+// Realtime: signal-only INSERT on `kudos` → debounce 300ms → invalidate so the
+// word-cloud names AND the total "NNN KUDOS" count (derived from node kudoCount)
+// refresh as soon as a new kudo is created. Mirrors use-board-feed.ts:86-125.
 // ---------------------------------------------------------------------------
 
 export function useSpotlight(): UseSpotlightReturn {
   const searchParams = useSearchParams()
   const hashtagId = searchParams.get('hashtag') ?? null
+  const queryClient = useQueryClient()
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { data, isLoading, error } = useQuery({
     queryKey: spotlightKeys.list(hashtagId),
@@ -64,6 +65,32 @@ export function useSpotlight(): UseSpotlightReturn {
     },
     staleTime: 60_000,
   })
+
+  // ── Realtime signal-only subscription ──────────────────────────────────
+  // New kudo INSERT → debounced invalidate of the whole spotlight key space
+  // (covers every hashtag filter) so names + count update live.
+  useEffect(() => {
+    const supabase = createClient()
+
+    const channel = supabase
+      .channel('spotlight-aggregation-realtime')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'kudos' },
+        () => {
+          if (debounceRef.current) clearTimeout(debounceRef.current)
+          debounceRef.current = setTimeout(() => {
+            void queryClient.invalidateQueries({ queryKey: spotlightKeys.all })
+          }, 300)
+        },
+      )
+      .subscribe()
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      void supabase.removeChannel(channel)
+    }
+  }, [queryClient])
 
   return {
     nodes: data ?? [],
