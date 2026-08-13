@@ -130,12 +130,46 @@ label[for] {
 }
 
 /* ── Spotlight activity feed — prepend animation (board-spotlight-activity.tsx) ─
-   Newest row fades + slides in from top over 300ms (pairs with 300ms realtime debounce). */
+   Newest row sits at the BOTTOM; it fades + slides up from below over 300ms
+   (pairs with the 300ms realtime debounce). */
 @keyframes spotlight-activity-in {
-  from { opacity: 0; transform: translateY(-6px); }
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 .spotlight-activity-prepend {
   animation: spotlight-activity-in 300ms ease-out forwards;
 }
+
+/* ── Custom scrollbar — thin + consistent on macOS AND Windows ────────────────
+   Windows/Linux render a thick native scrollbar by default; this normalises it
+   to a slim rounded thumb everywhere. Firefox uses the standard properties,
+   Chromium/Safari/Edge use the ::-webkit pseudo-elements. Thumb is the dark ink
+   colour at low alpha so it reads on the light content panels (feed, modal,
+   sidebar) where scrollbars actually appear. */
+* {
+  scrollbar-width: thin;                                  /* Firefox */
+  scrollbar-color: rgba(0, 16, 26, 0.28) transparent;     /* thumb / track */
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(0, 16, 26, 0.28);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;                            /* inset thumb, floats in track */
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 16, 26, 0.45);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
