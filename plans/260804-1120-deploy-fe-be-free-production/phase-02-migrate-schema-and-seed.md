@@ -1,6 +1,13 @@
 # Phase 02 — Migrate schema + seed to cloud
 
-**Priority:** High · **Status:** DEFERRED (run at deploy time) · **Depends on:** 01 · **Owner role:** deployer / be-developer
+**Priority:** High · **Status:** ✅ DONE (2026-08-15) · **Depends on:** 01 · **Owner role:** deployer / be-developer
+
+> ✅ **Done 2026-08-15.** Pushed via **session pooler** (`aws-0-ap-northeast-1.pooler.supabase.com:5432`) because the
+> direct host `db.<ref>.supabase.co` is **IPv6-only** (Mac IPv4 couldn't reach it) — used `supabase db push --db-url <pooler>`.
+> Verified on cloud: **31/31 migrations**, 30 auth users, 30 profiles, 12 hashtags, 7 departments, event_config=1,
+> **all 12 tables RLS on**, realtime publication includes `kudos`. Reference seed via `psql -f seed.sql` (INSERT 12);
+> auth users via `seed-auth-users.mjs` (30 created, secret_box grants). Demo data NOT seeded (prod-safe).
+> `event_config.event_start_at` adjusted to `2026-08-15 20:00+07` per request (countdown target).
 
 > ⏸️ **Deferred deliberately.** `db push` is incremental so early migration isn't wasted, but pushing now
 > risks drift if an existing migration file gets edited or `db reset` runs during dev. Run this phase once

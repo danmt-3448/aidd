@@ -41,11 +41,13 @@ Sequential by nature: BE must exist before data migrates; FE needs the BE URL; a
 
 | # | Phase | Depends on | Status |
 |---|-------|-----------|--------|
-| 01 | [Provision Supabase Cloud](phase-01-provision-supabase-cloud.md) | — | pending |
-| 02 | [Migrate schema + seed](phase-02-migrate-schema-and-seed.md) | 01 | pending |
-| 03 | [Deploy FE to Vercel](phase-03-deploy-frontend-vercel.md) | 01 | pending |
-| 04 | [Wire Google OAuth + harden](phase-04-wire-google-oauth-and-harden.md) | 02, 03 | pending |
-| 05 | [Smoke test + keep-warm](phase-05-smoke-test-and-keep-warm.md) | 04 | pending |
+| 01 | [Provision Supabase Cloud](phase-01-provision-supabase-cloud.md) | — | ✅ done |
+| 02 | [Migrate schema + seed](phase-02-migrate-schema-and-seed.md) | 01 | ✅ done (2026-08-15) |
+| 03 | [Deploy FE to Vercel](phase-03-deploy-frontend-vercel.md) | 01 | ✅ done (2026-08-15) |
+| 04 | [Wire Google OAuth + harden](phase-04-wire-google-oauth-and-harden.md) | 02, 03 | ⏳ pending (domain ready) |
+| 05 | [Smoke test + keep-warm](phase-05-smoke-test-and-keep-warm.md) | 04 | ⏳ pending |
+
+**Deploy progress 2026-08-15:** FE live at `https://agentic-coding-hands-on-dusky.vercel.app` (Vercel prod branch `main-app`). Supabase cloud healthy (Postgres 17.6) but **DB still empty** (`No migrations`). Remaining = Phase 02 seed (blocked on DB password, held offline by user) → Phase 04 auth URLs → Phase 05 smoke. See `plans/reports/deploy-status-260815-1540.md`.
 
 ## Key Decisions (sealed in consultation)
 
