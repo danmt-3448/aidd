@@ -1,0 +1,41 @@
+# Baseline bundle metrics — TURBOPACK (what Vercel ships) — 2026-08-15 11:23:35
+# Build: npx next build (default = Turbopack)
+chunks_js_count: 35
+chunks_raw_bytes: 2221292
+chunks_gzip_bytes: 634740
+## top chunks (raw gzip name):
+  420902    132607  1qel2n1lmpymn.js
+  251572     66251  0j4v950_qv10v.js
+  251572     66235  29utkmllw2_no.js
+  227315     70998  1upe53-127sm4.js
+  160733     48006  2u3qzjvkyfgxo.js
+  112594     39490  0cz1d0mv5g_q7.js
+  109913     29218  33bps58unj1m9.js
+   54671     15391  3te5ur25s61b2.js
+   54646     12880  14mrh2-p_w84d.js
+   52438     14229  41dfw0xkni_4w.js
+   47092     15406  2hlelwkd_4e7h.js
+   44414      9255  27jktro2p5rq9.js
+   43163     13155  3h2y40kdgieci.js
+   39815     12024  0zmvyptk783y8.js
+   39658     12156  1vub60jo8ax0u.js
+   30776      8690  2is93na-ir_y1.js
+   30258      8350  0xzk4eea9hfnc.js
+   29181      9915  08rw9_y1erq10.js
+   28399      9013  018wh8zp6bjth.js
+   28176      9597  0f81m0uz9-rec.js
+   28081     10064  151bil-1-phom.js
+   24956      8878  0b_m5t7kedwow.js
+   20188      7406  2ds3_f0ege3r9.js
+   17871      5220  049jksz90o719.js
+   16495      5838  0jr122fe8oje7.js
+   11050      3776  2pyrt0i34rule.js
+   10646      4214  turbopack-0vrb7_dybh0dn.js
+    9360      3081  32sscv1i0i522.js
+    6209      2587  13w45td8m-i5d.js
+    5587      2023  2zjueh7t2vecu.js
+    4957      1904  15wiw-fnvv-zp.js
+    3377      1473  05-c3ty_6dwfk.js
+    1971       995  0vjmmqry68284.js
+    1796      1033  1-qctpmxyfa-h.js
+    1460       846  0h5lviho1s509.js

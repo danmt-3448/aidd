@@ -20,7 +20,7 @@ phases:
 # Plan: Deploy AIDD (FE + BE) — free, internal, stable
 
 Take AIDD from local-only to a live internal URL. **Free end-to-end**: Next.js 16 → Vercel Hobby,
-Supabase-local → Supabase Cloud free tier. Data migration = replay 13 migrations + re-seed reference
+Supabase-local → Supabase Cloud free tier. Data migration = replay 31 migrations + re-seed reference
 data (no dev-row copy). **Zero code changes** — auth callback/OAuth redirect already domain-agnostic;
 dev-login is 404-by-default in prod. This is a config/ops runbook.
 

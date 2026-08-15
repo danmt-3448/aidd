@@ -1,0 +1,56 @@
+# Baseline bundle metrics (on-disk .next/static/chunks) — 2026-08-15 11:16:58
+# Build: npx next build --webpack (Next 16 stdout omits First Load JS table)
+chunks_js_count: 49
+chunks_raw_bytes: 2007139
+chunks_gzip_bytes: 597133
+static_total: 2.5M
+## top chunks (raw gzip name):
+  241710     78951  7694.a4012e2c5a0e3656.js
+  222329     60835  3794-1c484727035baf78.js
+  199865     62929  4bd1b696-c2f6e0877b6c10aa.js
+  191316     53744  6204-cc28be33b2eeea34.js
+  189679     59880  framework-d1de002210ddaaef.js
+  137787     39649  main-9fb6d11cca468950.js
+  116195     35560  3101-8ca106004a0749e2.js
+  112594     39503  polyfills-42372ed130431b0a.js
+   97394     30876  70e0d97a.8cf09233cde2dd08.js
+   82567     26092  54a60aa6.874b2a5056c4227f.js
+   63832     13866  44530001-78d9977d0e16ef0a.js
+   47047     12874  9977-05eef5d96e532cb4.js
+   39750     12009  1697-ee3c46fd10d3610a.js
+   33588      9252  6609-1948800b7ad9f570.js
+   27171      7419  897-8160d86da5da55a9.js
+   21794      5821  page-beb30af2ddae5b86.js
+   18192      5885  4829-3292d8aaa30a1245.js
+   17485      5166  page-566b37ff409d02cb.js
+   16193      5640  1935-4f58a7a87f6111d9.js
+   15185      4937  4871-a56f128ad7e80a55.js
+   14774      5563  8437-df78fb0a70e5244d.js
+   12781      4746  page-815c17be28049ebf.js
+   11301      3600  layout-08b6680fc494ebbb.js
+    9311      3464  6218-a6cdc86aefba05ae.js
+    8843      2861  6520-de57db0990357477.js
+    8596      2873  7569-8983e0d1d1ba3d11.js
+    8172      3481  9667-2116915ecec14134.js
+    7429      3101  page-4417ce676e2f07ff.js
+    6738      2649  6936.2d3473f275fcb644.js
+    5880      2362  page-b32dc04b7882387c.js
+    4857      1931  page-a877237c18cd3004.js
+    4166      1803  error-318365bcc4358197.js
+    3537      1855  webpack-e161d0ccd84d7824.js
+    2512      1315  page-a957ccb395ca0462.js
+    2134      1057  page-38204fe29a5a0256.js
+     834       613  page-0b0d8b50dd9b41b4.js
+     743       457  not-found-e414d41b317a7104.js
+     590       344  page-c82d4067c227d30b.js
+     514       253  main-app-1d17faad27813b8a.js
+     208       197  page-b82d77e916eff7d8.js
+     208       197  page-8fd33940e666fa5f.js
+     183       197  global-error-9d5f0ec19c6c9473.js
+     165       181  unauthorized-2311c7eef91831cb.js
+     165       178  forbidden-2311c7eef91831cb.js
+     165       178  app-error-2311c7eef91831cb.js
+     165       175  layout-2311c7eef91831cb.js
+     165       174  route-2311c7eef91831cb.js
+     165       173  page-2311c7eef91831cb.js
+     165       173  page-2311c7eef91831cb.js

@@ -1,0 +1,4 @@
+# AFTER (final kept: C1+C3+C6a+C8; C2/C4/C5 dropped) — TURBOPACK — 2026-08-15 13:36:02
+chunks_js_count: 37
+chunks_raw_bytes: 2284454
+chunks_gzip_bytes: 655614
