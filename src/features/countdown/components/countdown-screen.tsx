@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useCountdown } from '@/features/event/use-countdown'
 import { CountdownDisplay } from './countdown-display'
 
@@ -39,13 +40,18 @@ export function CountdownScreen() {
       className="relative flex min-h-screen w-full overflow-hidden"
       style={{ background: '#00101A' }}
     >
-      {/* mm:bg-art — full-bleed background illustration, art anchored right */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      {/* mm:bg-art — full-bleed background illustration, art anchored right.
+          next/image `fill` (LCP → priority) optimizes/serves webp+sizing; renders an absolutely
+          positioned <img> (inset-0, 100%×100%). objectFit/objectPosition/zIndex via `style` — NOT
+          Tailwind (`object-right-center` is not a valid v4 class). zIndex:0 keeps it under the gradient (zIndex:1). */}
+      <Image
         src="/images/countdown/prelaunch-bg.png"
         alt=""
         aria-hidden
-        className="pointer-events-none absolute inset-0 h-full w-full select-none"
+        fill
+        priority
+        sizes="100vw"
+        className="pointer-events-none select-none"
         style={{
           objectFit: 'cover',
           objectPosition: 'right center',

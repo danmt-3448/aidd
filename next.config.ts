@@ -9,6 +9,13 @@ const withBundleAnalyzer = createBundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
+  // Perf (config-safe): keep client source maps out of the production deploy (explicit; already the
+  // Next default). `compress` is intentionally left at its default — on Vercel the edge/CDN applies
+  // brotli, so an explicit `compress` is a no-op there.
+  // NOTE: optimizePackageImports for lucide-react was tested and REVERTED — it increased the Turbopack
+  // bundle (+2.8%) rather than shrinking it (lucide-react v1.28 is already ESM-modular; the transform
+  // added chunk overhead). Evidence: plans/260815-1104-performance-audit-and-improve/evidence/.
+  productionBrowserSourceMaps: false,
   images: {
     remotePatterns: [
       // Google OAuth avatars (user_metadata.picture / avatar_url)
