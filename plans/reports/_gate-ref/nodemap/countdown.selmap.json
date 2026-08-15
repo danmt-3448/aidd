@@ -1,9 +1,0 @@
-{
-  "countdown-root": "[data-fig='2268:35127']",
-  "countdown-title": "[data-fig='2268:35137']",
-  "led-row-gap": "[data-fig='2268:35138']",
-  "led-block-gap": "[data-fig='2268:35139']",
-  "digit-box-fill": "[data-fig='I2268:35141;186:2616']",
-  "digit-glyph": "[data-fig='I2268:35141;186:2617']",
-  "days-label": "[data-fig='2268:35143']"
-}

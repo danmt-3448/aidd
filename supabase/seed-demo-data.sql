@@ -164,7 +164,7 @@ on conflict do nothing;
 
 -- ── 3d. Image-bearing kudos (cards 910–913, with kudo_images rows) ────────────
 -- These will show the image gallery. Storage placeholder paths reference the
--- upload done by seed-kudo-images.mjs (run separately after db:reset).
+-- upload done by seed-kudo-real-images.mjs (run separately after db:reset).
 -- Inserted here so the kudo_images FK rows are valid even before upload.
 insert into public.kudos (id, sender_id, receiver_id, content_html, is_anonymous, anonymous_name, danh_hieu, created_at)
 values
@@ -202,7 +202,7 @@ values
 on conflict do nothing;
 
 -- kudo_images rows — storage_path matches upload convention {sender_uid}/{kudo_id}/{file}.png.
--- Actual PNG files are uploaded by seed-kudo-images.mjs. These rows are safe to insert
+-- Actual PNG files are uploaded by seed-kudo-real-images.mjs. These rows are safe to insert
 -- before the upload; the UI renders <img src> via storage URL and shows nothing if the
 -- file does not exist yet (no broken render — img just shows nothing or fallback).
 insert into public.kudo_images (kudo_id, storage_path, sort_order)

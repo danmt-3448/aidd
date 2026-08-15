@@ -1,7 +1,0 @@
-[
-  {
-    "command": "npm run test",
-    "exitCode": 0,
-    "summary": "Unit test suite: 35 tests PASS (4 files: guard-rules 9/9, i18n-config 5/5, login-screen 8/8, language-switcher 13/13)"
-  }
-]
