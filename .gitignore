@@ -39,6 +39,9 @@ yarn-error.log*
 # MCP local config — có thể chứa token thật. Copy từ .mcp.example.json (committed).
 .mcp.json
 
+# local-only reports carrying real secrets — NEVER commit
+*-LOCAL-secrets.md
+
 # vercel
 .vercel
 

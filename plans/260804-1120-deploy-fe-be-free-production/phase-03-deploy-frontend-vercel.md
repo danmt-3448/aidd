@@ -1,6 +1,9 @@
 # Phase 03 — Deploy FE to Vercel
 
-**Priority:** High · **Status:** pending · **Depends on:** 01 · **Owner role:** deployer / fe-developer
+**Priority:** High · **Status:** ✅ DONE (2026-08-15) · **Depends on:** 01 · **Owner role:** deployer / fe-developer
+
+> ✅ **Deployed 2026-08-15.** Production live: `https://agentic-coding-hands-on-dusky.vercel.app` (HTTP 200, build green 54s).
+> Production branch on Vercel = **`main-app`** (app code; the repo's original `main` was unrelated workshop-docs history — no common ancestor with the app, backed up as `main-template-backup`). 6 env vars set (Supabase cloud URL + `sb_publishable_`/`sb_secret_` keys + EVENT_START_AT + Google prod). `NEXT_PUBLIC_ENABLE_DEV_LOGIN` intentionally omitted. Site currently renders `/countdown` (pre-launch gate + empty DB) — expected until Phase 02 seed.
 
 ## Goal
 Ship the Next.js 16 app to Vercel Hobby with GitHub auto-deploy and the full env-var set. No code changes.

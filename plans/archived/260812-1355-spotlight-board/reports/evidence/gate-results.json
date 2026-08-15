@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-08-12T08:53:18.687Z",
+  "viewport_tests": {
+    "1280_no_overflow": true,
+    "1920_no_overflow": true
+  },
+  "behavior": {
+    "search_dropdown_appears": "NO_INPUT_FOUND",
+    "activity_feed_rows": 0,
+    "activity_feed_format": null,
+    "activity_time_format_ok": true,
+    "activity_time_values": [],
+    "controls_reset_present": false,
+    "controls_fullscreen_present": false
+  },
+  "nodeId_validity": {},
+  "data_fig_slugs": [
+    {
+      "value": "I662:14391;178:1033;178:1030",
+      "isRealNodeId": false,
+      "tag": "IMG",
+      "class": "h-12 w-auto"
+    },
+    {
+      "value": "I662:14391;186:1601",
+      "isRealNodeId": false,
+      "tag": "DIV",
+      "class": "relative"
+    },
+    {
+      "value": "I662:14391;186:1696;186:1821;186:1439",
+      "isRealNodeId": false,
+      "tag": "SPAN",
+      "class": "text-base font-bold"
+    }
+  ],
+  "console_errors": [],
+  "screenshots": [
+    "/Users/mai.thanh.dan/Desktop/Sun/AI/aidd/plans/260812-1355-spotlight-board/reports/evidence/screenshots/board-spotlight-1440.png",
+    "/Users/mai.thanh.dan/Desktop/Sun/AI/aidd/plans/260812-1355-spotlight-board/reports/evidence/screenshots/board-spotlight-1280.png",
+    "/Users/mai.thanh.dan/Desktop/Sun/AI/aidd/plans/260812-1355-spotlight-board/reports/evidence/screenshots/board-spotlight-1920.png"
+  ]
+}
