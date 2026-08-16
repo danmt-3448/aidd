@@ -1,6 +1,8 @@
 # Phase 02 — Dedupe auth (React cache + getClaims)
 
-**Priority:** P0 · **Risk:** Thấp · **Status:** pending
+**Priority:** P0 · **Risk:** Thấp · **Status:** ✅ DONE (260816)
+
+> **Kết quả:** `getCurrentUser` (React `cache()`) + `toHeaderUser` (gỡ mapping lặp 6 page). Đo prod: 1 render `/awards` = **1 getUser** (trước là 2: page + getIsAdmin) → cache() dedupe qua ranh giới server-action OK. tsc+lint+581 unit xanh. Tầng 2 getClaims: KHÔNG áp cho page (giữ getUser full — an toàn; đòn getClaims đã ở Phase 06 cho middleware).
 
 > **Scope (red-team F2/F3):** phase này chỉ dedupe getUser **trong 1 render page** (page + getIsAdmin → 1). KHÔNG chạm getUser của middleware (đó là Phase 06 — process khác, không share được). Tầng 2 getClaims ở đây = optional; đòn getClaims chính nằm ở Phase 06 (middleware). Ưu tiên làm tầng 1 (cache) cho chắc.
 

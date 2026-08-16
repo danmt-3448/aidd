@@ -13,7 +13,7 @@
  */
 
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser, toHeaderUser } from '@/features/auth/current-user'
 import { getIsAdmin } from '@/features/auth/get-is-admin'
 import { BoardConnected } from '@/features/board/components/board-connected'
 
@@ -31,24 +31,9 @@ export default async function KudosPage({
   const initialComposeOpen = modal === 'compose'
 
   // Resolve real authed session — gate screenshots now use a real seeded session.
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+  const user = await getCurrentUser()
   const isAdmin = user ? await getIsAdmin() : false
-
-  const headerUser = user
-    ? {
-        name:
-          (user.user_metadata?.full_name as string | undefined) ??
-          (user.user_metadata?.name as string | undefined) ??
-          'Sunner',
-        avatarUrl:
-          (user.user_metadata?.avatar_url as string | undefined) ??
-          (user.user_metadata?.picture as string | undefined),
-      }
-    : null
+  const headerUser = toHeaderUser(user)
 
   return (
     <BoardConnected

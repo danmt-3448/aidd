@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser, toHeaderUser } from '@/features/auth/current-user'
 import { getIsAdmin } from '@/features/auth/get-is-admin'
 import { parseProfileId } from '@/features/profile/profile-route'
 import { ProfileConnected } from '@/features/profile/components/profile-connected'
@@ -36,25 +36,10 @@ export default async function ProfilePage({
     notFound()
   }
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+  const user = await getCurrentUser()
   const callerId = user?.id ?? null
   const isAdmin = user ? await getIsAdmin() : false
-
-  const headerUser = user
-    ? {
-        name:
-          (user.user_metadata?.full_name as string | undefined) ??
-          (user.user_metadata?.name as string | undefined) ??
-          'Sunner',
-        avatarUrl:
-          (user.user_metadata?.avatar_url as string | undefined) ??
-          (user.user_metadata?.picture as string | undefined),
-      }
-    : null
+  const headerUser = toHeaderUser(user)
 
   let profileId: string
   let isSelf: boolean

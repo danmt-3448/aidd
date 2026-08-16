@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser, toHeaderUser } from '@/features/auth/current-user'
 import { getIsAdmin } from '@/features/auth/get-is-admin'
 import { HomepageConnected } from '@/features/homepage/components/homepage-connected'
 
@@ -12,25 +12,9 @@ import { HomepageConnected } from '@/features/homepage/components/homepage-conne
  * QueryProvider is at root (src/app/providers.tsx) — shared across all routes.
  */
 export default async function Home() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+  const user = await getCurrentUser()
   const isAdmin = user ? await getIsAdmin() : false
-
-  // Header identity from the OAuth session metadata — no extra profile query.
-  const headerUser = user
-    ? {
-        name:
-          (user.user_metadata?.full_name as string | undefined) ??
-          (user.user_metadata?.name as string | undefined) ??
-          'Sunner',
-        avatarUrl:
-          (user.user_metadata?.avatar_url as string | undefined) ??
-          (user.user_metadata?.picture as string | undefined),
-      }
-    : null
+  const headerUser = toHeaderUser(user)
 
   return (
     <HomepageConnected

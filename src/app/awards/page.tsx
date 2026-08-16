@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser, toHeaderUser } from '@/features/auth/current-user'
 import { getIsAdmin } from '@/features/auth/get-is-admin'
 import { SiteHeader } from '@/components/site-header'
 import { AwardsShowcase } from '@/features/awards/components'
@@ -17,25 +17,9 @@ import { AWARDS } from '@/features/awards/award-config'
  * /awards is auth-guarded via proxy (not in PUBLIC_PATHS).
  */
 export default async function AwardsPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+  const user = await getCurrentUser()
   const isAdmin = user ? await getIsAdmin() : false
-
-  // Header identity from OAuth session metadata — no extra profile query.
-  const headerUser = user
-    ? {
-        name:
-          (user.user_metadata?.full_name as string | undefined) ??
-          (user.user_metadata?.name as string | undefined) ??
-          'Sunner',
-        avatarUrl:
-          (user.user_metadata?.avatar_url as string | undefined) ??
-          (user.user_metadata?.picture as string | undefined),
-      }
-    : null
+  const headerUser = toHeaderUser(user)
 
   return (
     <div style={{ background: 'rgba(0,16,26,1)', minHeight: '100vh' }}>
