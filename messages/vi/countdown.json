@@ -10,6 +10,7 @@
     "hours": "GIỜ",
     "minutes": "PHÚT",
     "done": "Sự kiện đã bắt đầu!",
+    "enterEvent": "Vào sự kiện",
     "invalidConfig": "Thông tin sự kiện chưa được cấu hình.",
     "footer": "Bản quyền thuộc về Sun* © 2025",
     "timerAriaLabel": "{days} ngày {hours} giờ {minutes} phút còn lại"

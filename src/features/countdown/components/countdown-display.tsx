@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { montserrat } from '@/features/auth/fonts'
 import { CountdownLedBlock } from './countdown-led-block'
@@ -65,9 +66,11 @@ export function CountdownDisplay({ countdown }: CountdownDisplayProps) {
 
   if (countdown.done) {
     return (
-      // mm:countdown-done
+      // mm:countdown-done — text + CTA. Timer đã chạm 0 ngay trên tab đang mở,
+      // proxy chỉ re-gate trên request mới → cần lối cho user chủ động rời trang.
+      // <Link> điều hướng = request mới → proxy thấy event đã start → cho qua /board.
       <div
-        className="flex items-center justify-center rounded-xl px-8 py-6 text-center"
+        className="flex flex-col items-center gap-5 rounded-xl px-8 py-6 text-center"
         style={{
           background: 'rgba(255,234,158,0.08)',
           border: '1px solid rgba(255,234,158,0.35)',
@@ -83,6 +86,20 @@ export function CountdownDisplay({ countdown }: CountdownDisplayProps) {
         >
           {t('done')}
         </p>
+        {/* CTA gold — dùng token sẵn có trong file: bg #FFEA9E, text #00101A
+            (nền trang), radius 12px (khớp led-block). Không bịa giá trị mới. */}
+        <Link
+          href="/board"
+          className={`${montserrat.className} inline-flex items-center justify-center rounded-xl px-6 py-3 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFEA9E]`}
+          style={{
+            background: '#FFEA9E',
+            color: '#00101A',
+            fontSize: 'clamp(0.875rem, 1.6vw, 1rem)',
+            fontWeight: 700,
+          }}
+        >
+          {t('enterEvent')}
+        </Link>
       </div>
     )
   }
