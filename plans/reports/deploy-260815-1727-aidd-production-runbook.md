@@ -31,11 +31,12 @@ GitHub (branch main-app) ──auto-deploy──▶ Vercel (Next.js 16 SSR + Ser
   | `NEXT_PUBLIC_SUPABASE_URL` | Supabase Project URL | public |
   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | key MỚI `sb_publishable_…` | public |
   | `SUPABASE_SERVICE_ROLE_KEY` | key MỚI `sb_secret_…` | secret |
-  | `EVENT_START_AT` | ISO 8601 | (gate thực đọc DB, xem §4) |
+  | ~~`EVENT_START_AT`~~ | ISO 8601 | ⚠️ **ENV CHẾT — không code nào đọc.** Xoá khỏi Vercel; giờ launch chỉ do DB `event_config.event_start_at` quyết định (xem §4). |
   | `GOOGLE_CLIENT_ID` | SAA Prod | — |
   | `GOOGLE_CLIENT_SECRET` | SAA Prod | secret |
   - **KHÔNG set** `NEXT_PUBLIC_ENABLE_DEV_LOGIN` → `/dev-login` 404 ở prod (đúng, chặn bypass auth).
   - `SUPABASE_DB_URL` KHÔNG đưa lên Vercel (chỉ để seed từ máy).
+  - ⚠️ **`EVENT_START_AT` đã set trên Vercel prod nhưng là env chết** — gỡ khi tiện (repo đã bỏ khỏi `.env.local`/`.env.example` ngày 2026-08-16).
 
 ## 2. Backend — Supabase (schema + seed)
 - Project `ngsvtvfhgtarbzvlfyrz`, region ap-northeast-1 (Tokyo), **Postgres 17.6** (khớp `config.toml`), ACTIVE_HEALTHY.

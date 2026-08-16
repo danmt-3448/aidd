@@ -3,7 +3,7 @@
 **Priority:** High · **Status:** ✅ DONE (2026-08-15) · **Depends on:** 01 · **Owner role:** deployer / fe-developer
 
 > ✅ **Deployed 2026-08-15.** Production live: `https://agentic-coding-hands-on-dusky.vercel.app` (HTTP 200, build green 54s).
-> Production branch on Vercel = **`main-app`** (app code; the repo's original `main` was unrelated workshop-docs history — no common ancestor with the app, backed up as `main-template-backup`). 6 env vars set (Supabase cloud URL + `sb_publishable_`/`sb_secret_` keys + EVENT_START_AT + Google prod). `NEXT_PUBLIC_ENABLE_DEV_LOGIN` intentionally omitted. Site currently renders `/countdown` (pre-launch gate + empty DB) — expected until Phase 02 seed.
+> Production branch on Vercel = **`main-app`** (app code; the repo's original `main` was unrelated workshop-docs history — no common ancestor with the app, backed up as `main-template-backup`). env vars set (Supabase cloud URL + `sb_publishable_`/`sb_secret_` keys + Google prod). `NEXT_PUBLIC_ENABLE_DEV_LOGIN` intentionally omitted. Site currently renders `/countdown` (pre-launch gate + empty DB) — expected until Phase 02 seed.
 
 ## Goal
 Ship the Next.js 16 app to Vercel Hobby with GitHub auto-deploy and the full env-var set. No code changes.
@@ -11,7 +11,7 @@ Ship the Next.js 16 app to Vercel Hobby with GitHub auto-deploy and the full env
 ## Context Links
 - `next.config.ts` (next-intl plugin — no special export config; SSR default, correct for Vercel)
 - Env keys used in code: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
-  `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_URL`, `EVENT_START_AT`, `GOOGLE_CLIENT_ID/SECRET`
+  `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_URL`, `GOOGLE_CLIENT_ID/SECRET`
 
 ## Steps
 1. Merge `develop` → `main` and push to GitHub `origin`. **Production branch = `main`** (no separate staging).
@@ -22,7 +22,6 @@ Ship the Next.js 16 app to Vercel Hobby with GitHub auto-deploy and the full env
    | `NEXT_PUBLIC_SUPABASE_URL` | cloud URL | public |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | cloud anon | public |
    | `SUPABASE_SERVICE_ROLE_KEY` | cloud service_role | **secret, server-only** |
-   | `EVENT_START_AT` | event start ISO | as in local |
    | `GOOGLE_CLIENT_ID` | OAuth client id | set in Phase 04 too |
    | `GOOGLE_CLIENT_SECRET` | OAuth client secret | **secret** |
    | `NEXT_PUBLIC_ENABLE_DEV_LOGIN` | **DO NOT SET** | absence → dev-login 404 in prod |

@@ -10,6 +10,7 @@
     "hours": "HOURS",
     "minutes": "MINUTES",
     "done": "The event has started!",
+    "enterEvent": "Enter event",
     "invalidConfig": "Event configuration is not available.",
     "footer": "Copyright © Sun* 2025",
     "timerAriaLabel": "{days} days {hours} hours {minutes} minutes remaining"

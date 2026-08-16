@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isPreLaunch, isBypassPath } from './launch-gate'
+import { isPreLaunch, isPostLaunch, isBypassPath } from './launch-gate'
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -58,6 +58,54 @@ describe('isPreLaunch', () => {
       // Cannot assert the exact value without mocking time, but it must be
       // a boolean and not throw.
       expect(typeof isPreLaunch(FUTURE_ISO)).toBe('boolean')
+    })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// isPostLaunch — powers the /countdown post-launch lock. NOT the complement of
+// isPreLaunch: both are false for null/invalid (intentional fail-open).
+// ---------------------------------------------------------------------------
+
+describe('isPostLaunch', () => {
+  describe('fail-open: missing / invalid config (must NOT report launched)', () => {
+    it('returns false when eventStartAt is null', () => {
+      expect(isPostLaunch(null, NOW_MS)).toBe(false)
+    })
+
+    it('returns false when eventStartAt is undefined', () => {
+      expect(isPostLaunch(undefined, NOW_MS)).toBe(false)
+    })
+
+    it('returns false when eventStartAt is an empty string', () => {
+      expect(isPostLaunch('', NOW_MS)).toBe(false)
+    })
+
+    it('returns false when eventStartAt is not a valid date', () => {
+      expect(isPostLaunch('not-a-date', NOW_MS)).toBe(false)
+    })
+  })
+
+  describe('post-launch (now >= eventStartAt)', () => {
+    it('returns true when launch is in the past', () => {
+      expect(isPostLaunch(PAST_ISO, NOW_MS)).toBe(true)
+    })
+
+    it('returns true at the exact launch moment (boundary: now === launchMs)', () => {
+      expect(isPostLaunch(EXACT_ISO, NOW_MS)).toBe(true)
+    })
+  })
+
+  describe('pre-launch (now < eventStartAt)', () => {
+    it('returns false when launch is in the future', () => {
+      expect(isPostLaunch(FUTURE_ISO, NOW_MS)).toBe(false)
+    })
+  })
+
+  describe('null/invalid: neither pre- nor post-launch (fail-open on both sides)', () => {
+    it('both helpers return false for null (no forced redirect either way)', () => {
+      expect(isPreLaunch(null, NOW_MS)).toBe(false)
+      expect(isPostLaunch(null, NOW_MS)).toBe(false)
     })
   })
 })
