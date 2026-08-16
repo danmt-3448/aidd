@@ -58,9 +58,9 @@ Chuyển trang "render chậm / behavior chậm". Không phải bundle (audit `2
 |---|-------|------|------|---------|
 | 0 | [Baseline measurement (prod)](phase-00-baseline-measurement.md) | ✅ DONE | — | đã đo — xem trên |
 | 1 | [updateSession getUser → getClaims](phase-06-updatesession-getclaims.md) | ✅ DONE | TB (auth/guard) | **MW getUser 24–134ms → getClaims local 1–6ms**; test 5/5, e2e pass |
-| 2 | [Board data consolidation 8→1–2 actions](phase-07-board-data-consolidation.md) | P1 | TB–Cao | **8× POST/board — "spam" thực** |
+| 2 | [Board data consolidation 8→1–2 actions](phase-07-board-data-consolidation.md) | ⏸️ DEFER | TB–Cao | **DEFER 260816** — 4/8 hook realtime-coupled (rewire rủi ro); 4 còn lại staleTime lệch (gộp ép chung cache); Phase 06 đã xoá cost chính/POST → ROI marginal. Xem note phase file. |
 | 3 | [Dedupe page auth (React cache)](phase-02-dedupe-auth.md) | ✅ DONE | Thấp | page getUser **2→1 (đo prod: awards render = 1 call)**; +DRY toHeaderUser |
-| 4 | [Loading states (loading.tsx)](phase-01-loading-states.md) | P1 | Thấp | perceived (page-await, KHÔNG proxy) |
+| 4 | [Loading states (loading.tsx)](phase-01-loading-states.md) | ✅ DONE | Thấp | 6 route có skeleton tức thì; shared RouteLoading (brand spinner, giá trị lấy từ BoardLoadingGate) |
 | 5 | [Link prefetch + giảm scope prefetch](phase-04-link-prefetch.md) | P2 | Thấp | **SAU #1** (prefetch nhân getUser ~100ms×3/page) |
 | 6 | [Proxy post-launch skip 2 query (cache)](phase-03-proxy-shortcircuit.md) | ❌ DROPPED | TB (route guard) | **DROP 260816** — baseline: 2 query đã Promise.all song song → lợi latency ~0, không bõ độ phức tạp cache edge (YAGNI, user chốt) |
 | 7 | [Board hydration Suspense](phase-05-board-hydration.md) | P3 | TB | client TBT (giữ nếu đo có lợi) |

@@ -1,6 +1,8 @@
 # Phase 01 — Loading states (`loading.tsx`)
 
-**Priority:** P1 · **Risk:** Thấp · **Status:** pending
+**Priority:** P1 · **Risk:** Thấp · **Status:** ✅ DONE (260816)
+
+> **Kết quả:** shared `src/components/route-loading.tsx` (spinner brand `#FFEA9E` trên bg `rgba(0,16,26,1)` — lấy nguyên từ `BoardLoadingGate`, không chế) + `loading.tsx` cho board/profile/notifications/kudos/awards/secret-box. Skeleton hiện tức thì khi nav (che phần page-await). Visual loaded-board KHÔNG đổi. tsc+lint xanh.
 
 > **⚠️ Red-team F2:** `loading.tsx` che phần *page-await* (getUser/query trong Server Component) — **KHÔNG che latency proxy/middleware** (proxy chạy trước khi RSC stream; trang cũ đứng im trong lúc đó). Nếu Phase 00 cho thấy proxy là bottleneck chính, phase này giảm "đơ" chỉ một phần — Phase 06 (proxy getClaims) mới xoá phần còn lại. Vẫn làm (rẻ), đừng kỳ vọng xoá hết cảm giác đơ.
 

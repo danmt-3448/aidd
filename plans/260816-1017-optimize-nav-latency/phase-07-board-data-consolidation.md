@@ -1,6 +1,12 @@
 # Phase 07 — Board data consolidation (8 server actions → 1–2)
 
-**Priority:** P1 · **Risk:** TB–Cao · **Status:** pending · **Depends:** Phase 00 (đã đo) · **Nguồn:** baseline-260816-prod-nav.md (PHÁT HIỆN MỚI)
+**Priority:** P1 · **Risk:** TB–Cao · **Status:** ⏸️ DEFER (260816) · **Depends:** Phase 00 · **Nguồn:** baseline-260816-prod-nav.md
+
+> **QUYẾT ĐỊNH DEFER (phản biện sau khi đọc code thật):**
+> 1. **4/8 hook realtime-coupled** — `use-board-feed`, `use-highlights`, `use-spotlight`, `use-spotlight-activity` đều có `.channel().subscribe()`. Gộp initial-fetch của chúng buộc phải rewire subscription trên board live → rủi ro cao cho core feature.
+> 2. **4 hook non-realtime staleTime lệch** — hashtag/department (5 phút) vs user-stats (60s) vs gift-leaderboard (5 phút). Gộp 1 query = ép chung 1 cache lifetime, mất granularity (downside thật).
+> 3. **Phase 06 đã xoá cost chính** — mỗi `POST /board` trước tốn 40–130ms getUser middleware, giờ getClaims ~2ms. ROI gộp còn marginal.
+> ⇒ Bản "8→1-2 sạch" plan tưởng tượng KHÔNG khớp thiết kế hook thật. YAGNI → defer. Muốn làm lại: chỉ nên gộp 2 catalog tĩnh (hashtag+department, cùng 5min) = 8→7, win nhỏ; hoặc chờ đo prod Vercel thấy round-trip thật sự đau.
 
 ## Context (đo được, không đoán)
 Baseline prod: 1 lần mở `/board` = **8× `POST /board` server actions** fire song song lúc mount (feed, highlights, spotlight, spotlight-activity, board-user-stats, gift-leaderboard, hashtag-list, department-list). Mỗi POST đi qua middleware → 1 `MW getUser` (~40–100 ms). Board data query hầu như không getUser nội bộ → cost chính = **8 HTTP round-trip, mỗi cái mang thuế middleware getUser + latency mạng**.
