@@ -69,6 +69,14 @@ _(Nothing merged to main yet — all work is on `develop`.)_
   working. Route-guard behavior (redirects, pre-launch gate) is unchanged.
   Trade-off: a revoked/banned user stays valid until token expiry (≤ token TTL) — accepted
   for a nav guard. Measured prod: 24–134ms/call → 1–6ms/call (27/28 local, 1 network fallback).
+- **Per-request `getUser()` dedupe** — new `src/features/auth/current-user.ts` exports
+  `getCurrentUser()` wrapped in React `cache()`, plus a shared `toHeaderUser()` mapper. A route
+  page + `getIsAdmin()` previously issued two `getUser()` calls per render; they now share one
+  (verified prod: an `/awards` render makes a single call). The duplicated SiteHeader identity
+  mapping was removed from all six route pages (DRY).
+- **Route-level loading states** — added `loading.tsx` to board, profile, notifications, kudos,
+  awards, secret-box (shared `RouteLoading` spinner). Navigation now shows an instant fallback
+  during the route's server render instead of freezing on the previous page.
 
 ### Performance
 - **BE indexes + RLS hoisting:** new migration `20260804000000_perf_indexes_and_rpc.sql` — added
