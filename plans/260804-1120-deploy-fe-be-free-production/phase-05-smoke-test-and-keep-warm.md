@@ -12,7 +12,7 @@ verdict the evidence gate requires before deploy is called done.
 3. **Kudos realtime:** create a kudo → appears without reload; open a 2nd tab/user → sees it live.
 4. **Hearts:** send/receive a heart; count updates.
 5. **Secret box:** open the box RPC path → reward flow works.
-6. **Event countdown:** reflects `EVENT_START_AT`.
+6. **Event countdown:** reflects DB `event_config.event_start_at` (not an env var).
 7. **RLS / security:** logged-out user cannot read protected data; `/dev-login` → 404.
 8. Check Vercel function logs + Supabase logs for errors during the run.
 

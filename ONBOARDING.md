@@ -56,7 +56,6 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | copy `anon key` từ `supabase status` |
 | `SUPABASE_SERVICE_ROLE_KEY` | copy `service_role key` từ `supabase status` (server-only) |
 | `SUPABASE_DB_URL` | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` |
-| `EVENT_START_AT` | vd `2026-09-01T00:00:00+07:00` (nguồn chính là bảng `event_config`; xem §7) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | chỉ cần cho Google login; local có thể bỏ qua và dùng `/dev-login` |
 | `NEXT_PUBLIC_ENABLE_DEV_LOGIN` | `true` (bật màn `/dev-login` email+password cho local) |
 
@@ -90,7 +89,7 @@ npm run dev             # http://localhost:3001
 - **Dev login** (dễ nhất): mở `http://localhost:3001/dev-login` → email seeded (vd `an.thi.xuan@sun-asterisk.com`) + password `TestPass123!`.
 - **Google OAuth**: cần `GOOGLE_CLIENT_ID/SECRET` + cấu hình redirect trong Supabase (xem deploy runbook §3). Local thường dùng dev-login cho nhanh.
 
-> Trước `EVENT_START_AT` (countdown), non-admin bị đẩy sang `/countdown`. Muốn vào home để dev: set 1 user `is_admin=true`, hoặc chỉnh `event_config.event_start_at` về quá khứ (xem §7).
+> Trước giờ sự kiện (countdown), non-admin bị đẩy sang `/countdown`. Giờ launch đọc từ bảng `event_config.event_start_at` (KHÔNG có env). Muốn vào home để dev: set 1 user `is_admin=true`, hoặc chỉnh `event_config.event_start_at` về quá khứ (xem §7).
 
 ---
 

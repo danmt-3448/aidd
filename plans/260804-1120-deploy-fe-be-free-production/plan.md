@@ -30,7 +30,7 @@ Consultation: `plans/reports/brainstorm-260804-1120-deploy-fe-be-free.md`
 
 ```
 GitHub repo ──git push──▶ Vercel (Next.js SSR + Server Actions + middleware)
-                             │  env: NEXT_PUBLIC_SUPABASE_*, SERVICE_ROLE, GOOGLE_*, EVENT_START_AT
+                             │  env: NEXT_PUBLIC_SUPABASE_*, SERVICE_ROLE, GOOGLE_*
                              ▼
                         Supabase Cloud (free)  →  Postgres + Auth + RLS + RPC + Realtime + Storage
 ```
