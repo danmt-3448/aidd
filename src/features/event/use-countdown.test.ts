@@ -140,33 +140,43 @@ describe('useCountdown — valid future eventStartAt', () => {
     expect(totalSeconds).toBeLessThanOrEqual(60)
   })
 
-  it('seconds decrease by 1 after one interval tick', async () => {
+  it('minute value ticks down after a full minute (ceil granularity)', async () => {
     mockGetEventConfig.mockResolvedValue({
-      eventStartAt: FUTURE_90S,
+      eventStartAt: FUTURE_90S, // 90 s → ceil = 2 minutes
       heartsSpecialMultiplier: 2,
     })
     const { result } = renderCountdownHook()
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
-    const before = result.current.seconds // should be 30
+    const before = result.current.minutes // 2
+    expect(before).toBe(2)
 
-    act(() => { vi.advanceTimersByTime(1_000) })
+    // 60 s of ticks later ~30 s remain → ceil to 1 minute. Seconds are never
+    // displayed, so they stay 0 throughout (minute-granular display).
+    act(() => { vi.advanceTimersByTime(60_000) })
 
-    expect(result.current.seconds).toBe(before - 1)
+    expect(result.current.minutes).toBe(before - 1)
+    expect(result.current.seconds).toBe(0)
+    expect(result.current.done).toBe(false)
   })
 
-  it('values continue decreasing across multiple ticks', async () => {
+  it('counts down minute-by-minute and reaches done', async () => {
+    mockGetEventConfig.mockResolvedValue({
+      eventStartAt: FUTURE_90S, // ceil → 2 minutes
+      heartsSpecialMultiplier: 2,
+    })
     const { result } = renderCountdownHook()
     await waitFor(() => expect(result.current.isLoading).toBe(false))
+    expect(result.current.minutes).toBe(2)
+    expect(result.current.done).toBe(false)
 
-    // Capture whatever the hook computed immediately after load
-    const initialTotal = result.current.minutes * 60 + result.current.seconds
+    act(() => { vi.advanceTimersByTime(60_000) }) // ~30 s remain → 1 minute
+    expect(result.current.minutes).toBe(1)
+    expect(result.current.done).toBe(false)
 
-    act(() => { vi.advanceTimersByTime(3_000) })
-
-    const afterTotal = result.current.minutes * 60 + result.current.seconds
-    // 3 ticks of 1 s each must reduce the total by exactly 3
-    expect(initialTotal - afterTotal).toBe(3)
+    act(() => { vi.advanceTimersByTime(60_000) }) // crosses 0 → done
+    expect(result.current.done).toBe(true)
+    expect(result.current).toMatchObject({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   })
 })
 

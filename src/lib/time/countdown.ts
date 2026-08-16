@@ -51,11 +51,17 @@ export function computeRemaining(targetIso: string, nowMs: number): CountdownVal
     return { days: 0, hours: 0, minutes: 0, seconds: 0, done: true }
   }
 
-  const totalSeconds = Math.floor(remainingMs / 1000)
-  const days = Math.floor(totalSeconds / 86400)
-  const hours = Math.floor((totalSeconds % 86400) / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-  const seconds = totalSeconds % 60
+  // Round UP to whole minutes. The UI shows only Days/Hours/Minutes (seconds
+  // are tracked but never rendered), so a floor would display a frozen "0 phút"
+  // for the entire final sub-minute while done stays false — the counter looks
+  // finished up to 59s before the button appears. Ceiling makes it count
+  // …3 → 2 → 1 → done, hitting done exactly at event_start_at. Trade-off: near a
+  // whole-minute boundary the top digit may read one minute high (round-up).
+  const totalMinutes = Math.ceil(remainingMs / 60000)
+  const days = Math.floor(totalMinutes / 1440)
+  const hours = Math.floor((totalMinutes % 1440) / 60)
+  const minutes = totalMinutes % 60
 
-  return { days, hours, minutes, seconds, done: false }
+  // Seconds are not displayed and are meaningless at minute granularity.
+  return { days, hours, minutes, seconds: 0, done: false }
 }
