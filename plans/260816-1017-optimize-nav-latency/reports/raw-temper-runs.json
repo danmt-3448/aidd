@@ -1,0 +1,17 @@
+[
+  {
+    "command": "npm run test",
+    "exitCode": 0,
+    "summary": "Vitest: 45 test files, 576 tests passed, 0 failed. Duration 9.50s."
+  },
+  {
+    "command": "npx playwright test e2e/countdown.spec.ts --project=public",
+    "exitCode": 0,
+    "summary": "Playwright public: 5 tests passed (auth guard + pre-launch gate), 0 failed. Duration 12.0s."
+  },
+  {
+    "command": "npx playwright test e2e/board.spec.ts e2e/profile.spec.ts e2e/auth-check.spec.ts --project=authed",
+    "exitCode": 1,
+    "summary": "Playwright authed: 32 tests passed (board 16, auth-check 1, profile 15), 3 failed (pre-existing Radix/Turbopack dropdown visibility, not auth-related). Duration 20.7s."
+  }
+]

@@ -48,6 +48,9 @@ lands a report in `plans/reports/`.
 - [ ] TanStack Query — sensible `staleTime`; no refetch storms; not duplicating Server Component data.
 - [ ] No large sync work on the main thread (sanitize-html, mention parsing) blocking INP.
 - [ ] Route segment config correct (static where possible; `dynamic` only where needed).
+- [x] **Middleware auth cost** — `updateSession()` uses `getClaims()` local JWKS verify (~1–6ms);
+  `getUser()` network fallback only on expired/absent claims. Per-request auth round-trip (~40–130ms)
+  is eliminated. No budget action needed unless `getClaims` is reverted.
 
 ## 3. BE Checklist
 
