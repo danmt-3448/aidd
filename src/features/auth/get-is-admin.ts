@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from './current-user'
 
 /**
  * Returns whether the calling user has `is_admin = true` in their profile.
@@ -11,14 +12,11 @@ import { createClient } from '@/lib/supabase/server'
  * - Safe to call from Server Components, Route Handlers, and Server Actions.
  */
 export async function getIsAdmin(): Promise<boolean> {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+  // Shared per-request user resolver — dedupes getUser() with the calling page.
+  const user = await getCurrentUser()
   if (!user) return false
 
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('profiles')
     .select('is_admin')

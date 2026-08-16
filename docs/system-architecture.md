@@ -98,7 +98,9 @@ src/
 │   ├── supabase/
 │   │   ├── client.ts      createClient() — browser (createBrowserClient)
 │   │   ├── server.ts      createClient() — server async (createServerClient + cookies())
-│   │   └── middleware.ts  updateSession() — refreshes Supabase session in proxy
+│   │   └── middleware.ts  updateSession() — refreshes Supabase session in proxy;
+│   │                      verifies identity via getClaims() (local ES256/JWKS, ~1–6ms),
+│   │                      falls back to getUser() (network) on missing/expired/errored claims
 │   ├── query/
 │   │   ├── query-client.ts  makeQueryClient(), getQueryClient() — SSR-safe singleton
 │   │   └── query-provider.tsx  <QueryProvider> — mounts QueryClientProvider client-side
@@ -138,7 +140,9 @@ Browser
 ```
 Request → src/proxy.ts
   │
-  ├─ 1. updateSession(request)          // refresh Supabase session cookie
+  ├─ 1. updateSession(request)          // getClaims() local verify (ES256/JWKS, ~1–6ms);
+  │                                     // getUser() network fallback on expired/absent claims
+  │                                     // (token refresh + cookie sync happen on fallback path)
   ├─ 2. Auth fast-path
   │       user + path=/login → redirect /
   │       !user + !isPublic  → redirect /login (no DB query)

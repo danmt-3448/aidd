@@ -64,28 +64,38 @@ describe('computeRemaining — future target', () => {
     expect(result).toEqual({ days: 1, hours: 0, minutes: 0, seconds: 0, done: false })
   })
 
-  it('returns correct values for 23h 59m 59s away', () => {
+  it('rounds 23h 59m 59s UP to exactly 1 day (ceil at minute granularity)', () => {
     const nowMs = new Date('2025-08-01T00:00:01.000Z').getTime()
-    const target = '2025-08-02T00:00:00.000Z' // 86399 s from now
+    const target = '2025-08-02T00:00:00.000Z' // 86399 s from now → 1439.98 min → ceil 1440 = 1 day
     const result = computeRemaining(target, nowMs)
-    expect(result).toEqual({ days: 0, hours: 23, minutes: 59, seconds: 59, done: false })
+    expect(result).toEqual({ days: 1, hours: 0, minutes: 0, seconds: 0, done: false })
   })
 
-  it('returns correct values for less than 1 minute remaining', () => {
+  it('rounds a sub-minute remainder UP to 1 minute (never shows a frozen 0)', () => {
+    // 45 s left → ceil to 1 minute so the counter reads "1", not a stuck "0",
+    // until done fires at exactly 0. This is the fix for the last-minute UX gap.
     const target = '2025-08-01T00:00:45.000Z'
     const nowMs = new Date('2025-08-01T00:00:00.000Z').getTime()
     const result = computeRemaining(target, nowMs)
-    expect(result).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 45, done: false })
+    expect(result).toEqual({ days: 0, hours: 0, minutes: 1, seconds: 0, done: false })
   })
 
-  it('correctly decomposes a mixed days/hours/minutes/seconds value', () => {
-    // 2d + 3h + 14m + 22s = 2*86400 + 3*3600 + 14*60 + 22 = 184462 s
+  it('rounds leftover seconds UP into the minute when decomposing d/h/m', () => {
+    // 2d 3h 14m 22s → the 22 s bumps minutes 14 → 15 (ceil), seconds not shown.
     const totalSeconds = 2 * 86400 + 3 * 3600 + 14 * 60 + 22
     const nowMs = new Date('2025-08-01T00:00:00.000Z').getTime()
     const targetMs = nowMs + totalSeconds * 1000
     const target = new Date(targetMs).toISOString()
     const result = computeRemaining(target, nowMs)
-    expect(result).toEqual({ days: 2, hours: 3, minutes: 14, seconds: 22, done: false })
+    expect(result).toEqual({ days: 2, hours: 3, minutes: 15, seconds: 0, done: false })
+  })
+
+  it('a whole-minute remainder is NOT rounded up (no phantom extra minute)', () => {
+    // exactly 5 minutes → stays 5, not 6 (ceil of an exact multiple = itself)
+    const nowMs = new Date('2025-08-01T00:00:00.000Z').getTime()
+    const target = new Date(nowMs + 5 * 60_000).toISOString()
+    const result = computeRemaining(target, nowMs)
+    expect(result).toEqual({ days: 0, hours: 0, minutes: 5, seconds: 0, done: false })
   })
 
   it('returns raw value for > 99 days without capping', () => {
@@ -99,14 +109,14 @@ describe('computeRemaining — future target', () => {
     expect(result.done).toBe(false)
   })
 
-  it('done is false when 1 millisecond remains', () => {
+  it('done is false when 1 millisecond remains (rounds up to 1 minute)', () => {
     const nowMs = new Date('2025-08-01T00:00:00.000Z').getTime()
-    const targetMs = nowMs + 1 // 1 ms ahead → 0 whole seconds, but remaining > 0
+    const targetMs = nowMs + 1 // 1 ms ahead → remaining > 0 → NOT done
     const target = new Date(targetMs).toISOString()
     const result = computeRemaining(target, nowMs)
-    // Math.floor(1ms / 1000) = 0 seconds, but remainingMs > 0 → done=false
+    // remainingMs > 0 → done=false; ceil(1ms) → 1 minute shown, seconds always 0
     expect(result.done).toBe(false)
-    expect(result.seconds).toBe(0)
+    expect(result).toEqual({ days: 0, hours: 0, minutes: 1, seconds: 0, done: false })
   })
 })
 

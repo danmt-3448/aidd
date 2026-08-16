@@ -108,10 +108,15 @@ npm run seed:auth      # seed lại auth users
 npx tsc --noEmit       # typecheck (chạy sau mỗi lần sửa file)
 ```
 
-**Chỉnh countdown/event (DB là nguồn thật):**
+**Chỉnh countdown/event (DB `event_config` là nguồn thật — KHÔNG có env):**
 ```bash
-psql "$SUPABASE_DB_URL" -c "update event_config set event_start_at='2026-08-01T00:00:00+07' where id=1;"
+npm run event:pre    # event +10 phút → còn đếm ngược (/countdown vào được)
+npm run event:soon   # event +20 giây → xem tick về 0 (hiện nút "Vào sự kiện")
+npm run event:live   # event -1 ngày → đã mở (/countdown tự đá về /board)
+# hoặc đặt giờ cụ thể:
+psql "$SUPABASE_DB_URL" -c "update event_config set event_start_at='2026-09-01T00:00:00+07' where id=1;"
 ```
+> Sau khi event start (post-launch), `/countdown` tự redirect về `/board`; nếu đang mở sẵn tab thì màn "done" hiện nút **"Vào sự kiện"**. Đổi xong reload là ăn ngay (proxy đọc DB mỗi request).
 
 **Set admin (vào home trước countdown):**
 ```bash
@@ -173,6 +178,7 @@ Xem runbook đầy đủ: **`plans/reports/deploy-260815-1727-aidd-production-ru
 | `supabase start` fail | Docker chưa chạy → `colima start` (hoặc mở Docker Desktop) |
 | App load nhưng board trống / lỗi query | Chưa `npm run db:reset` (DB chưa có schema/seed) |
 | Login xong vẫn ở `/countdown` | Đúng thiết kế: trước `event_start_at` non-admin bị gate. Set admin hoặc chỉnh `event_config` (§7) |
+| Vào `/countdown` bị đá về `/board` | Đúng thiết kế: event đã start (post-launch) → `/countdown` khoá. `npm run event:pre` để xem lại (§7) |
 | Google login "Unable to exchange external code" | Secret Google trong **Supabase → Sign In / Providers → Google** lệch secret thật → cập nhật + Save |
 | `psql`/`db push` "failed to connect" tới cloud | Direct host `db.<ref>.supabase.co` là **IPv6-only** → dùng **session pooler** `aws-0-<region>.pooler.supabase.com:5432` |
 | Seeded user không login được | Phải seed qua `seed:auth` (admin API), không INSERT thẳng `auth.users` |
@@ -180,5 +186,5 @@ Xem runbook đầy đủ: **`plans/reports/deploy-260815-1727-aidd-production-ru
 
 ---
 
-_Cập nhật 2026-08-15. Chi tiết AI/quy tắc: `CLAUDE.md`. Chi tiết deploy: `plans/reports/deploy-260815-1727-aidd-production-runbook.md`._
+_Cập nhật 2026-08-16. Chi tiết AI/quy tắc: `CLAUDE.md`. Chi tiết deploy: `plans/reports/deploy-260815-1727-aidd-production-runbook.md`._
 </content>
