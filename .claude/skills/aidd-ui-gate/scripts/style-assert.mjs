@@ -128,8 +128,11 @@ function cmpProp(prop, codeV, designV, codeOpacity, designOpacity) {
     return { prop, code: c, design: d, ok: c != null && c === d }
   }
   if (PX_PROPS.has(prop)) {
-    const c = px(codeV)
-    const d = px(designV)
+    // `letter-spacing: normal` computes to 0 for spacing purposes; getComputedStyle
+    // serializes an explicit 0px back to `normal`. Treat them as equal (avoids false-FAIL).
+    const norm = (v) => (prop === 'letterSpacing' && String(v).trim().toLowerCase() === 'normal' ? '0px' : v)
+    const c = px(norm(codeV))
+    const d = px(norm(designV))
     return { prop, code: c, design: d, ok: c != null && d != null && Math.abs(c - d) <= PX_TOL }
   }
   // string props (border shorthand, tag, src) → exact string compare

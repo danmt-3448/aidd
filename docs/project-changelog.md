@@ -7,7 +7,17 @@ Dates and descriptions derived from `git log` (branch `develop`). Commits listed
 
 ## [Unreleased]
 
-_(Nothing merged to main yet — all work is on `develop`.)_
+_(All work is on `develop`; production deploys from `main-app`.)_
+
+### Added — 2026-08-17 (Secret box — UI-First Gate)
+
+- **Secret box instrumented + gated** — tagged `secret-box-modal.tsx` with `data-fig` node IDs
+  (from MoMorph `get_node`, screen `J3-4YFIpMM`); added `sizes` to the box/glow `next/image`.
+  UI-First Gate **PASS**: property-diff exit 0 @ 1440 + 1280 (6 elements / 27 checks), 1920 no-break,
+  behavior verified on real seeded data (open flow → badge reveal + decrement, empty/disable at 0,
+  close → /board). Report `plans/reports/ui-gate-260817-secret-box.md`.
+- **`style-assert.mjs`** — treat `letter-spacing: normal` ≡ `0px` (getComputedStyle serializes an
+  explicit `0px` back to `normal`); removes a false-FAIL class. Self-test green.
 
 ### Added — 2026-08-06 (Phases 5–6 + gate hardening)
 
