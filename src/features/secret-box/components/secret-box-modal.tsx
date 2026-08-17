@@ -26,6 +26,8 @@ export function SecretBoxModal({
 
   return (
     <div
+      data-fig-key="modal"
+      data-fig="1466:7676"
       className="relative flex w-full max-w-[652px] flex-col items-center"
       style={{
         background: '#00101A',
@@ -40,6 +42,8 @@ export function SecretBoxModal({
         {onClose != null && <div className="w-[19px] flex-shrink-0" aria-hidden />}
 
         <h2
+          data-fig-key="title"
+          data-fig="1466:7678"
           className="min-w-0 flex-1 px-1 text-center"
           style={{
             fontFamily: 'Montserrat, sans-serif',
@@ -87,6 +91,8 @@ export function SecretBoxModal({
       {unopened > 0 && (
         <div className="flex items-center justify-center">
           <span
+            data-fig-key="guidance"
+            data-fig="1466:7683"
             style={{
               fontFamily: 'Montserrat, sans-serif',
               fontWeight: 700,
@@ -109,6 +115,7 @@ export function SecretBoxModal({
           alt=""
           aria-hidden
           fill
+          sizes="(max-width: 557px) 100vw, 557px"
           style={{ objectFit: 'contain', pointerEvents: 'none' }}
           priority
         />
@@ -132,9 +139,12 @@ export function SecretBoxModal({
             <SecretBoxSpinner />
           ) : (
             <Image
+              data-fig-key="boxAsset"
+              data-fig-asset="1466:7686"
               src={currentBadge != null ? currentBadge.imageSrc : '/secret-box/box-qua-chua-mo.svg'}
               alt="Secret box"
               fill
+              sizes="(max-width: 557px) 100vw, 557px"
               style={{ objectFit: 'contain' }}
               priority
             />
@@ -149,6 +159,8 @@ export function SecretBoxModal({
       {/* Figma J3-4YFIpMM: "Secretbox chưa mở  05" — text precedes the large number */}
       <div className="flex items-center" style={{ gap: '6.36px' }}>
         <span
+          data-fig-key="counterLabel"
+          data-fig="1466:7692"
           style={{
             fontFamily: 'Montserrat, sans-serif',
             fontWeight: 700,
@@ -161,6 +173,8 @@ export function SecretBoxModal({
           Secretbox chưa mở
         </span>
         <span
+          data-fig-key="counterNum"
+          data-fig="1466:7693"
           style={{
             fontFamily: 'Montserrat, sans-serif',
             fontWeight: 700,
