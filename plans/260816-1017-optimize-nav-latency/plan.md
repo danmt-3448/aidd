@@ -1,6 +1,6 @@
 ---
 title: Optimize navigation latency (App Router + Supabase)
-status: approved
+status: completed
 work_type: deliverable
 spec_waived: "Behavior-preserving performance refactor — no new business logic or screen spec. Config-safe; every phase must preserve current behavior. Verified by existing unit + e2e suites."
 blockedBy: []
