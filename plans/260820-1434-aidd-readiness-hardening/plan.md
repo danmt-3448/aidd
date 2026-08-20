@@ -1,6 +1,6 @@
 ---
 title: AIDD Readiness Hardening — vá 4 nhóm lỗ hổng (Traceability, Docs anti-drift, Verification, Tooling read-only)
-status: in-progress
+status: completed
 revision: "260820-1520 — P1 DONE (runtime-verified), P2 DONE (code-verified), P3 PARTIAL (coverage floor + baseline set, e2e gap specs deferred — Supabase down), P4 CODE-DONE (readonly role migration written, runtime-verification pending — Supabase down). Reviewer APPROVED_WITH_CONDITIONS on forge; reviewer conditions addressed (stmt threshold 37→36, docs:sync printf newline, active-plan.sh convention comment)."
 work_type: deliverable
 spec_waived: "Infra/process hardening — không có product feature mới; config + git hooks + npm scripts + 1 migration read-only role. Behavior sản phẩm không đổi."

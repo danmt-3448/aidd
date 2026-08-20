@@ -2,7 +2,7 @@
 
 ## Overview
 - **Priority:** P4 (Tooling 6.5→~8)
-- **Status:** code-complete, runtime-verification pending
+- **Status:** completed (runtime-verified 2026-08-20 — db:reset ×2 idempotent, SELECT ok, writes denied)
 - Hiện agent đọc DB qua `psql *` (full quyền). Cấp **role read-only** để agent đọc an toàn, không ghi nhầm. Migration written; runtime test deferred (Supabase local down).
 
 ## Key insights

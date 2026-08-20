@@ -2,7 +2,7 @@
 
 ## Overview
 - **Priority:** P3 (Verification 8.5→~9)
-- **Status:** in-progress
+- **Status:** completed (coverage floor + 2 e2e gap specs verified 2026-08-20)
 - Verification đã "test thật không mock" (điểm mạnh). Coverage floor ✓ DONE; e2e gap specs DEFERRED (Supabase down).
 
 ## Key insights
