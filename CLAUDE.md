@@ -214,6 +214,8 @@ npm run test:e2e       # e2e (playwright) — requires dev server + Supabase loc
 npm run seed:auth      # seed users via GoTrue admin API (auth.admin.createUser)
 npm run db:reset       # supabase db reset + seed:auth (schema + hashtags + users)
 npm run analyze        # bundle analyzer (ANALYZE=true next build)
+npm run hooks:install  # activate git hooks in .githooks/ (warn-only: plan-ref + docs-drift)
+npm run docs:sync      # check docs/ vs src/ for drift; advises /tkm:rebuild-spec for full regen
 npx tsc --noEmit       # typecheck only — run after every file edit
 ```
 
@@ -249,6 +251,11 @@ cp .mcp.example.json .mcp.json   # Claude Code tự nạp .mcp.json khi mở pro
 - **playwright** — `npx @playwright/mcp@latest`, không cần secret.
 
 > ⛔ `.mcp.json` đã gitignore (có thể chứa token thật). Chỉ commit `.mcp.example.json` với placeholder — KHÔNG bao giờ commit token thật.
+
+**Git hooks** — `.githooks/` chứa two warn-only hooks (commit-msg plan-ref nudge, pre-push docs-drift warning). Auto-activated on `npm install` via `prepare`. Install manually if needed:
+```bash
+npm run hooks:install
+```
 
 **Takumi kit (skills / agents / commands / hooks / templates)** — phần lớn KHÔNG vendor vào repo (`.gitignore` chặn `.claude/*`, chỉ whitelist `rules/`, `settings.json`, `roles/`, và skill project). Kit sống ở global. Teammate onboarding — chạy **một lần**:
 ```bash

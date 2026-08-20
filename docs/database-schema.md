@@ -183,6 +183,16 @@
 - Ghi `kudos`: qua `create_kudo()` RPC (security invoker). Ghi `hearts`: owner INSERT với self-heart check.
 - Storage bucket ảnh kudos: INSERT/DELETE bởi owner `{uid}/`, SELECT for authenticated.
 
+## Read-only access for agents (`aidd_readonly`, local dev only)
+
+Migration `20260820000000_readonly_role.sql` creates a `LOGIN` role with `SELECT`-only on all public tables and sequences (existing + future via `ALTER DEFAULT PRIVILEGES`). Use it for agent/tooling DB introspection to avoid accidental writes.
+
+```
+psql postgresql://aidd_readonly:changeme_local_only@127.0.0.1:54322/postgres
+```
+
+This role is local dev only — not present on Supabase hosted; password is a fixed placeholder, not a real secret.
+
 ## Coverage — màn đã build
 
 | Màn | Status | Entity chính |
