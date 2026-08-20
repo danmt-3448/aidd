@@ -1,7 +1,7 @@
 ---
 title: SAA 2025 — required 8 features (scoped rebuild plan)
 work_type: feature
-status: superseded
+status: cancelled
 cleanup_note: "2026-08-13 — reference/comparison artifact; superseded by 260803-1636-saa2025-remaining-7-screens. Kept in place, not archived."
 blockedBy: []
 blocks: []

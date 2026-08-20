@@ -1,7 +1,7 @@
 ---
 title: SAA 2025 — 7 remaining spec-ready screens
 work_type: feature
-status: in_progress
+status: completed
 blockedBy: []
 blocks: []
 clarifications: plans/260803-1636-saa2025-remaining-7-screens/clarifications.md

@@ -1,7 +1,7 @@
 ---
 title: "UI Parity Fixes — SAA 2025 built screens"
 description: "Fix audited UI-parity drift across 9 built screens + unblock 3 crashing screens"
-status: pending
+status: cancelled
 priority: P1
 effort: 17h
 branch: develop

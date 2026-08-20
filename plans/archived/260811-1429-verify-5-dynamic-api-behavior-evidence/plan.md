@@ -1,3 +1,9 @@
+---
+status: cancelled
+archived: true
+reconciled: "260820 — draft approach superseded by aidd-spec-verify skill"
+---
+
 # Plan — Verify 5 Dynamic Screens: API + Behavior + Test Evidence
 
 **Created:** 2026-08-11 · **Branch:** develop · **Status:** DRAFT (awaiting approval)

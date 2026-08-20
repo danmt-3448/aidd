@@ -1,7 +1,7 @@
 ---
 title: "Home UI Parity Check & Fix — SAA 2025"
 description: "Audit built Homepage (screen i87tDx10uM) vs MoMorph + Figma at 1440/1280 pixel-perfect ≥99%, then fix visual drift"
-status: superseded
+status: cancelled
 superseded_by: 260806-0711-ui-pixel-parity-fix
 priority: P1
 effort: 9h

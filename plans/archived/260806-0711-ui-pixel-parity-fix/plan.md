@@ -3,7 +3,7 @@ title: "UI Parity Fix — property-diff gate (số) + band overlay + 11 màn"
 description: "Đổi cây thước gate: property-diff (getComputedStyle vs get_node) làm CỔNG CỨNG, band-diff hạ xuống overlay. Ép build gắn data-fig + export asset thật. Rồi fix UI 11 màn theo chuẩn mới."
 work_type: feature
 spec_waived: "UI-parity FIX + tooling gate trên màn đã build; design source = MoMorph frames + Figma nodes (đã có). Không author spec feature mới."
-status: in_progress
+status: completed
 priority: P1
 branch: develop
 created: 2026-08-06

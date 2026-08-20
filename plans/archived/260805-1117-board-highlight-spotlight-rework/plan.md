@@ -1,5 +1,5 @@
 ---
-status: superseded
+status: cancelled
 superseded_by: 260806-0711-ui-pixel-parity-fix
 blockedBy: [260806-0711-ui-pixel-parity-fix]
 ---
