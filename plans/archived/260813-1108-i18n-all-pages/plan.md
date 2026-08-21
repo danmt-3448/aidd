@@ -1,6 +1,6 @@
 ---
 title: i18n cho tất cả các page (VN/EN)
-status: in_progress
+status: completed
 work_type: deliverable
 spec_waived: internal-refactor — không có feature spec mới; chỉ trích chuỗi hardcode ra i18n catalog. UI/behavior không đổi ở locale mặc định (vi).
 created: 260813-1108

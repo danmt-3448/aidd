@@ -1,7 +1,7 @@
 ---
 title: "Spotlight Board — live activity feed, search-nav, fullscreen, visual fidelity"
 description: "Fix 4 Spotlight gaps: realtime activity feed, search→profile nav, fullscreen, Figma nebula bg"
-status: pending
+status: completed
 priority: P2
 effort: 12h
 branch: develop

@@ -1,3 +1,9 @@
+---
+status: completed
+archived: true
+reconciled: "260820 — page+route+e2e exist; redirect-at-0 fixed (commit 3e148ab)"
+---
+
 # Plan — Countdown 30s "cho có lệ" + redirect-at-0 (đúng MoMorph spec)
 
 > Date: 2026-08-13 · Branch: develop · Status: DRAFT for review

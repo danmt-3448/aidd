@@ -67,6 +67,7 @@ export default defineConfig({
         '**/root-redirect.spec.ts',
         '**/awards-rules-secret-box.spec.ts',
         '**/viet-kudo.spec.ts',
+        '**/notifications.spec.ts',
         '**/auth-check.spec.ts',
       ],
       use: {
