@@ -252,7 +252,7 @@ cp .mcp.example.json .mcp.json   # Claude Code tự nạp .mcp.json khi mở pro
 
 > ⛔ `.mcp.json` đã gitignore (có thể chứa token thật). Chỉ commit `.mcp.example.json` với placeholder — KHÔNG bao giờ commit token thật.
 
-**Git hooks** — `.githooks/` chứa two warn-only hooks (commit-msg plan-ref nudge, pre-push docs-drift warning). Auto-activated on `npm install` via `prepare`. Install manually if needed:
+**Git hooks** — `.githooks/` chứa two warn-only hooks (commit-msg plan-ref nudge; pre-push docs-drift warning + weekly rebuild-spec staleness nudge — fires when src/ moves >7d past last docs/ regen, escape `SKIP_REBUILD_NUDGE=1`). Auto-activated on `npm install` via `prepare`. Install manually if needed:
 ```bash
 npm run hooks:install
 ```

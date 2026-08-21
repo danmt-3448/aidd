@@ -38,4 +38,28 @@ if [ "$warned" = "1" ]; then
   } >&2
 fi
 
+# --- Weekly rebuild-spec staleness nudge (WARN-ONLY) ---------------------------
+# docs:sync only link-checks; full source-regeneration needs an agent
+# (/tkm:rebuild-spec). Nudge when src/ has moved on but docs/ have not been
+# regenerated for over a week — i.e. the newest src/ commit is >7 days newer
+# than the newest docs/ commit. Uses git history only — no marker file, no
+# manual upkeep. Escape once:  SKIP_REBUILD_NUDGE=1 git push ...
+if [ "${SKIP_REBUILD_NUDGE:-}" != "1" ]; then
+  docs_ct="$(git log -1 --format=%ct -- docs/ 2>/dev/null)"
+  src_ct="$(git log -1 --format=%ct -- src/ 2>/dev/null)"
+  week=604800
+  if [ -n "$docs_ct" ] && [ -n "$src_ct" ] && [ "$src_ct" -gt "$docs_ct" ] \
+     && [ "$((src_ct - docs_ct))" -gt "$week" ]; then
+    days="$(( (src_ct - docs_ct) / 86400 ))"
+    {
+      echo ""
+      echo "⚠  pre-push: docs/ not regenerated in ${days}d while src/ kept moving."
+      echo "   Docs are source-generated — link-check alone won't catch drift."
+      echo "   Run:  /tkm:rebuild-spec   (then review + commit docs/ changes)"
+      echo "   Skip once with:  SKIP_REBUILD_NUDGE=1 git push ..."
+      echo ""
+    } >&2
+  fi
+fi
+
 exit 0   # warn-only — the push always proceeds
