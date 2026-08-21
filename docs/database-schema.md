@@ -185,13 +185,17 @@
 
 ## Read-only access for agents (`aidd_readonly`, local dev only)
 
-Migration `20260820000000_readonly_role.sql` creates a `LOGIN` role with `SELECT`-only on all public tables and sequences (existing + future via `ALTER DEFAULT PRIVILEGES`). Use it for agent/tooling DB introspection to avoid accidental writes.
+Migration `20260820000000_readonly_role.sql` creates a `NOLOGIN` role with `SELECT`-only on all public tables and sequences (existing + future via `ALTER DEFAULT PRIVILEGES`). Use it for agent/tooling DB introspection to avoid accidental writes.
+
+The role has **no password and cannot be connected to directly** — there is no credential to leak. Introspect by connecting as a superuser and dropping into the role for the session:
 
 ```
-psql postgresql://aidd_readonly:changeme_local_only@127.0.0.1:54322/postgres
+psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c "SET ROLE aidd_readonly; SELECT ...;"
 ```
 
-This role is local dev only — not present on Supabase hosted; password is a fixed placeholder, not a real secret.
+- Writes are denied (`ERROR: permission denied for table ...`).
+- **RLS caveat:** `aidd_readonly` is non-superuser, so `SELECT` on RLS-enabled tables (`profiles`, `kudos`, …) returns only policy-permitted rows — usually none. It is meant for **schema / non-RLS introspection**; it is intentionally **not** granted `BYPASSRLS`.
+- Safe even if applied to a hosted cluster: it creates a login-less, write-less role, not an exposed weak-credential account.
 
 ## Coverage — màn đã build
 
