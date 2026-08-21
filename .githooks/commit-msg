@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# commit-msg hook — Traceability nudge (WARN-ONLY, never blocks).
+#
+# Personal project, no ticket tracker: the plan directory is the work-unit anchor.
+# When an active plan is detected (from the branch name) and the commit message has no
+# reference to it, remind the author to add a `Plan: <slug>` trailer. Never rejects a commit.
+#
+# Escape once:  SKIP_PLAN_REF=1 git commit ...
+[ "${SKIP_PLAN_REF:-}" = "1" ] && exit 0
+
+hook_dir="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib/active-plan.sh
+. "$hook_dir/lib/active-plan.sh"
+
+msg_file="$1"
+[ -z "$msg_file" ] && exit 0
+
+slug="$(resolve_active_plan_slug)" || exit 0   # no active plan → nothing to nudge
+
+if ! grep -qF "$slug" "$msg_file"; then
+  {
+    echo ""
+    echo "⚠  commit-msg: active plan detected ($slug) but this commit has no plan reference."
+    echo "   Traceability nudge (warn-only). Add a trailer to link commit ↔ plan:"
+    echo "       Plan: $slug"
+    echo "   Skip once with:  SKIP_PLAN_REF=1 git commit ..."
+    echo ""
+  } >&2
+fi
+
+exit 0   # warn-only — the commit always succeeds

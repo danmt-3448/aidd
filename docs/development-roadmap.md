@@ -113,7 +113,7 @@
 
 ## Phase 7 — Polish + Production Readiness (Done)
 
-**Status:** Done — all screens delivered; deploy live; secret-box gated 2026-08-17.
+**Status:** Done — all screens delivered; deploy live; secret-box gated 2026-08-17; infra hardening 2026-08-20.
 
 - [x] Fixed header (sticky → fixed overlay) with content offsets for all routes
 - [x] Z-index layering: rules/secret-box/compose modals above fixed header
@@ -122,6 +122,9 @@
 - [x] Notifications UI (`/notifications`, `/notifications/panel`) — accepted as-is: no MoMorph visual spec exists → logic-pass = pass (no visual gate applicable)
 - [x] Secret box open flow — UI + logic + RPC (`open_secret_box()`, migration `20260731110000`); **UI-First Gate PASS** (property-diff 1440+1280 + behavior on real seeded data — report `plans/reports/ui-gate-260817-secret-box.md`)
 - [x] `kudos_mentions` table migration — deferred by design (@mentions embedded in content_html; YAGNI)
+- [x] **Readiness hardening** (2026-08-20, PR #5) — git-hook infra (`.githooks/`, `hooks:install`, `docs:sync`),
+      PR template, coverage floor (`@vitest/coverage-v8`, baseline lines 37.82 / stmt 37.03 / func 33.5 / branch 32.65),
+      e2e gap specs (notifications + admin-smoke), `aidd_readonly` DB role (SELECT-only for agent introspection)
 
 > Responsive audit at 375 / 768 — **dropped**: UI-First Gate policy scores 1440 + 1280 (property-diff) + 1920 (no-break) only; 768/375 no longer gated (see `.claude/rules/ui-first-gate.md`).
 
@@ -155,5 +158,7 @@
 | `kudos_mentions` table | Deferred — @mentions embedded in content_html |
 | Notifications | Routes + UI + logic exist; accepted as-is (no MoMorph visual spec → logic-pass = pass) |
 | E2E with real Supabase session injection | In-progress |
+| Git hooks + docs-drift guard | Done — `.githooks/` + `hooks:install` + `docs:sync` (2026-08-20) |
+| Coverage regression floor | Done — `@vitest/coverage-v8` baseline wired (2026-08-20) |
 
 > Schema reference: `docs/database-schema.md`

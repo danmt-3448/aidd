@@ -1,3 +1,9 @@
+---
+status: completed
+archived: true
+reconciled: "260820 — seed:demo + seed-demo-data.sql run OK (verified 260820)"
+---
+
 # Plan — Realistic, operable seed demo data (local skew + real images + remote dev seed)
 
 > Date: 2026-08-13 · Branch: develop · Status: DRAFT for review

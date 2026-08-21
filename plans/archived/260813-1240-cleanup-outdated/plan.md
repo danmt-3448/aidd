@@ -1,3 +1,9 @@
+---
+status: completed
+archived: true
+reconciled: "260820 — cleanup commits landed; old plans archived"
+---
+
 # Plan — Cleanup outdated docs / plans / artifacts (NO code, NO i18n churn)
 
 > Date: 2026-08-13 · Branch: develop · Status: DRAFT for review

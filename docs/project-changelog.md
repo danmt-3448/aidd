@@ -9,6 +9,21 @@ Dates and descriptions derived from `git log` (branch `develop`). Commits listed
 
 _(All work is on `develop`; production deploys from `main-app`.)_
 
+### Chore — 2026-08-20 (AIDD Readiness Hardening)
+
+- **Git-hook infra** — `.githooks/commit-msg` (warn-only plan-ref nudge) and `.githooks/pre-push`
+  (docs-drift warn when `src/` changes without `docs/`); `npm run hooks:install` + `prepare` script
+  auto-sets `core.hooksPath`; `npm run docs:sync` runs `validate-docs.cjs` and points to
+  `/tkm:rebuild-spec`. `.github/PULL_REQUEST_TEMPLATE.md` added.
+- **Coverage floor** — `@vitest/coverage-v8` added; baseline regression floor: lines 37.82 /
+  stmt 37.03 / func 33.5 / branch 32.65. Tests fail if coverage drops below baseline.
+- **E2E gap specs** — `e2e/notifications.spec.ts` and `e2e/admin-smoke.spec.ts` added (admin
+  Playwright project was previously empty).
+- **`aidd_readonly` DB role** — migration `20260820000000_readonly_role.sql`; SELECT-only Postgres
+  role for safe agent introspection in local dev. Verified idempotent across `db:reset`.
+
+No product behavior change. Branch `chore/aidd-readiness-hardening` → PR #5 → `develop`.
+
 ### Added — 2026-08-17 (Secret box — UI-First Gate)
 
 - **Secret box instrumented + gated** — tagged `secret-box-modal.tsx` with `data-fig` node IDs

@@ -1,6 +1,6 @@
 ---
 title: Performance Audit & Safe Improvement — Plan
-status: approved
+status: completed
 date: 2026-08-15
 spec: ./spec.md
 deploy_target: Vercel
